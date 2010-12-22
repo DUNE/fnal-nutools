@@ -1,8 +1,8 @@
 ///
 /// \file    ScanWindow.cxx
-/// \brief   view for hand scanning
+/// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ScanWindow.cxx,v 1.2 2010-12-22 18:34:42 p-nusoftart Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
