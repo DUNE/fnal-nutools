@@ -1,22 +1,22 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+// $Id: classes.h,v 1.2 2011-01-19 16:44:04 p-nusoftart Exp $
 // $Author: p-nusoftart $
-// $Date: 2010-12-22 16:18:52 $
+// $Date: 2011-01-19 16:44:04 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
 // Notes:
 // 1) The system is not able to deal with
-//    edm::Wrapper<std::vector<std::string> >;
+//    art::Wrapper<std::vector<std::string> >;
 //    The problem is somewhere inside root's reflex mechanism
 //    and Philippe Canal says that it is ( as of March 2010) a
 //    known problem.  He also says that they do not have any
 //    plans to fix it soon.  We can always work around it 
 //    by putting the string inside another object.
 
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "art/Persistency/Common/Wrapper.h"
 
 // nutools includes
 #include "SimulationBase/simbase.h"
@@ -26,8 +26,8 @@
 // Do not include the objects they contain internally.
 //
 
-template class edm::Wrapper< std::vector<simb::MCNeutrino> >;
-template class edm::Wrapper< std::vector<simb::MCTrajectory> >;
-template class edm::Wrapper< std::vector<simb::MCParticle> >;
-template class edm::Wrapper< std::vector<simb::MCTruth> >;
-template class edm::Wrapper< std::vector<simb::MCFlux> >;
+template class art::Wrapper< std::vector<simb::MCNeutrino> >;
+template class art::Wrapper< std::vector<simb::MCTrajectory> >;
+template class art::Wrapper< std::vector<simb::MCParticle> >;
+template class art::Wrapper< std::vector<simb::MCTruth> >;
+template class art::Wrapper< std::vector<simb::MCFlux> >;

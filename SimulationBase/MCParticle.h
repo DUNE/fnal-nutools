@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCParticle.h,v 1.2 2011-01-19 16:44:04 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
-#include "DataFormats/Common/interface/Ptr.h"
+#include "art/Persistency/Common/Ptr.h"
 #include "SimulationBase/MCTrajectory.h"
 
 #include <math.h>
