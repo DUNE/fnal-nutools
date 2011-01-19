@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: G4Helper.cxx,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -174,7 +174,7 @@ void G4Helper::InitMC()
 }
 
 //------------------------------------------------
-bool G4Helper::G4Run(edm::PtrVector<simb::MCTruth>& primaries) 
+bool G4Helper::G4Run(art::PtrVector<simb::MCTruth>& primaries) 
 {
   // Get the event converter ready.
   fConvertMCTruth->Reset();
@@ -182,9 +182,9 @@ bool G4Helper::G4Run(edm::PtrVector<simb::MCTruth>& primaries)
 //   std::cout << "there are " << primaries.size() << " MCTruth objects in this event" <<std::endl;
 
   // For each MCTruth:
-  for(edm::PtrVector<simb::MCTruth>::const_iterator i = primaries.begin(); i != primaries.end(); ++i ){
+  for(art::PtrVector<simb::MCTruth>::const_iterator i = primaries.begin(); i != primaries.end(); ++i ){
 
-    edm::Ptr<simb::MCTruth> primary(*i);
+    art::Ptr<simb::MCTruth> primary(*i);
     
 //     std::cout << "therer are " << primary->NParticles() << " in primary" << std::endl;
 

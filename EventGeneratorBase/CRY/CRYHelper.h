@@ -5,7 +5,7 @@
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
 /// 
-/// \version $Id: CRYHelper.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: CRYHelper.h,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -24,7 +24,7 @@ namespace evgb {
   class CRYHelper {
   public:
     CRYHelper();
-    explicit CRYHelper(edm::ParameterSet const& pset);
+    explicit CRYHelper(art::ParameterSet const& pset);
     ~CRYHelper();
 
     void Sample(simb::MCTruth& mctruth, double* w);

@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.h,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -16,7 +16,7 @@
 
 class TH1D;
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -30,7 +30,7 @@ namespace evgb{
     
   public:
   
-    explicit GENIEHelper(edm::ParameterSet const& pset);
+    explicit GENIEHelper(art::ParameterSet const& pset);
     ~GENIEHelper();
 
     void                   Initialize();

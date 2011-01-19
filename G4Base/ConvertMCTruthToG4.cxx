@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.cxx
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ConvertMCTruthToG4.cxx,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ void ConvertMCTruthToG4::Reset()
 }
 
 //-----------------------------------------------------
-void ConvertMCTruthToG4::Append( edm::Ptr<simb::MCTruth>& mct )
+void ConvertMCTruthToG4::Append( art::Ptr<simb::MCTruth>& mct )
 {
   fConvertList.push_back( mct );
 }
@@ -86,9 +86,9 @@ void ConvertMCTruthToG4::GeneratePrimaries( G4Event* event )
   std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >                  vertexMap;
   std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi; 
   // For each MCTruth (probably only one, but you never know):
-  for( edm::PtrVector<simb::MCTruth>::const_iterator mci = fConvertList.begin(); mci != fConvertList.end(); ++mci ){
+  for( art::PtrVector<simb::MCTruth>::const_iterator mci = fConvertList.begin(); mci != fConvertList.end(); ++mci ){
     
-    edm::Ptr<simb::MCTruth> mct(*mci);
+    art::Ptr<simb::MCTruth> mct(*mci);
 
     // For each simb::MCParticle in the MCTruth:
     for ( int p = 0; p != mct->NParticles(); ++p ){

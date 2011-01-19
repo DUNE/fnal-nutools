@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: CRYHelper.cxx,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -19,8 +19,8 @@
 #include "TLorentzVector.h"
 
 // Framework includes
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // NuTools include files
 #include "EventGeneratorBase/evgenbase.h"
@@ -47,7 +47,7 @@ namespace evgb{
   }
 
   //......................................................................
-  CRYHelper::CRYHelper(edm::ParameterSet const& pset) :
+  CRYHelper::CRYHelper(art::ParameterSet const& pset) :
     fSampleTime(pset.getParameter< double      >("SampleTime")     ),
     fToffset   (pset.getParameter< double      >("TimeOffset")     ),
     fEthresh   (pset.getParameter< double      >("EnergyThreshold")),
@@ -132,7 +132,7 @@ namespace evgb{
 	double pz = ptot * cryp->u();
       
 
-	edm::Service<geo::Geometry> geo;
+	art::Service<geo::Geometry> geo;
 
 	// Particle start position. CRY distributes uniformly in x-y
 	// plane at fixed z, where z is the vertical direction. This

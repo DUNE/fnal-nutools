@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: G4Helper.h,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -24,8 +24,8 @@
 #include <cstring>
 
 // ART Includes
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
 
 // Forward declarations
 class G4RunManager;
@@ -55,7 +55,7 @@ namespace g4b {
 
     /// This is the method that actually passes the MCTruth objects to 
     /// G4 and gets back a list of particles
-    bool G4Run(edm::PtrVector<simb::MCTruth> &primaries);
+    bool G4Run(art::PtrVector<simb::MCTruth> &primaries);
 
   protected:
     // These variables are "protected" rather than private, because I

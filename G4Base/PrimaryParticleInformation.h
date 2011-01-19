@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -37,8 +37,8 @@
 #include "G4Allocator.hh"
 
 // ART Includes
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
 
 
 // Forward declaration for this namespace.
@@ -58,8 +58,8 @@ namespace g4b {
 /*     inline void operator delete(void*); */
     
     // Accessors:
-    const edm::Ptr<simb::MCTruth>& GetMCTruth() const { return m_MCTruth; }
-    void SetMCTruth( edm::Ptr<simb::MCTruth> m ) { m_MCTruth = m; }
+    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return m_MCTruth; }
+    void SetMCTruth( art::Ptr<simb::MCTruth> m ) { m_MCTruth = m; }
 
     // Required by Geant4:
     void Print() const;
@@ -71,7 +71,7 @@ namespace g4b {
     // particle (although in that case it's more likely that a
     // G4Base::PrimaryParticleInformation object would not have been
     // created in the first place.)
-    edm::Ptr<simb::MCTruth> m_MCTruth;
+    art::Ptr<simb::MCTruth> m_MCTruth;
   };
 
 /*   // It's not likely, but there could be memory issues with these */

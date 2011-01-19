@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -58,8 +58,8 @@
 #include "Geometry/geo.h"
 
 // Framework includes
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace evgb{
@@ -72,7 +72,7 @@ namespace evgb{
   static const int kNuTauBar = 5;
 
   //--------------------------------------------------
-  GENIEHelper::GENIEHelper(edm::ParameterSet const& pset) :
+  GENIEHelper::GENIEHelper(art::ParameterSet const& pset) :
     fGeomD             (0),
     fFluxD             (0),
     fFluxD2GMCJD       (0),
@@ -242,7 +242,7 @@ namespace evgb{
   //--------------------------------------------------
   void GENIEHelper::InitializeGeometry()
   {
-    edm::Service<geo::Geometry> geo;
+    art::Service<geo::Geometry> geo;
     genie::geometry::ROOTGeomAnalyzer *rgeom = new genie::geometry::ROOTGeomAnalyzer(geo->ROOTGeoManager());
 
     ///the detector geometry uses cgs units.
