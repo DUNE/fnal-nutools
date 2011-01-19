@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: JobMenu.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -126,7 +126,7 @@ void JobMenu::HandleMenu(int menu)
 
 void JobMenu::EditConfig(int i)
 {  
-  edm::Service<evdb::EventDisplay> evd;
+  art::Service<evdb::EventDisplay> evd;
   evd->EditWorkerParameterSet(i);
 }
 

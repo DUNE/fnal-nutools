@@ -1,14 +1,14 @@
 ///
 /// \file    EventHolder.h
-/// \brief   Singleton to hold the current edm::Event for the event display
+/// \brief   Singleton to hold the current art::Event for the event display
 /// \author  brebel@fnal.gov
-/// \version $Id: EventHolder.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: EventHolder.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 ///
 #ifndef EVDB_EVENTHOLDER_H
 #define EVDB_EVENTHOLDER_H
 #ifndef __CINT__
 
-#include "FWCore/Framework/interface/Event.h"
+#include "art/Framework/Core/Event.h"
 
 namespace evdb {
   
@@ -17,15 +17,15 @@ namespace evdb {
   public:
     static EventHolder* Instance();
 
-    void SetEvent(edm::Event const* evt);
-    const edm::Event* GetEvent() const;
+    void SetEvent(art::Event const* evt);
+    const art::Event* GetEvent() const;
 
   private:
 
     EventHolder();
     ~EventHolder();
 
-    const edm::Event* fEvent; ///< the Event
+    const art::Event* fEvent; ///< the Event
   };
 
 }

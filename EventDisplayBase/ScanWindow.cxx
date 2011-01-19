@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.2 2010-12-22 18:34:42 p-nusoftart Exp $
+/// \version $Id: ScanWindow.cxx,v 1.3 2011-01-19 16:44:59 p-nusoftart Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -21,8 +21,8 @@
 #include "EventDisplayBase/EventHolder.h"
 #include "SimulationBase/simbase.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "art/Framework/Core/Event.h"
+#include "art/Framework/Services/Registry/Service.h"
 
 static int kInputID = 0;
 
@@ -48,7 +48,7 @@ namespace evdb{
   
     //grab the ScanOptions service and loop over the categories to make a 
     // ScanFrame for each
-    edm::Service<evdb::ScanOptions> opts;
+    art::Service<evdb::ScanOptions> opts;
 
     // set up the file name to store the information
     std::string user(gSystem->Getenv("USER"));
@@ -260,10 +260,10 @@ namespace evdb{
   //......................................................................
   void ScanWindow::Rec()
   {
-    edm::Service<evdb::ScanOptions> scanopt;
+    art::Service<evdb::ScanOptions> scanopt;
 
     // get the event information
-    const edm::Event *evt = evdb::EventHolder::Instance()->GetEvent();
+    const art::Event *evt = evdb::EventHolder::Instance()->GetEvent();
     
     std::ofstream outfile(fOutFileName.c_str(), std::ios_base::app);
 
@@ -311,10 +311,10 @@ namespace evdb{
 //     // do we need to get the truth information?
 //     if(scanopt->fIncludeMCInfo){
 
-//       edm::Handle< std::vector<simb::MCTruth> > mclist;
+//       art::Handle< std::vector<simb::MCTruth> > mclist;
 //       evt->getByLabel(mcopt->fMCTruthModules[0], mclist);
 
-//       edm::Ptr<simb::MCTruth> mc(mclist,0);
+//       art::Ptr<simb::MCTruth> mc(mclist,0);
 //       const simb::MCNeutrino& neutrinoInteraction = mc->GetNeutrino();
 	  
 //       if ( mc->Origin() != simb::kBeamNeutrino ){

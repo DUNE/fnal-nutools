@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ScanOptions.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+// $Id: ScanOptions.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 //
 // Display parameters for the hand scan view
 //
@@ -11,7 +11,7 @@
 namespace evdb {
 
   //......................................................................
-  ScanOptions::ScanOptions(edm::ParameterSet const& pset, edm::ActivityRegistry& reg) 
+  ScanOptions::ScanOptions(art::ParameterSet const& pset, art::ActivityRegistry& reg) 
   {
     fIncludeMCInfo     = pset.getParameter< bool                      >("IncludeMCInfo");
     fScanFileBase      = pset.getParameter< std::string               >("FileNameBase");

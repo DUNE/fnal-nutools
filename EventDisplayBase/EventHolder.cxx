@@ -1,8 +1,8 @@
 ///
 /// \file    EventHolder.h
-/// \brief   Singleton to hold the current edm::Event for the event display
+/// \brief   Singleton to hold the current art::Event for the event display
 /// \author  brebel@fnal.gov
-/// \version $Id: EventHolder.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: EventHolder.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 ///
 #include <iostream>
 #include "EventDisplayBase/EventHolder.h"
@@ -29,7 +29,7 @@ namespace evdb{
   }
 
   //---------------------------------------------------------
-  void EventHolder::SetEvent(edm::Event const* evt)
+  void EventHolder::SetEvent(art::Event const* evt)
   {
     if(fEvent){
 //       std::cerr << "event is already loaded, resetting it" << std::endl;
@@ -42,10 +42,10 @@ namespace evdb{
   }
  
   //---------------------------------------------------------
-  const edm::Event* EventHolder::GetEvent() const
+  const art::Event* EventHolder::GetEvent() const
   {
 //     if(!fEvent){
-//       std::cerr << "No edm::Event set to return, handing back null pointer" << std::endl;
+//       std::cerr << "No art::Event set to return, handing back null pointer" << std::endl;
 //     }
     return fEvent;
   }

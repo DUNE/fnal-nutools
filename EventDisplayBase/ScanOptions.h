@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ScanOptions.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+// $Id: ScanOptions.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 //
 // Display parameters for scanning
 //
@@ -11,15 +11,15 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/Service.h"
 
 namespace evdb {
   class ScanOptions 
   {
   public:
-    ScanOptions(edm::ParameterSet const& pset, edm::ActivityRegistry& reg);
+    ScanOptions(art::ParameterSet const& pset, art::ActivityRegistry& reg);
     ~ScanOptions();
     
     bool        fIncludeMCInfo;           ///> true if MC information is to be included in scan output

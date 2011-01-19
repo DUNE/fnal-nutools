@@ -3,7 +3,7 @@
 /// \brief A window, dressed with menus and buttons, that displays
 /// dector information
 ///
-/// \version $Id: DisplayWindow.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: DisplayWindow.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_DISPLAYWINDOW_H
@@ -15,7 +15,7 @@
 
 
 class TGMainFrame;
-namespace edm { 
+namespace art { 
   class Worker; 
 }
 namespace evdb {

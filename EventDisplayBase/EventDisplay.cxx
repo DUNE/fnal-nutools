@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -19,10 +19,10 @@
 #include "TText.h"
 #include "TCanvas.h"
 // ART includes
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Framework/interface/InputSource.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "art/ParameterSet/Registry.h"
+#include "art/Framework/Core/InputSource.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Core/Worker.h"
 
 using namespace evdb;
 
@@ -67,8 +67,8 @@ static evdb::Canvas* mk_canvas1(TGMainFrame* mf) {
 
 //......................................................................
 
-EventDisplay::EventDisplay(edm::ParameterSet const& pset,
-			   edm::ActivityRegistry& reg) :
+EventDisplay::EventDisplay(art::ParameterSet const& pset,
+			   art::ActivityRegistry& reg) :
   fAutoAdvanceInterval(pset.getParameter<unsigned int>("AutoAdvanceInterval"))
 {
 //   evdb::DisplayWindow::Register("Test1","Test display #1",600,900,mk_canvas1);
@@ -85,8 +85,8 @@ EventDisplay::~EventDisplay() { }
 
 //......................................................................
 
-void EventDisplay::postBeginJobWorkers(edm::InputSource* input_source,
-				       std::vector<edm::Worker*> const& w) 
+void EventDisplay::postBeginJobWorkers(art::InputSource* input_source,
+				       std::vector<art::Worker*> const& w) 
 {
   fInputSource = input_source;
 
@@ -110,9 +110,9 @@ void EventDisplay::postBeginJobWorkers(edm::InputSource* input_source,
 
 void EventDisplay::EditWorkerParameterSet(int i) 
 {
-  edm::ParameterSet params;
+  art::ParameterSet params;
   
-  edm::pset::Registry::instance()->
+  art::pset::Registry::instance()->
     getMapped(fWorkers[i]->description().parameterSetID(), params);
   
   std::string newpset;
@@ -125,16 +125,16 @@ void EventDisplay::EditWorkerParameterSet(int i)
 
 //......................................................................
 
-void EventDisplay::preProcessEvent(edm::EventID const& evtid,
-				   edm::Timestamp const&) 
+void EventDisplay::preProcessEvent(art::EventID const& evtid,
+				   art::Timestamp const&) 
 {
   evdb::DisplayWindow::SetRunEventAll(evtid.run(), evtid.event());
 }
 
 //......................................................................
 
-void EventDisplay::postProcessEvent(edm::Event const& evt,
-				    edm::EventSetup const& )
+void EventDisplay::postProcessEvent(art::Event const& evt,
+				    art::EventSetup const& )
 {
   // stuff the event into the holder
   evdb::EventHolder *holder = evdb::EventHolder::Instance();
@@ -150,7 +150,7 @@ void EventDisplay::postProcessEvent(edm::Event const& evt,
   // Look to see if we have any new configurations to apply
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
     if (fParamSets[i]!="") {
-      edm::ParameterSet pset;
+      art::ParameterSet pset;
       pset.fromString(fParamSets[i]);
       fParamSets[i] = "";
       fWorkers[i]->reconfigure(std::cin, std::cout, pset);
