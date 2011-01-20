@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ScanOptions.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
+// $Id: ScanOptions.cxx,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
 //
 // Display parameters for the hand scan view
 //
@@ -11,14 +11,14 @@
 namespace evdb {
 
   //......................................................................
-  ScanOptions::ScanOptions(art::ParameterSet const& pset, art::ActivityRegistry& reg) 
+  ScanOptions::ScanOptions(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg) 
   {
-    fIncludeMCInfo     = pset.getParameter< bool                      >("IncludeMCInfo");
-    fScanFileBase      = pset.getParameter< std::string               >("FileNameBase");
-    fCategories        = pset.getParameter< std::vector<std::string>  >("Categories");
-    fFieldLabels       = pset.getParameter< std::vector<std::string>  >("FieldLabels");
-    fFieldTypes        = pset.getParameter< std::vector<std::string>  >("FieldTypes");
-    fFieldsPerCategory = pset.getParameter< std::vector<unsigned int> >("FieldsPerCategory");
+    fIncludeMCInfo     = pset.get< bool                      >("IncludeMCInfo");
+    fScanFileBase      = pset.get< std::string               >("FileNameBase");
+    fCategories        = pset.get< std::vector<std::string>  >("Categories");
+    fFieldLabels       = pset.get< std::vector<std::string>  >("FieldLabels");
+    fFieldTypes        = pset.get< std::vector<std::string>  >("FieldTypes");
+    fFieldsPerCategory = pset.get< std::vector<unsigned int> >("FieldsPerCategory");
   }
   
   //......................................................................

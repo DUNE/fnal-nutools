@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.3 2011-01-19 16:44:59 p-nusoftart Exp $
+/// \version $Id: ScanWindow.cxx,v 1.4 2011-01-20 16:43:29 p-nusoftart Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -22,7 +22,7 @@
 #include "SimulationBase/simbase.h"
 
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 static int kInputID = 0;
 
@@ -48,7 +48,7 @@ namespace evdb{
   
     //grab the ScanOptions service and loop over the categories to make a 
     // ScanFrame for each
-    art::Service<evdb::ScanOptions> opts;
+    art::ServiceHandle<evdb::ScanOptions> opts;
 
     // set up the file name to store the information
     std::string user(gSystem->Getenv("USER"));
@@ -260,7 +260,7 @@ namespace evdb{
   //......................................................................
   void ScanWindow::Rec()
   {
-    art::Service<evdb::ScanOptions> scanopt;
+    art::ServiceHandle<evdb::ScanOptions> scanopt;
 
     // get the event information
     const art::Event *evt = evdb::EventHolder::Instance()->GetEvent();

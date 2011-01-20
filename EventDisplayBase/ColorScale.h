@@ -3,7 +3,7 @@
 /// \brief Build an association between a numerical range and a ROOT
 /// color index
 ///
-/// \version $Id: ColorScale.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ColorScale.h,v 1.2 2011-01-20 16:43:29 p-nusoftart Exp $
 /// \author messier@indiana.edu
 ///
 #ifndef EVDB_COLORSCALE_H
@@ -44,7 +44,7 @@ namespace evdb {
 	       int which=kRainbow,
 	       int scale=kLinear,
 	       int n=40, 
-	       double h1=0, double h1=0, 
+	       double h1=0, double h2=0, 
 	       double v1=0, double v2=0);
 
     int  operator()(double x) const;

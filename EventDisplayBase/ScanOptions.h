@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ScanOptions.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
+// $Id: ScanOptions.h,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
 //
 // Display parameters for scanning
 //
@@ -13,13 +13,13 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 namespace evdb {
   class ScanOptions 
   {
   public:
-    ScanOptions(art::ParameterSet const& pset, art::ActivityRegistry& reg);
+    ScanOptions(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
     ~ScanOptions();
     
     bool        fIncludeMCInfo;           ///> true if MC information is to be included in scan output

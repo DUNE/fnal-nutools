@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -18,8 +18,12 @@
 #include "TApplication.h"
 #include "TText.h"
 #include "TCanvas.h"
+
 // ART includes
-#include "art/ParameterSet/Registry.h"
+#include "fhiclcpp/parse.h"
+#include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Worker.h"
@@ -67,9 +71,9 @@ static evdb::Canvas* mk_canvas1(TGMainFrame* mf) {
 
 //......................................................................
 
-EventDisplay::EventDisplay(art::ParameterSet const& pset,
+EventDisplay::EventDisplay(fhicl::ParameterSet const& pset,
 			   art::ActivityRegistry& reg) :
-  fAutoAdvanceInterval(pset.getParameter<unsigned int>("AutoAdvanceInterval"))
+  fAutoAdvanceInterval(pset.get<unsigned int>("AutoAdvanceInterval"))
 {
 //   evdb::DisplayWindow::Register("Test1","Test display #1",600,900,mk_canvas1);
 //   evdb::DisplayWindow::OpenWindow(0);
@@ -110,16 +114,15 @@ void EventDisplay::postBeginJobWorkers(art::InputSource* input_source,
 
 void EventDisplay::EditWorkerParameterSet(int i) 
 {
-  art::ParameterSet params;
+  fhicl::ParameterSet params;
   
-  art::pset::Registry::instance()->
-    getMapped(fWorkers[i]->description().parameterSetID(), params);
+  fhicl::ParameterSetRegistry::get(fWorkers[i]->description().parameterSetID(), params);
   
   std::string newpset;
   new ParameterSetEdit(0,
 		       fWorkers[i]->description().moduleName(),
 		       fWorkers[i]->description().moduleLabel(),
-		       params.toString(),
+		       params.to_string(),
 		       &fParamSets[i]);
 }
 
@@ -133,8 +136,7 @@ void EventDisplay::preProcessEvent(art::EventID const& evtid,
 
 //......................................................................
 
-void EventDisplay::postProcessEvent(art::Event const& evt,
-				    art::EventSetup const& )
+void EventDisplay::postProcessEvent(art::Event const& evt )
 {
   // stuff the event into the holder
   evdb::EventHolder *holder = evdb::EventHolder::Instance();
@@ -150,8 +152,10 @@ void EventDisplay::postProcessEvent(art::Event const& evt,
   // Look to see if we have any new configurations to apply
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
     if (fParamSets[i]!="") {
-      art::ParameterSet pset;
-      pset.fromString(fParamSets[i]);
+      fhicl::ParameterSet pset;
+      fhicl::intermediate_table itable;
+      fhicl::parse_document(fParamSets[i], itable); //returns a bool for error checking
+      fhicl::make_ParameterSet(itable, pset); //returns a bool for error checking
       fParamSets[i] = "";
       fWorkers[i]->reconfigure(std::cin, std::cout, pset);
     }

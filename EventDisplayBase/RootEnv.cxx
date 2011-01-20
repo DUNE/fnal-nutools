@@ -2,13 +2,14 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: RootEnv.cxx,v 1.2 2011-01-20 16:43:29 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <cstdlib>
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TStyle.h"
