@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2011-01-21 16:30:31 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.3 2011-01-21 20:01:26 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -18,7 +18,7 @@ override LDFLAGS += $(shell root-config --libs)
 
 override LOADLIBES += $(ROOTLIBS)
 
-LIBLINK     := $(LOADLIBES) -L$(FRAMEWORK_DIR)/sl5.x86_64/lib -lFWCoreServices -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
+LIBLINK     := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 
 # SUBDIRS     := test
 
