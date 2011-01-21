@@ -2,7 +2,7 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   ///must be set before this method is called.
 
   // Get the path to the GDML file from the Geometry interface.
-  art::Service<geo::Geometry> geometry;
+  art::ServiceHandle<geo::Geometry> geometry;
   const G4String GDMLfile = static_cast<const G4String>( geometry->GDMLFile() );
 
   G4GDMLParser pars;

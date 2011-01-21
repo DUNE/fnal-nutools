@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@
 #include "Geometry/geo.h"
 
 // Framework includes
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -72,40 +72,40 @@ namespace evgb{
   static const int kNuTauBar = 5;
 
   //--------------------------------------------------
-  GENIEHelper::GENIEHelper(art::ParameterSet const& pset) :
+  GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset) :
     fGeomD             (0),
     fFluxD             (0),
     fFluxD2GMCJD       (0),
     fDriver            (0),
-    fFluxType          (pset.getParameter< std::string              >("FluxType")        ),
-    fFluxFile          (pset.getParameter< std::string              >("FluxFile")        ),
-    fBeamName          (pset.getParameter< std::string              >("BeamName")        ),
-    fTopVolume         (pset.getParameter< std::string              >("TopVolume")       ),
-    fDetLocation       (pset.getParameter< std::string              >("DetectorLocation")),
-    fTargetA           (pset.getParameter< double                   >("TargetA")         ),
-    fEventsPerSpill    (pset.getParameter< double                   >("EventsPerSpill")  ),
-    fPOTPerSpill       (pset.getParameter< double                   >("POTPerSpill")     ),
+    fFluxType          (pset.get< std::string              >("FluxType")        ),
+    fFluxFile          (pset.get< std::string              >("FluxFile")        ),
+    fBeamName          (pset.get< std::string              >("BeamName")        ),
+    fTopVolume         (pset.get< std::string              >("TopVolume")       ),
+    fDetLocation       (pset.get< std::string              >("DetectorLocation")),
+    fTargetA           (pset.get< double                   >("TargetA")         ),
+    fEventsPerSpill    (pset.get< double                   >("EventsPerSpill")  ),
+    fPOTPerSpill       (pset.get< double                   >("POTPerSpill")     ),
     fHistEventsPerSpill(0.),
-    fMonoEnergy        (pset.getParameter< double                   >("MonoEnergy")      ),
+    fMonoEnergy        (pset.get< double                   >("MonoEnergy")      ),
     fPOTUsed           (0.),
-    fBeamRadius        (pset.getParameter< double                   >("BeamRadius")      ),
-    fSurroundingMass   (pset.getParameter< double                   >("SurroundingMass") ),
-    fGlobalTimeOffset  (pset.getParameter< double                   >("GlobalTimeOffset")),
-    fRandomTimeOffset  (pset.getParameter< double                   >("RandomTimeOffset")),
-    fZCutOff           (pset.getParameter< double                   >("ZCutOff")         ),
-    fEnvironment       (pset.getParameter< std::vector<std::string> >("Environment")     ),
-    fMixerConfig       (pset.getParameter< std::string              >("MixerConfig")     ),
-    fMixerBaseline     (pset.getParameter< double                   >("MixerBaseline")   ),
-    fDebugFlags        (pset.getParameter< unsigned int             >("DebugFlags")      )
+    fBeamRadius        (pset.get< double                   >("BeamRadius")      ),
+    fSurroundingMass   (pset.get< double                   >("SurroundingMass") ),
+    fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset")),
+    fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset")),
+    fZCutOff           (pset.get< double                   >("ZCutOff")         ),
+    fEnvironment       (pset.get< std::vector<std::string> >("Environment")     ),
+    fMixerConfig       (pset.get< std::string              >("MixerConfig")     ),
+    fMixerBaseline     (pset.get< double                   >("MixerBaseline")   ),
+    fDebugFlags        (pset.get< unsigned int             >("DebugFlags")      )
   {
-    int ranseed(pset.getParameter< int >("RandomSeed"));
+    int ranseed(pset.get< int >("RandomSeed"));
 
-    std::vector<double> beamCenter   (pset.getParameter< std::vector<double> >("BeamCenter")   );
-    std::vector<double> beamDirection(pset.getParameter< std::vector<double> >("BeamDirection"));
+    std::vector<double> beamCenter   (pset.get< std::vector<double> >("BeamCenter")   );
+    std::vector<double> beamDirection(pset.get< std::vector<double> >("BeamDirection"));
     fBeamCenter.SetXYZ(beamCenter[0], beamCenter[1], beamCenter[2]);
     fBeamDirection.SetXYZ(beamDirection[0], beamDirection[1], beamDirection[2]);
 
-    std::vector<int>genFlavors(pset.getParameter< std::vector<int> >("GenFlavors"));
+    std::vector<int>genFlavors(pset.get< std::vector<int> >("GenFlavors"));
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
 
@@ -242,7 +242,7 @@ namespace evgb{
   //--------------------------------------------------
   void GENIEHelper::InitializeGeometry()
   {
-    art::Service<geo::Geometry> geo;
+    art::ServiceHandle<geo::Geometry> geo;
     genie::geometry::ROOTGeomAnalyzer *rgeom = new genie::geometry::ROOTGeomAnalyzer(geo->ROOTGeoManager());
 
     ///the detector geometry uses cgs units.

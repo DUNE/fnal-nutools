@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.2 2011-01-19 16:45:34 p-nusoftart Exp $
+/// \version $Id: CRYHelper.cxx,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -16,10 +16,11 @@
 
 // ROOT include files
 #include "TRandom3.h"
+#include "TDatabasePDG.h"
 #include "TLorentzVector.h"
 
 // Framework includes
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
 // NuTools include files
@@ -47,13 +48,13 @@ namespace evgb{
   }
 
   //......................................................................
-  CRYHelper::CRYHelper(art::ParameterSet const& pset) :
-    fSampleTime(pset.getParameter< double      >("SampleTime")     ),
-    fToffset   (pset.getParameter< double      >("TimeOffset")     ),
-    fEthresh   (pset.getParameter< double      >("EnergyThreshold")),
-    fLatitude  (pset.getParameter< std::string >("Latitude")       ),
-    fAltitude  (pset.getParameter< std::string >("Altitude")       ),
-    fSubBoxL   (pset.getParameter< std::string >("SubBoxLength")   )  
+  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset) :
+    fSampleTime(pset.get< double      >("SampleTime")     ),
+    fToffset   (pset.get< double      >("TimeOffset")     ),
+    fEthresh   (pset.get< double      >("EnergyThreshold")),
+    fLatitude  (pset.get< std::string >("Latitude")       ),
+    fAltitude  (pset.get< std::string >("Altitude")       ),
+    fSubBoxL   (pset.get< std::string >("SubBoxLength")   )  
   {
     // Construct the CRY generator
     std::string config("date 1-1-2014 "
@@ -132,7 +133,7 @@ namespace evgb{
 	double pz = ptot * cryp->u();
       
 
-	art::Service<geo::Geometry> geo;
+	art::ServiceHandle<geo::Geometry> geo;
 
 	// Particle start position. CRY distributes uniformly in x-y
 	// plane at fixed z, where z is the vertical direction. This

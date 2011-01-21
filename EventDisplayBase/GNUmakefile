@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.2 2011-01-21 16:30:31 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -9,7 +9,7 @@ PACKAGE     := EventDisplayBase
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
-JOBFILES    := $(wildcard *.py)
+JOBFILES    := $(wildcard *.fcl)
 
 ROOTLIBS  = $(shell root-config --libs) -lEG -lTreePlayer -lGeom -lFFTW -lReflex -lEGPythia6 -lGui
 
