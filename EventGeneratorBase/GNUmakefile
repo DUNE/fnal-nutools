@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2011-01-21 16:30:32 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.3 2011-01-21 23:23:10 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -42,3 +42,4 @@ endif
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
+override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry

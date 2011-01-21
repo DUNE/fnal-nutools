@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.2 2011-01-21 23:23:11 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -23,3 +23,4 @@ include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 ########################################################################
 
+override LIBLIBS += -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
