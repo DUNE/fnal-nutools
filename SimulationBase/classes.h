@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.2 2011-01-19 16:44:04 p-nusoftart Exp $
+// $Id: classes.h,v 1.3 2011-01-21 22:22:34 p-nusoftart Exp $
 // $Author: p-nusoftart $
-// $Date: 2011-01-19 16:44:04 $
+// $Date: 2011-01-21 22:22:34 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -25,6 +25,11 @@
 // Only include objects that we would like to be able to put into the event.
 // Do not include the objects they contain internally.
 //
+template class std::vector<simb::MCNeutrino>;
+template class std::vector<simb::MCTrajectory>;
+template class std::vector<simb::MCParticle>;
+template class std::vector<simb::MCTruth>;
+template class std::vector<simb::MCFlux>;
 
 template class art::Wrapper< std::vector<simb::MCNeutrino> >;
 template class art::Wrapper< std::vector<simb::MCTrajectory> >;
