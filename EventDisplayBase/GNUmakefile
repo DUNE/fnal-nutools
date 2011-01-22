@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2011-01-22 19:30:30 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.5 2011-01-22 19:47:03 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -27,5 +27,4 @@ include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 include SoftRelTools/arch_spec_root.mk
 
-override LIBLIBS += -L$(ROOTSYS)/lib -lGraf -lGX11 -lGX11TTF
 
