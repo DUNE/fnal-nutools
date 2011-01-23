@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.4 2011-01-23 16:08:50 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.5 2011-01-23 17:31:54 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -151,7 +151,6 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   app->Run(kTRUE);
 
   // Look to see if we have any new configurations to apply
-  std::cerr << "loop over configurations" << std::endl;
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
     if (fParamSets[i]!="") {
       fhicl::ParameterSet pset;
