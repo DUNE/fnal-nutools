@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: Printable.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+// $Id: Printable.cxx,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
 //
 // Base class for printable objects
 //
@@ -10,9 +10,7 @@
 #include <cstdlib>
 using namespace evdb;
 
-// ClassImp(evdb::Printable)
-
-static std::map<std::string,Printable*> gsPrintables;
+static std::map<std::string,evdb::Printable*> gsPrintables;
 
 //......................................................................
 
@@ -59,7 +57,7 @@ void Printable::RemoveFromListOfPrintables(Printable* p)
 
 //......................................................................
 
-std::map<std::string,Printable*>& Printable::GetPrintables() 
+std::map<std::string,evdb::Printable*>& Printable::GetPrintables() 
 {
   return gsPrintables;
 }

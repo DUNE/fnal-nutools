@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2011-01-22 19:47:03 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.6 2011-01-23 16:08:50 p-nusoftart Exp $
 #
 # messier@indiana.edu
 #
@@ -26,5 +26,3 @@ LIBLINK     := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_P
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 include SoftRelTools/arch_spec_root.mk
-
-

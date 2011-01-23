@@ -2,7 +2,7 @@
 /// \file  Canvas.cxx
 /// \brief A base class for defining a detector display
 ///
-/// \version $Id: Canvas.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: Canvas.cxx,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 ///
@@ -11,6 +11,7 @@
 /// size box.
 
 #include "EventDisplayBase/Canvas.h"
+#include "EventDisplayBase/Printable.h"
 #include "TCanvas.h"
 #include "TGFrame.h"
 #include "TGLayout.h"

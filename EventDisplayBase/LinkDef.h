@@ -10,6 +10,8 @@
 #pragma link C++ namespace evdb;
 
 #pragma link C++ class evdb::ButtonBar-;
+#pragma link C++ class evdb::Printable-;
+#pragma link C++ class evdb::Canvas-;
 #pragma link C++ class evdb::FileMenu-;
 #pragma link C++ class evdb::WindowMenu-;
 #pragma link C++ class evdb::JobMenu-;

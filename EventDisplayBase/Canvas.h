@@ -2,7 +2,7 @@
 /// \file Canvas.h
 /// \brief Base class for define a detector display
 ///
-/// \version $Id: Canvas.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: Canvas.h,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 /////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_CANVAS_H
@@ -10,9 +10,8 @@
 #include <cassert>
 #include "TQObject.h"
 #include "RQ_OBJECT.h"
-#ifndef EVDB_PRINTABLE_H
 #include "EventDisplayBase/Printable.h"
-#endif
+
 class TGMainFrame;
 class TGCompositeFrame;
 class TGLayoutHints;

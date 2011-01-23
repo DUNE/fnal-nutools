@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-//  $Id: evdb.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+//  $Id: evdb.h,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
 //
 //! Collection of global resources for the event display
 //
@@ -7,16 +7,31 @@
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_H
 #define EVDB_H
+#include "EventDisplayBase/AutoAdvance.h"
+#include "EventDisplayBase/ButtonBar.h"
 #include "EventDisplayBase/Canvas.h"
-#include "EventDisplayBase/ObjListCanvas.h"
-// #include "EventDisplayBase/CfgEdit.h"
+#include "EventDisplayBase/ColorScale.h"
 #include "EventDisplayBase/DisplayWindow.h"
+#include "EventDisplayBase/EditMenu.h"
+#include "EventDisplayBase/EventDisplay.h"
+#include "EventDisplayBase/EventHolder.h"
+#include "EventDisplayBase/FileMenu.h"
+#include "EventDisplayBase/Functors.h"
+#include "EventDisplayBase/HelpMenu.h"
+#include "EventDisplayBase/JobMenu.h"
 #include "EventDisplayBase/ListWindow.h"
-// #include "EventDisplayBase/PrintDialog.h"
+#include "EventDisplayBase/MenuBar.h"
+#include "EventDisplayBase/NavState.h"
+#include "EventDisplayBase/ObjListCanvas.h"
+#include "EventDisplayBase/ParameterSetEdit.h"
+#include "EventDisplayBase/Printable.h"
 #include "EventDisplayBase/RootEnv.h"
-// #include "EventDisplayBase/ScanCat.h"
+#include "EventDisplayBase/ScanOptions.h"
+#include "EventDisplayBase/ScanWindow.h"
+#include "EventDisplayBase/StatusBar.h"
 #include "EventDisplayBase/View2D.h"
 #include "EventDisplayBase/View3D.h"
+#include "EventDisplayBase/WindowMenu.h"
 
 class TGMainFrame;
 class TGWindow;

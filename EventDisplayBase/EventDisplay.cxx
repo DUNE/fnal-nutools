@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.4 2011-01-23 16:08:50 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -124,6 +124,7 @@ void EventDisplay::EditWorkerParameterSet(int i)
 		       fWorkers[i]->description().moduleLabel(),
 		       params.to_string(),
 		       &fParamSets[i]);
+
 }
 
 //......................................................................
@@ -143,13 +144,14 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   holder->SetEvent(&evt);
 
   evdb::DisplayWindow::DrawAll();
-
+  
   TApplication* app = gROOT->GetApplication();
 
   // Hold here for user input from the GUI...
   app->Run(kTRUE);
 
   // Look to see if we have any new configurations to apply
+  std::cerr << "loop over configurations" << std::endl;
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
     if (fParamSets[i]!="") {
       fhicl::ParameterSet pset;
