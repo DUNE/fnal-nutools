@@ -2,7 +2,7 @@
 /// \file  Canvas.cxx
 /// \brief A base class for defining a detector display
 ///
-/// \version $Id: Canvas.cxx,v 1.5 2011-01-25 20:41:05 p-nusoftart Exp $
+/// \version $Id: Canvas.cxx,v 1.6 2011-01-25 20:51:18 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 /// Revised 16-Apr-2009 seligman@nevis.columbia.edu
@@ -10,8 +10,11 @@
 /// size box.
 ////////////////////////////////////////////////////////////////////////
 
+// NuTools includes
 #include "EventDisplayBase/Canvas.h"
 #include "EventDisplayBase/Printable.h"
+
+// ROOT includes
 #include "TCanvas.h"
 #include "TGFrame.h"
 #include "TGLayout.h"
