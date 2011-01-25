@@ -2,10 +2,11 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.4 2011-01-25 22:08:14 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.5 2011-01-25 22:10:05 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
+
 // C/C++ includes
 #include <math.h>
 
