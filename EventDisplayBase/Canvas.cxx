@@ -2,9 +2,10 @@
 /// \file  Canvas.cxx
 /// \brief A base class for defining a detector display
 ///
-/// \version $Id: Canvas.cxx,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
+/// \version $Id: Canvas.cxx,v 1.3 2011-01-25 20:35:06 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
+///
 ///
 /// Revised 16-Apr-2009 seligman@nevis.columbia.edu
 /// Allow dynamic re-sizing of the canvas if the user drags the window's
