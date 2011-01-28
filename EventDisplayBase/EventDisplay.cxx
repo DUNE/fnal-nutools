@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.5 2011-01-23 17:31:54 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.6 2011-01-28 20:37:46 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -155,8 +155,8 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
     if (fParamSets[i]!="") {
       fhicl::ParameterSet pset;
       fhicl::intermediate_table itable;
-      fhicl::parse_document(fParamSets[i], itable); //returns a bool for error checking
-      fhicl::make_ParameterSet(itable, pset); //returns a bool for error checking
+      fhicl::parse_document(fParamSets[i], itable); // May throw on error: should check.
+      fhicl::make_ParameterSet(itable, pset); // May throw on error: should check.
       fParamSets[i] = "";
       fWorkers[i]->reconfigure(std::cin, std::cout, pset);
     }
