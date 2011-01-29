@@ -15,7 +15,6 @@ class TGLabel;
 class TGTextButton;
 class TGTextEntry;
 class TGVScrollBar;
-namespace cfg { class Config; }
 
 namespace evdb {
   /// Helper class to setup scroll bars in evdb::ParameterSetEdit
