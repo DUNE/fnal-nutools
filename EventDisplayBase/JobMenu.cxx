@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.4 2011-01-29 20:15:25 p-nusoftart Exp $
+/// \version $Id: JobMenu.cxx,v 1.5 2011-01-29 20:18:26 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -150,12 +150,13 @@ int JobMenu::OpenJobXML()
 		   &finfo);
   if (finfo.fFilename == 0) return 0;
 
+  // remove cfg, jobc, xmli namespace indicators to make doxygen happy
+
   // Add this directory to the top of the XML path. Helps get the
   // supporting configuration XML loaded
-  // xmli::AddToPath(finfo.fIniDir,-1);
+  // AddToPath(finfo.fIniDir,-1);
 
   // Set flags that allows all configurations to be editted
-  // remove cfg, jobc, xmli namespace indicators to make doxygen happy
   // Config::SetEditAllOK();
   
   // Clear existing job and then load the job xml file
