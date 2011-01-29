@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.4 2011-01-29 19:23:20 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.h,v 1.5 2011-01-29 19:24:16 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -16,6 +16,7 @@
 
 class TH1D;
 
+///parameter set interface
 namespace fhicl {
   class ParameterSet;
 }
