@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file skzpReweight.h
 ///
-/// \version $Id: skzpReweight.h,v 1.1.1.1 2011-01-27 19:06:32 p-nusoftart Exp $
+/// \version $Id: skzpReweight.h,v 1.2 2011-01-29 19:44:13 p-nusoftart Exp $
 /// \author  ???
 ////////////////////////////////////////////////////////////////////////
 #ifndef NBW_SKZPREWEIGHT_H
@@ -17,6 +17,7 @@ class TFile;
 class TH2F;
 class TH2D;
 
+///reweighting utility for NuMI beam
 namespace nbw{
   
   class skzpReweight{
