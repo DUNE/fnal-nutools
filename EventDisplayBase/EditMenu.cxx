@@ -2,7 +2,7 @@
 /// \file  EditMenu.cxx
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.cxx,v 1.2 2011-01-29 19:03:40 p-nusoftart Exp $
+/// \version $Id: EditMenu.cxx,v 1.3 2011-01-29 20:15:25 p-nusoftart Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/EditMenu.h"
@@ -16,7 +16,8 @@
 #include "EventDisplayBase/evdb.h"
 using namespace evdb;
 
-// static cfg::Config* gsConfig[1024];
+// old code from FMWK - removed cfg namespace to make doxygen happy
+// static Config* gsConfig[1024];
 
 //......................................................................
 
