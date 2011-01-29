@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
+/// \version $Id: G4Helper.h,v 1.3 2011-01-29 19:19:43 p-nusoftart Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +34,7 @@ class G4UImanager;
 namespace simb{ class MCTruth;      }
 namespace sim { class ParticleList; }
 
+///basic interface to Geant4 for ART-based software
 namespace g4b {  
 
   // Forward declarations within namespace.

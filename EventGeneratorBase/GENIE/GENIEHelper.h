@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
+/// \version $Id: GENIEHelper.h,v 1.4 2011-01-29 19:23:20 p-nusoftart Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -22,6 +22,8 @@ namespace fhicl {
 
 namespace simb  { class MCTruth;     }
 namespace simb  { class MCFlux;      }
+
+///GENIE neutrino interaction simulation
 namespace genie { class EventRecord; }
 
 namespace evgb{
