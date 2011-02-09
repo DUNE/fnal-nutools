@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.6 2011-01-28 20:37:46 p-nusoftart Exp $
+/// \version $Id: EventDisplay.cxx,v 1.7 2011-02-09 22:49:59 paterno Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -150,17 +150,28 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   // Hold here for user input from the GUI...
   app->Run(kTRUE);
 
+
   // Look to see if we have any new configurations to apply
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
-    if (fParamSets[i]!="") {
-      fhicl::ParameterSet pset;
-      fhicl::intermediate_table itable;
-      fhicl::parse_document(fParamSets[i], itable); // May throw on error: should check.
-      fhicl::make_ParameterSet(itable, pset); // May throw on error: should check.
-      fParamSets[i] = "";
-      fWorkers[i]->reconfigure(std::cin, std::cout, pset);
+    try {
+      if (!fParamSets[i].empty()) {
+	fhicl::ParameterSet pset;
+	fhicl::intermediate_table itable;
+	fhicl::parse_document(fParamSets[i], itable); // May throw on error: should check.
+	fhicl::make_ParameterSet(itable, pset); // May throw on error: should check.
+	fParamSets[i] = "";
+	fWorkers[i]->reconfigure(std::cin, std::cout, pset);
+      }
+    }
+    catch (fhicl::exception& e) {
+      std::cout << "Error parsing the new configuration:\n"
+		<< e
+		<< "\nRe-configuration has been ignored for module: "
+		<< fWorkers[i]->label()
+		<< std::endl;
     }
   }
+
 
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {
@@ -174,7 +185,9 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
     fInputSource->skipEvents(-1); 
   }
   else if (NavState::Which() == kGOTO_EVENT) {
-    std::cout << "GOTO EVENT run=" << fInputSource->run() << std::endl;
+    art::EventID id(NavState::TargetRun(), NavState::TargetEvent());
+    fInputSource->readEvent(id);
+    fInputSource->skipEvents(-1);
   }
   else abort();
 }
