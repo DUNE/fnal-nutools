@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2011-01-21 23:23:10 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.4 2011-02-14 21:13:25 rhatcher Exp $
 #
 # messier@indiana.edu
 #
@@ -31,7 +31,7 @@ endif
 
 ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFluxBlender.h 2> /dev/null ),)
 # genie has new code ... don't use local version of these files
-  skipfiles = GFluxBlender.cxx GFlavorMixerI.cxx GFlavorSwap.cxx
+  skipfiles = GFluxBlender.cxx GFlavorMixerI.cxx GFlavorMap.cxx
   skiphead  = $(skipfiles:.cxx=.h)
   override LIBCXXFILES := $(filter-out $(skipfiles), $(LIBCXXFILES))
   override CPPFLAGS += -DBLENDER_IN_GENIE
