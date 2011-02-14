@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorSwap.cxx
+/// \file  GFlavorMap.cxx
 /// \brief GENIE interface for flavor modification
 ///
-/// \version $Id: GFlavorSwap.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: GFlavorMap.cxx,v 1.1 2011-02-14 21:12:30 rhatcher Exp $
 /// \author  Robert Hatcher <rhatcher \at fnal.gov>
 ///          Fermi National Accelerator Laboratory
 ///
@@ -15,12 +15,12 @@
 #include <cstdlib>
 
 #ifdef BLENDER_IN_GENIE
- #include "FluxDrivers/GFlavorSwap.h"
+ #include "FluxDrivers/GFlavorMap.h"
   #include "Messenger/Messenger.h"
   #define  LOG_BEGIN(a,b)   LOG(a,b)
   #define  LOG_END ""
 #else
-  #include "EventGeneratorBase/GFlavorSwap.h"
+  #include "EventGeneratorBase/GFlavorMap.h"
   #ifndef USE_LOG4CPP
     #define  LOG_BEGIN(a,b)   std::cout 
     #define  LOG_END std::endl << std::flush
@@ -37,7 +37,7 @@
 namespace genie {
 namespace flux {
 //____________________________________________________________________________
-GFlavorSwap::GFlavorSwap() 
+GFlavorMap::GFlavorMap() 
 {
   // Initialize with identity matrix
   size_t jin, jout;
@@ -48,38 +48,38 @@ GFlavorSwap::GFlavorSwap()
   }
 }
 
-GFlavorSwap::~GFlavorSwap() { ; }
+GFlavorMap::~GFlavorMap() { ; }
 
 //____________________________________________________________________________
-void GFlavorSwap::Config(std::string config)
+void GFlavorMap::Config(std::string config)
 {
   LOG_BEGIN("FluxBlender", pINFO) 
-    << "GFlavorSwap::Config \"" << config << "\"" << LOG_END;
+    << "GFlavorMap::Config \"" << config << "\"" << LOG_END;
   
-  if        ( config.find("swap") == 0 ) {
-    ParseSwapString(config);
+  if ( config.find("map") == 0 || config.find("swap") == 0 ) {
+    ParseMapString(config);
   } else if ( config.find("fixedfrac") == 0 ) {
     ParseFixedfracString(config);
   } else {
     LOG_BEGIN("FluxBlender", pWARN) 
-      << "GFlavorSwap::Config don't know how to parse \"" 
+      << "GFlavorMap::Config don't know how to parse \"" 
       << config << "\"" << LOG_END;
     LOG_BEGIN("FluxBlender", pWARN) 
-      << " ... will attempt \"swap\" strategy" << LOG_END;
+      << " ... will attempt \"map\" strategy" << LOG_END;
     
   }
 
 }
 
 //____________________________________________________________________________
-void GFlavorSwap::ParseSwapString(std::string config)
+void GFlavorMap::ParseMapString(std::string config)
 {
   LOG_BEGIN("FluxBlender", pINFO) 
-    << "GFlavorSwap::ParseSwapString \"" << config << "\"" << LOG_END;
+    << "GFlavorMap::ParseMapString \"" << config << "\"" << LOG_END;
   vector<string> tokens = genie::utils::str::Split(config," ");
   for (unsigned int jtok = 0; jtok < tokens.size(); ++jtok ) {
     string tok1 = tokens[jtok];
-    if ( tok1 == "swap" ) continue;
+    if ( tok1 == "map" || tok1 == "swap" ) continue;
     // should have the form  <int>:<int>
     vector<string> pair = genie::utils::str::Split(tok1,":");
     if ( pair.size() != 2 ) {
@@ -100,10 +100,10 @@ void GFlavorSwap::ParseSwapString(std::string config)
 }
 
 //____________________________________________________________________________
-void GFlavorSwap::ParseFixedfracString(std::string config)
+void GFlavorMap::ParseFixedfracString(std::string config)
 {
   LOG_BEGIN("FluxBlender", pINFO) 
-    << "GFlavorSwap::ParseFixedFracString \"" << config << "\"" << LOG_END;
+    << "GFlavorMap::ParseFixedFracString \"" << config << "\"" << LOG_END;
   vector<string> tokens = genie::utils::str::Split(config,"{}");
   for (unsigned int jtok = 0; jtok< tokens.size(); ++jtok ) {
     string tok1 = genie::utils::str::TrimSpaces(tokens[jtok]);
@@ -142,7 +142,7 @@ void GFlavorSwap::ParseFixedfracString(std::string config)
 }
 
 //____________________________________________________________________________
-double GFlavorSwap::Probability(int pdg_initial, int pdg_final, 
+double GFlavorMap::Probability(int pdg_initial, int pdg_final, 
                                 double /* energy */ , double /* dist */ )
 {
   double prob = fProb[PDG2Indx(pdg_initial)][PDG2Indx(pdg_final)];
@@ -155,11 +155,11 @@ double GFlavorSwap::Probability(int pdg_initial, int pdg_final,
 }
 
 //____________________________________________________________________________
-void GFlavorSwap::PrintConfig(bool /* verbose */)
+void GFlavorMap::PrintConfig(bool /* verbose */)
 {
   size_t jin, jout;
   LOG_BEGIN("FluxBlender", pINFO) 
-    << "GFlavorSwap::PrintConfig():" << LOG_END;
+    << "GFlavorMap::PrintConfig():" << LOG_END;
 
   //            1234567890[xxx]:
   std::cout << "       in      \\ out  ";
@@ -181,7 +181,7 @@ void GFlavorSwap::PrintConfig(bool /* verbose */)
   
 }
 //____________________________________________________________________________
-const char* GFlavorSwap::IndxName(int indx)
+const char* GFlavorMap::IndxName(int indx)
 {
   static const char* name[] = { "sterile", 
                                 "nu_e", "nu_mu", "nu_tau",

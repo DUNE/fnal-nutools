@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorSwap.h
-/// \class genie::flux::GFlavorSwap
+/// \file  GFlavorMap.h
+/// \class genie::flux::GFlavorMap
 /// \brief GENIE interface for flavor modification
 ///
 ///        Concrete instance of GFlavorMixerI that maps from
@@ -31,7 +31,7 @@
 ///          Fermi National Accelerator Laboratory
 ///
 /// \created 2010-10-31
-/// \version $Id: GFlavorSwap.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: GFlavorMap.h,v 1.1 2011-02-14 21:12:30 rhatcher Exp $
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef GENIE_FLUX_GFLAVORSWAP_H
@@ -47,12 +47,12 @@
 namespace genie {
 namespace flux {
 
-  class GFlavorSwap : public GFlavorMixerI {
+  class GFlavorMap : public GFlavorMixerI {
     
   public:
   
-    GFlavorSwap();
-    ~GFlavorSwap();
+    GFlavorMap();
+    ~GFlavorMap();
 
     //
     // implement the GFlavorMixerI interface:
@@ -75,7 +75,7 @@ namespace flux {
 
   private:
 
-    void         ParseSwapString(std::string config);
+    void         ParseMapString(std::string config);
     void         ParseFixedfracString(std::string config);
 
     int          PDG2Indx(int pdg);
@@ -100,7 +100,7 @@ namespace flux {
 //    nu_mu_bar   -14   5
 //    nu_tau_bar  -16   6
 //
-inline int genie::flux::GFlavorSwap::PDG2Indx(int pdg)
+inline int genie::flux::GFlavorMap::PDG2Indx(int pdg)
 {
   switch ( pdg ) {
   case  12: return 1; break;
@@ -113,7 +113,7 @@ inline int genie::flux::GFlavorSwap::PDG2Indx(int pdg)
   }
   return 0;
 }
-inline int genie::flux::GFlavorSwap::Indx2PDG(int indx)
+inline int genie::flux::GFlavorMap::Indx2PDG(int indx)
 {
   switch ( indx ) {
   case  1: return  12; break;
