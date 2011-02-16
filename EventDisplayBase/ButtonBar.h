@@ -1,10 +1,9 @@
-////////////////////////////////////////////////////////////////////////
-// $Id: ButtonBar.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
-//
-// A bar containing the next event, previous event, (etc.) buttons
-//
-// messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
+/// \file    ButtonBar.h
+/// \brief   A bar containing the next event and related buttons
+//  \version $Id: ButtonBar.h,v 1.2 2011-02-16 21:49:42 messier Exp $
+/// \author  messier@indiana.edu
+///
 #ifndef EVDB_BUTTONBAR_H
 #define EVDB_BUTTONBAR_H
 #include "TQObject.h"
@@ -18,7 +17,7 @@ class TGLayoutHints;
 class TGLabel;
 
 namespace evdb {
-  class ButtonBar {
+  class ButtonBar : public TObject {
     RQ_OBJECT("evdb::ButtonBar")
     
   public:
@@ -29,6 +28,7 @@ namespace evdb {
     void PrevEvt();
     void NextEvt();
     void ReloadEvt();
+    void AutoAdvance();
     void FileList();
     void GoTo();
     void Print();
@@ -36,21 +36,27 @@ namespace evdb {
     
     void SetRunEvent(int run, int event);
 
+    Bool_t HandleTimer(TTimer* t);
+
   private:
-    TGCompositeFrame* fButtonBar;   // The top button bar
-    TGLayoutHints*    fLayout;      // Layout for button bar
-    TGTextButton*     fPrevEvt;     // Goto to previous event
-    TGTextButton*     fNextEvt;     // Goto to next event
-    TGTextButton*     fReload;      // Reload current event
-    TGTextEntry*      fCurrentFile; // Currently loaded file
-    TGPictureButton*  fFileList;    // Access to the list of files attached
+    TTimer* fTimer; ///< Timer to handle auto advancing
     
-    TGLabel*          fRunEvtLabel;    // Run/Event number label
-    TGTextEntry*      fRunTextEntry;   // Run number text entry
-    TGTextEntry*      fEventTextEntry; // Event number text entry
+  private:
+    TGCompositeFrame* fButtonBar;   ///< The top button bar
+    TGLayoutHints*    fLayout;      ///< Layout for button bar
+    TGTextButton*     fPrevEvt;     ///< Goto to previous event
+    TGTextButton*     fNextEvt;     ///< Goto to next event
+    TGTextButton*     fAutoAdvance; ///< Start to auto advance
+    TGTextButton*     fReload;      ///< Reload current event
+    TGTextEntry*      fCurrentFile; ///< Currently loaded file
+    TGPictureButton*  fFileList;    ///< Access to the list of files attached
     
-    TGTextButton*     fGoTo;        // Go To event button
-    TGTextButton*     fPrint;       // Print button
+    TGLabel*          fRunEvtLabel;    ///< Run/Event number label
+    TGTextEntry*      fRunTextEntry;   ///< Run number text entry
+    TGTextEntry*      fEventTextEntry; ///< Event number text entry
+    
+    TGTextButton*     fGoTo;  ///< Go To event button
+    TGTextButton*     fPrint; ///< Print button
   };
 }
 

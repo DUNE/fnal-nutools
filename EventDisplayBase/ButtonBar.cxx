@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ButtonBar.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+// $Id: ButtonBar.cxx,v 1.2 2011-02-16 21:49:42 messier Exp $
 //
 // The button bar across the top of the display
 //
@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdlib>
 // ROOT includes
+#include "TTimer.h"
 #include "TGFrame.h"
 #include "TGButton.h"
 #include "TGLayout.h"
@@ -25,33 +26,45 @@ using namespace evdb;
 
 //......................................................................
 
-ButtonBar::ButtonBar(TGMainFrame* frame) 
+ButtonBar::ButtonBar(TGMainFrame* frame) :
+  fTimer(0)
 {
   fButtonBar = new TGCompositeFrame(frame, 60, 20, 
 				    kSunkenFrame|kHorizontalFrame);
   fLayout    = new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0, 0, 1, 0);
 
   // Previous event button
-  fPrevEvt = new TGTextButton(fButtonBar, "<-Previous", 150);
+  fPrevEvt = new TGTextButton(fButtonBar, "<- Previous", 150);
   fPrevEvt->SetToolTipText("Go to previous event");
   fPrevEvt->Connect("Clicked()", "evdb::ButtonBar", this, "PrevEvt()");
-  fButtonBar->AddFrame(fPrevEvt, new TGLayoutHints(kLHintsTop |
-						   kLHintsLeft, 2, 0, 2, 2));
-
+  fButtonBar->AddFrame(fPrevEvt,
+		       new TGLayoutHints(kLHintsTop | kLHintsLeft,
+					 2, 0, 2, 2));
+  
   // Next event button
-  fNextEvt = new TGTextButton(fButtonBar, "Next->", 150);
+  fNextEvt = new TGTextButton(fButtonBar, "Next ----->", 150);
   fNextEvt->SetToolTipText("Go to next event");
   fNextEvt->Connect("Clicked()", "evdb::ButtonBar", this, "NextEvt()");
-  fButtonBar->AddFrame(fNextEvt, new TGLayoutHints(kLHintsTop |
-						   kLHintsLeft, 2, 0, 2, 2));
+  fButtonBar->AddFrame(fNextEvt,
+		       new TGLayoutHints(kLHintsTop | kLHintsLeft,
+					 2, 0, 2, 2));
+  
+  // Auto advance button
+  fAutoAdvance = new TGTextButton(fButtonBar, ">", 150);
+  fAutoAdvance->SetToolTipText("Start auto advance");
+  fAutoAdvance->Connect("Clicked()", "evdb::ButtonBar", this, "AutoAdvance()");
+  fButtonBar->AddFrame(fAutoAdvance,
+		       new TGLayoutHints(kLHintsTop | kLHintsLeft,
+					 2, 0, 2, 2));
   
   // Reload button
   fReload = new TGTextButton(fButtonBar, "Reload", 150);
   fReload->SetToolTipText("Reload current event");
   fReload->Connect("Clicked()", "evdb::ButtonBar", this, "ReloadEvt()");
-  fButtonBar->AddFrame(fReload, new TGLayoutHints(kLHintsTop |
-						  kLHintsLeft, 2, 0, 2, 2));
-    
+  fButtonBar->AddFrame(fReload,
+		       new TGLayoutHints(kLHintsTop | kLHintsLeft,
+					 2, 0, 2, 2));
+  
   fCurrentFile = new TGTextEntry(fButtonBar, new TGTextBuffer(256));
   fCurrentFile->SetToolTipText("Name of current file");
   fCurrentFile->Resize(400, fCurrentFile->GetDefaultHeight());
@@ -65,15 +78,17 @@ ButtonBar::ButtonBar(TGMainFrame* frame)
   fFileList = new TGPictureButton(fButtonBar, p, -1, norm, kRaisedFrame);
   fFileList->SetToolTipText("List files");
   fFileList->Connect("Clicked()", "evdb::ButtonBar", this, "FileList()");
-  fButtonBar->AddFrame(fFileList, new TGLayoutHints(kLHintsCenterY,
-						    2, 0, 2, 2));
+  fButtonBar->AddFrame(fFileList,
+		       new TGLayoutHints(kLHintsCenterY,
+					 2, 0, 2, 2));
 
   // Print button
   fPrint = new TGTextButton(fButtonBar, "Print", 150);
   fPrint->SetToolTipText("Print Display");
   fPrint->Connect("Clicked()", "evdb::ButtonBar", this, "Print()");
-  fButtonBar->AddFrame(fPrint, new TGLayoutHints(kLHintsTop|kLHintsRight, 
-						 2, 0, 2, 2));
+  fButtonBar->AddFrame(fPrint,
+		       new TGLayoutHints(kLHintsTop|kLHintsRight, 
+					 2, 0, 2, 2));
   
   // Go To button
   fGoTo = new TGTextButton(fButtonBar, "Go");
@@ -107,7 +122,7 @@ ButtonBar::ButtonBar(TGMainFrame* frame)
 
 ButtonBar::~ButtonBar() 
 {
-  // IoModule::Instance()->Disconnect(0,this,0);
+  if (fTimer) { delete fTimer; fTimer = 0; }
 
   delete fEventTextEntry; fEventTextEntry=0;
   delete fRunTextEntry;   fRunTextEntry  =0;
@@ -135,6 +150,40 @@ void ButtonBar::PrevEvt()
 void ButtonBar::NextEvt() 
 { 
   NavState::Set(kNEXT_EVENT);
+}
+
+//......................................................................
+
+///
+/// The timer sets the pace for the auto advance feature
+///
+Bool_t ButtonBar::HandleTimer(TTimer* t)
+{
+  this->NextEvt();
+}
+
+//......................................................................
+
+void ButtonBar::AutoAdvance() 
+{ 
+  if (fTimer==0) {
+    //
+    // Start the auto-advance feature
+    //
+    fAutoAdvance->SetText("X");
+    fTimer = new TTimer;
+    fTimer->SetObject(this);
+    fTimer->Start(2000);
+  }
+  else {
+    //
+    // Stop the auto-advance
+    //
+    fAutoAdvance->SetText(">");
+    fTimer->Stop();
+    delete fTimer;
+    fTimer = 0;
+  }
 }
 
 //......................................................................

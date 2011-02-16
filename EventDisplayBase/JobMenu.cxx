@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.5 2011-01-29 20:18:26 p-nusoftart Exp $
+/// \version $Id: JobMenu.cxx,v 1.6 2011-02-16 21:49:42 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -25,9 +25,7 @@ using namespace evdb;
 enum {
   kM_JOB_OPENXML            = 99001,
   kM_JOB_EDITCONFIG         = 99002,
-  kM_JOB_RESETJOB           = 99003,
-  kM_JOB_AUTO_ADVANCE_START = 99004,
-  kM_JOB_AUTO_ADVANCE_STOP  = 99005
+  kM_JOB_RESETJOB           = 99003
 };
 
 //......................................................................
@@ -49,9 +47,6 @@ JobMenu::JobMenu(TGMenuBar* menubar, TGMainFrame* mf) :
   fJobMenu->AddEntry("&Reset Job", kM_JOB_RESETJOB);
   fJobMenu->AddSeparator();
   fJobMenu->AddPopup("&Configure Module", fConfigMenu);
-  fJobMenu->AddSeparator();
-  fJobMenu->AddEntry("Start Auto Advance", kM_JOB_AUTO_ADVANCE_START);
-  fJobMenu->AddEntry("Stop Auto Advance",  kM_JOB_AUTO_ADVANCE_STOP);
   
   fJobMenu->Connect("Activated(Int_t)",
 		    "evdb::JobMenu",
@@ -107,12 +102,6 @@ void JobMenu::HandleMenu(int menu)
     break;
   case kM_JOB_RESETJOB: 
     this->ResetJob(); 
-    break;
-  case kM_JOB_AUTO_ADVANCE_START: 
-    // IoModule::Instance()->StartAutoAdvance();
-    break;
-  case kM_JOB_AUTO_ADVANCE_STOP:
-    // IoModule::Instance()->StopAutoAdvance();
     break;
   default:
     // This is bogus, but it works. TODO: Figure out why the fConfigMenu
