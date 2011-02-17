@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-//  $Id: evdb.h,v 1.2 2011-01-23 16:08:50 p-nusoftart Exp $
+//  $Id: evdb.h,v 1.3 2011-02-17 15:26:47 brebel Exp $
 //
 //! Collection of global resources for the event display
 //
@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_H
 #define EVDB_H
-#include "EventDisplayBase/AutoAdvance.h"
 #include "EventDisplayBase/ButtonBar.h"
 #include "EventDisplayBase/Canvas.h"
 #include "EventDisplayBase/ColorScale.h"
