@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ScanOptions.h,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
+// $Id: ScanOptions.h,v 1.4 2011-02-21 22:34:19 brebel Exp $
 //
 // Display parameters for scanning
 //
@@ -25,12 +25,17 @@ namespace evdb {
     bool        fIncludeMCInfo;           ///> true if MC information is to be included in scan output
     std::string fScanFileBase;            ///> base file name for scanning
 
-    // separate fields that are grouped together by the "@" character as an entry in both vectors below
+    // below are vectors to describe the different categories that are 
+    // important to the scan.  fCategories are the broad categories you want
+    // to describe, ie, tracks, neutrinos, etc.  fFieldsPerCategory tells
+    // the ScanWindow how many fields are in the categories.  fFieldTypes
+    // and fFieldLabels tell the ScanWindow the type of each field and
+    // what to call each field
 
     std::vector<std::string>  fCategories;        ///> names of the various categories for the scan
     std::vector<unsigned int> fFieldsPerCategory; ///> number of fields in each category
     std::vector<std::string>  fFieldTypes;        ///> types of the fields, ie TextEntry, Buttons, NumberEntry, etc
-    std::vector<std::string>  fFieldLabels;       ///> types of the fields, ie TextEntry, Buttons, NumberEntry, etc
+    std::vector<std::string>  fFieldLabels;       ///> labels for each of the fields, whatever you want to call them
 
   };
 }//namespace
