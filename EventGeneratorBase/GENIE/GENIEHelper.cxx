@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.6 2011-02-14 21:12:30 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.7 2011-02-22 21:40:04 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,7 @@ namespace evgb{
     fFluxFile          (pset.get< std::string              >("FluxFile")        ),
     fBeamName          (pset.get< std::string              >("BeamName")        ),
     fTopVolume         (pset.get< std::string              >("TopVolume")       ),
+    fWorldVolume       ("volWorld"),
     fDetLocation       (pset.get< std::string              >("DetectorLocation")),
     fTargetA           (pset.get< double                   >("TargetA")         ),
     fEventsPerSpill    (pset.get< double                   >("EventsPerSpill")  ),
@@ -123,14 +124,14 @@ namespace evgb{
     std::string seed(junk);
     fEnvironment.push_back("GSEED");
     fEnvironment.push_back(seed);
-    ///set the environment, the vector should come in pairs of variable name, then value
+    // set the environment, the vector should come in pairs of variable name, then value
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
       std::cout << "setting GENIE environment " << fEnvironment[i]
 		<< " to " << fEnvironment[i+1] << std::endl; 
     }
 
-    ///make the histograms
+    // make the histograms
     if(fFluxType.compare("histogram") == 0){
       std::cout << "setting beam direction and center at "
 		<< fBeamDirection.X() << " " << fBeamDirection.Y() << " " << fBeamDirection.Z()
@@ -202,14 +203,14 @@ namespace evgb{
   void GENIEHelper::Initialize()
   {
 
-    ///initialize the Geometry and Flux drivers
+    // initialize the Geometry and Flux drivers
     InitializeGeometry();
     InitializeFluxDriver();
     fDriver = new genie::GMCJDriver();
     fDriver->UseFluxDriver(fFluxD2GMCJD);
     fDriver->UseGeomAnalyzer(fGeomD);
 
-    ///turn on following line to speed up driver initialization
+    // turn on following line to speed up driver initialization
     //driver->UseMaxPathLengths(***supply some xml file name***);
 
     fDriver->Configure();
@@ -217,14 +218,14 @@ namespace evgb{
     fDriver->ForceSingleProbScale();
 
     if(fFluxType.compare("histogram") == 0){
-      ///fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy in histogram bin width
+      // fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy in histogram bin width
       
-      ///get the bin width to remove energy dependence
-      ///bins are assumed to be in GeV while fluxes are in /MeV
+      // get the bin width to remove energy dependence
+      // bins are assumed to be in GeV while fluxes are in /MeV
       double binWidth = fFluxHistograms[0]->GetBinWidth(1)*1000.; 
 
-      ///determine product of pot/spill, mass, and cross section
-      ///events = flux * pot * 10^-38 cm^2 (xsec) * (mass detector (in kg) / carbon mass (in kg)) * energy bin size
+      // determine product of pot/spill, mass, and cross section
+      // events = flux * pot * 10^-38 cm^2 (xsec) * (mass detector (in kg) / carbon mass (in kg)) * energy bin size
       fXSecMassPOT  = 1.e-38*1.e-20*binWidth;
       fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(fTargetA*1.67262158e-27); 
 
@@ -234,7 +235,7 @@ namespace evgb{
       fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     }
 
-    ///set the pot/event counters to zero
+    // set the pot/event counters to zero
     fSpillTotal = 0.;
     fPOTUsed   = 0.;
 
@@ -247,13 +248,16 @@ namespace evgb{
     art::ServiceHandle<geo::Geometry> geo;
     genie::geometry::ROOTGeomAnalyzer *rgeom = new genie::geometry::ROOTGeomAnalyzer(geo->ROOTGeoManager());
 
-    ///the detector geometry uses cgs units.
+    // get the world volume name from the geometry
+    fWorldVolume = geo->ROOTGeoManager()->GetTopVolume()->GetName();
+
+    // the detector geometry uses cgs units.
     rgeom->SetLengthUnits(genie::units::centimeter);
     rgeom->SetDensityUnits(genie::units::gram_centimeter3);
     rgeom->SetTopVolName(fTopVolume.c_str());
     rgeom->SetMixtureWeightsSum(1.);
 
-    /// casting to the GENIE geometry driver interface
+    //  casting to the GENIE geometry driver interface
     fGeomD        = rgeom; // dynamic_cast<genie::GeomAnalyzerI *>(rgeom);
     fDetLength    = geo->DetLength()*0.01;  
     fDetectorMass = geo->TotalMass(); //not-yet-supported: (fTopVolume.c_str());
@@ -276,13 +280,13 @@ namespace evgb{
         probes.push_back(*flvitr);
       numiFlux->SetFluxParticles(probes);
 
-      ///set the number of cycles to run
-      ///+++++++++this is stupid - to really set it i have to get a 
-      ///value from the MCJDriver and i am not even sure what i have 
-      ///below is approximately correct.
-      ///for now just run on a set number of events that is kept track of 
-      ///in the sample method
-      /// numiFlux->SetNumOfCycles(int(fPOT/fFluxNormalization));
+      // set the number of cycles to run
+      // +++++++++this is stupid - to really set it i have to get a 
+      // value from the MCJDriver and i am not even sure what i have 
+      // below is approximately correct.
+      // for now just run on a set number of events that is kept track of 
+      // in the sample method
+      //  numiFlux->SetNumOfCycles(int(fPOT/fFluxNormalization));
     
       fFluxD = numiFlux; // dynamic_cast<genie::GFluxI *>(numiFlux);
     } //end if using ntuple flux files
@@ -313,8 +317,8 @@ namespace evgb{
       std::cout << "beam r = " << fBeamRadius << " centered at ("
 		<< fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z() << ")" << std::endl; 
 
-      ///now add the different fluxes - fluxes were added to the vector in the same 
-      ///order that the flavors appear in fGenFlavors
+      // now add the different fluxes - fluxes were added to the vector in the same 
+      // order that the flavors appear in fGenFlavors
       int ctr = 0;
       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
 	histFlux->AddEnergySpectrum(*i, fFluxHistograms[ctr]);
@@ -329,7 +333,7 @@ namespace evgb{
     } //end if using a histogram
     else if(fFluxType.compare("mono") == 0){
 
-      ///weight each species equally in the generation
+      // weight each species equally in the generation
       double weight = 1./(1.*fGenFlavors.size());
       //make a map of pdg to weight codes
       std::map<int, double> pdgwmap;
@@ -388,8 +392,8 @@ namespace evgb{
     // 	    << " fPOTPerSpill = " << fPOTPerSpill << " fSpillTotal = " << fSpillTotal 
     // 	    << " fHistEventsPerSpill = " << fHistEventsPerSpill << std::endl;
 
-    ///determine if we should keep throwing neutrinos for 
-    ///this spill or move on
+    // determine if we should keep throwing neutrinos for 
+    // this spill or move on
     if(fEventsPerSpill > 0){
       if(fSpillTotal < fEventsPerSpill) 
 	return false;
@@ -402,7 +406,7 @@ namespace evgb{
               fSpillTotal < fHistEventsPerSpill) return false;
     }
 
-    ///made it to here, means need to reset the counters
+    // made it to here, means need to reset the counters
     fPOTUsed += fSpillTotal;
     fSpillTotal = 0.;
     fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
@@ -413,6 +417,10 @@ namespace evgb{
   bool GENIEHelper::Sample(simb::MCTruth &truth,
 			   simb::MCFlux  &flux)
   {
+    // set the top volume for the geometry
+    art::ServiceHandle<geo::Geometry> geo;
+    geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fTopVolume.c_str()));
+
     genie::EventRecord* record = fDriver->GenerateEvent();
 
     if ( !record ) return false;
@@ -422,7 +430,7 @@ namespace evgb{
 
     PackMCTruth(record,truth); 
 
-    ///pack the flux information
+    // pack the flux information
     if(fFluxType.compare("ntuple") == 0){
       fSpillTotal += dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
       flux.fFluxType = simb::kNtuple;
@@ -434,19 +442,19 @@ namespace evgb{
       std::cerr << "Not built with GSimpleNtpFlux enabled" << std::endl;
       assert(0);
 #else
-      ///pack the flux information
+      // pack the flux information
       fSpillTotal += dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
 #endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
     }
     else if(fFluxType.compare("histogram") == 0){
-      ///set the flag in the parent object that says the 
-      ///fluxes came from histograms and fill related values
+      // set the flag in the parent object that says the 
+      // fluxes came from histograms and fill related values
       flux.fFluxType = simb::kHistPlusFocus;
 
-      ///save the fluxes - fluxes were added to the vector in the same 
-      ///order that the flavors appear in fGenFlavors
+      // save the fluxes - fluxes were added to the vector in the same 
+      // order that the flavors appear in fGenFlavors
       int ctr = 0;
       int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
       std::vector<double> fluxes(6, 0.);
@@ -460,7 +468,7 @@ namespace evgb{
 	++ctr;
       }
 
-      ///get the flux for each neutrino flavor of this energy
+      // get the flux for each neutrino flavor of this energy
       flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
 		      fluxes[kNuMu],  fluxes[kNuMuBar],
 		      fluxes[kNuTau], fluxes[kNuTauBar]);
@@ -484,7 +492,7 @@ namespace evgb{
       dynamic_cast<genie::flux::GFluxBlender*>(fFluxD2GMCJD);
     if ( blender ) { 
       flux.fdk2gen = blender->TravelDist();
-      //// if mixing flavors print the state of the blender
+      // / if mixing flavors print the state of the blender
       if ( fDebugFlags & 0x02 ) blender->PrintState();
     }
 
@@ -497,6 +505,9 @@ namespace evgb{
                 << " dk2ray = " << flux.fdk2gen << std::endl;
     }
 
+    // set the top volume of the geometry back to the world volume
+    geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fWorldVolume.c_str()));
+					
     return true;
   }
 
@@ -505,13 +516,13 @@ namespace evgb{
   {
     flux.Reset();
 
-    ///cast the fFluxD pointer to be of the right type
+    // cast the fFluxD pointer to be of the right type
     genie::flux::GNuMIFlux *gnf = dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD);
     const genie::flux::GNuMIFluxPassThroughInfo& nflux = gnf->PassThroughInfo();
 
-    ///check the particle codes and the units passed through
-    /// nflux.pcodes: 0=original GEANT particle codes, 1=converted to PDG
-    /// nflux.units:  0=original GEANT cm, 1=meters
+    // check the particle codes and the units passed through
+    //  nflux.pcodes: 0=original GEANT particle codes, 1=converted to PDG
+    //  nflux.units:  0=original GEANT cm, 1=meters
     if(nflux.pcodes != 1 && nflux.units != 0)
       std::cerr << "either wrong particle codes or units from flux object - beware!!" 
 		<< std::endl;
@@ -594,11 +605,11 @@ namespace evgb{
 
     TLorentzVector *vertex = record->Vertex();
 
-    ///get the Interaction object from the record - this is the object
-    ///that talks to the event information objects and is in m
+    // get the Interaction object from the record - this is the object
+    // that talks to the event information objects and is in m
     genie::Interaction *inter = record->Summary();
   
-    ///get the different components making up the interaction
+    // get the different components making up the interaction
     const genie::InitialState &initState  = inter->InitState();
     const genie::ProcessInfo  &procInfo   = inter->ProcInfo();
     const genie::Kinematics   &kine       = inter->Kine();
@@ -609,14 +620,15 @@ namespace evgb{
 
     double spillTime = fGlobalTimeOffset + gRandom->Uniform()*fRandomTimeOffset;
 
-    ///add the particles from the interaction
+    // add the particles from the interaction
     TIter partitr(record);
     genie::GHepParticle *part = 0;
-    ///GHepParticles return units of GeV/c for p.  the V_i are all in fermis
-    ///and are relative to the center of the struck nucleus.
-    ///add the vertex X/Y/Z to the V_i for status codes 0 and 1
+    // GHepParticles return units of GeV/c for p.  the V_i are all in fermis
+    // and are relative to the center of the struck nucleus.
+    // add the vertex X/Y/Z to the V_i for status codes 0 and 1
     int trackid = 0;
     std::string primary("primary");
+
     while( (part = dynamic_cast<genie::GHepParticle *>(partitr.Next())) ){
       --trackid;
       simb::MCParticle tpart(trackid, 
@@ -628,8 +640,8 @@ namespace evgb{
 
       double vtx[4] = {part->Vx(), part->Vy(), part->Vz(), part->Vt()};
       
-      ///set the vertex location for the neutrino, nucleus and everything
-      ///that is to be tracked.  vertex returns values in meters.
+      // set the vertex location for the neutrino, nucleus and everything
+      // that is to be tracked.  vertex returns values in meters.
       if(part->Status() == 0 || part->Status() == 1){
 	vtx[0] = 100.*(part->Vx()*1.e-15 + vertex->X());
 	vtx[1] = 100.*(part->Vy()*1.e-15 + vertex->Y());
@@ -643,19 +655,19 @@ namespace evgb{
 
       truth.Add(tpart);
         
-    }///end loop to convert GHepParticles to MCParticles
+    }// end loop to convert GHepParticles to MCParticles
 
-    ///is the interaction NC or CC
+    // is the interaction NC or CC
     int CCNC = simb::kCC;
     if(procInfo.IsWeakNC()) CCNC = simb::kNC;
 
-    ///what is the interaction type
+    // what is the interaction type
     int mode = simb::kQE;
     if(procInfo.IsDeepInelastic()) mode = simb::kDIS;
     else if(procInfo.IsResonant()) mode = simb::kRes;
     else if(procInfo.IsCoherent()) mode = simb::kCoh;
 
-    ///set the neutrino information in MCTruth
+    // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
     truth.SetNeutrino(CCNC, mode, 
 		      initState.Tgt().Pdg(), 
@@ -675,9 +687,8 @@ namespace evgb{
 #else
     flux.Reset();
 
-    ///cast the fFluxD pointer to be of the right type
-    genie::flux::GSimpleNtpFlux *gsf = 
-      dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
+    // cast the fFluxD pointer to be of the right type
+    genie::flux::GSimpleNtpFlux *gsf = dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
     
     // maintained variable names from gnumi ntuples
     // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]

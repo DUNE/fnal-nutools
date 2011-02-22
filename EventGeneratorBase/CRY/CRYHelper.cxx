@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
+/// \version $Id: CRYHelper.cxx,v 1.4 2011-02-22 21:40:04 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -18,6 +18,7 @@
 #include "TRandom3.h"
 #include "TDatabasePDG.h"
 #include "TLorentzVector.h"
+#include "TGeoManager.h"
 
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -171,6 +172,7 @@ namespace evgb{
       
 	// Push the particle onto the stack
 	std::string primary("primary");
+
 	simb::MCParticle p(-1*(i+1),
 			   pdg,
 			   primary,
