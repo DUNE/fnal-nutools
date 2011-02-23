@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.7 2011-02-22 21:40:04 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.8 2011-02-23 17:11:27 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -420,19 +420,20 @@ namespace evgb{
     // set the top volume for the geometry
     art::ServiceHandle<geo::Geometry> geo;
     geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fTopVolume.c_str()));
-
+    
     genie::EventRecord* record = fDriver->GenerateEvent();
 
-    if ( !record ) return false;
+    // now check if we produced a viable event record
+    bool viableInteraction = true;
+    if ( !record ) viableInteraction = false;
 
-    TLorentzVector *vertex = record->Vertex();
-    if(vertex->Z() > fDetLength + fZCutOff) return false;
-
-    PackMCTruth(record,truth); 
+    // update the spill total information, then check to see 
+    // if we got an event record that was valid
 
     // pack the flux information
     if(fFluxType.compare("ntuple") == 0){
-      fSpillTotal += dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
+      if(fEventsPerSpill == 0.) 
+	fSpillTotal += dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
       flux.fFluxType = simb::kNtuple;
       PackNuMIFlux(flux);
     }
@@ -443,7 +444,8 @@ namespace evgb{
       assert(0);
 #else
       // pack the flux information
-      fSpillTotal += dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
+      if(fEventsPerSpill == 0.)
+	fSpillTotal += dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale();
 #endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
@@ -478,6 +480,21 @@ namespace evgb{
     else if(fFluxType.compare("mono") == 0){
       fSpillTotal += 1.;    
     }
+
+    // if no interaction generated return false
+    if(!viableInteraction) return false;
+    
+    TLorentzVector *vertex = record->Vertex();
+    if(vertex->Z() > fDetLength + fZCutOff) return false;
+    
+    // check to see if we are using flux ntuples but want to 
+    // make n events per spill
+    if(fEventsPerSpill > 0 &&
+       (fFluxType.compare("ntuple") == 0
+	|| fFluxType.compare("simple_flux") == 0)
+       ) fSpillTotal += 1.;
+    
+    PackMCTruth(record,truth); 
 
     // fill these after the Pack[NuMI|Simple]Flux because those
     // will Reset() the values at the start
