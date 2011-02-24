@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.8 2011-02-23 17:11:27 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.9 2011-02-24 01:20:37 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ namespace evgb{
     //  casting to the GENIE geometry driver interface
     fGeomD        = rgeom; // dynamic_cast<genie::GeomAnalyzerI *>(rgeom);
     fDetLength    = geo->DetLength()*0.01;  
-    fDetectorMass = geo->TotalMass(); //not-yet-supported: (fTopVolume.c_str());
+    fDetectorMass = geo->TotalMass(fTopVolume.c_str());
 
     return;
   }
