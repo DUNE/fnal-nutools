@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.9 2011-02-24 01:20:37 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.10 2011-02-25 04:19:24 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -455,25 +455,25 @@ namespace evgb{
       // fluxes came from histograms and fill related values
       flux.fFluxType = simb::kHistPlusFocus;
 
-      // save the fluxes - fluxes were added to the vector in the same 
-      // order that the flavors appear in fGenFlavors
-      int ctr = 0;
-      int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
-      std::vector<double> fluxes(6, 0.);
-      for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
-	if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
-	++ctr;
-      }
+//       // save the fluxes - fluxes were added to the vector in the same 
+//       // order that the flavors appear in fGenFlavors
+//       int ctr = 0;
+//       int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
+//       std::vector<double> fluxes(6, 0.);
+//       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
+// 	if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
+// 	++ctr;
+//       }
 
-      // get the flux for each neutrino flavor of this energy
-      flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
-		      fluxes[kNuMu],  fluxes[kNuMuBar],
-		      fluxes[kNuTau], fluxes[kNuTauBar]);
+//       // get the flux for each neutrino flavor of this energy
+//       flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
+// 		      fluxes[kNuMu],  fluxes[kNuMuBar],
+// 		      fluxes[kNuTau], fluxes[kNuTauBar]);
     
       fSpillTotal += 1.;
     }
