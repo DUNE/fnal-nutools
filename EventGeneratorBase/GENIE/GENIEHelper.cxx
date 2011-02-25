@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.10 2011-02-25 04:19:24 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.11 2011-02-25 05:11:05 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -450,42 +450,15 @@ namespace evgb{
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
     }
-    else if(fFluxType.compare("histogram") == 0){
-      // set the flag in the parent object that says the 
-      // fluxes came from histograms and fill related values
-      flux.fFluxType = simb::kHistPlusFocus;
-
-//       // save the fluxes - fluxes were added to the vector in the same 
-//       // order that the flavors appear in fGenFlavors
-//       int ctr = 0;
-//       int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
-//       std::vector<double> fluxes(6, 0.);
-//       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
-// 	if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
-// 	++ctr;
-//       }
-
-//       // get the flux for each neutrino flavor of this energy
-//       flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
-// 		      fluxes[kNuMu],  fluxes[kNuMuBar],
-// 		      fluxes[kNuTau], fluxes[kNuTauBar]);
-    
-      fSpillTotal += 1.;
-    }
-    else if(fFluxType.compare("mono") == 0){
-      fSpillTotal += 1.;    
-    }
 
     // if no interaction generated return false
     if(!viableInteraction) return false;
     
     TLorentzVector *vertex = record->Vertex();
     if(vertex->Z() > fDetLength + fZCutOff) return false;
+
+    // fill the MC truth information as we have a good interaction
+    PackMCTruth(record,truth); 
     
     // check to see if we are using flux ntuples but want to 
     // make n events per spill
@@ -493,8 +466,39 @@ namespace evgb{
        (fFluxType.compare("ntuple") == 0
 	|| fFluxType.compare("simple_flux") == 0)
        ) fSpillTotal += 1.;
+    // now check if using either histogram or mono fluxes, using
+    // either n events per spill or basing events on POT per spill for the
+    // histogram case
+    else if(fFluxType.compare("histogram") == 0){
+      // set the flag in the parent object that says the 
+      // fluxes came from histograms and fill related values
+      flux.fFluxType = simb::kHistPlusFocus;
+
+      // save the fluxes - fluxes were added to the vector in the same 
+      // order that the flavors appear in fGenFlavors
+      int ctr = 0;
+      int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
+      std::vector<double> fluxes(6, 0.);
+      for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
+	if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
+	if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
+	if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
+	if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
+	if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
+	if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
+	++ctr;
+      }
+
+      // get the flux for each neutrino flavor of this energy
+      flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
+		      fluxes[kNuMu],  fluxes[kNuMuBar],
+		      fluxes[kNuTau], fluxes[kNuTauBar]);
     
-    PackMCTruth(record,truth); 
+      fSpillTotal += 1.;
+    }
+    else if(fFluxType.compare("mono") == 0){
+      fSpillTotal += 1.;    
+    }
 
     // fill these after the Pack[NuMI|Simple]Flux because those
     // will Reset() the values at the start
