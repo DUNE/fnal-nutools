@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.11 2011-02-25 05:11:05 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.12 2011-02-26 18:06:50 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -466,10 +466,11 @@ namespace evgb{
        (fFluxType.compare("ntuple") == 0
 	|| fFluxType.compare("simple_flux") == 0)
        ) fSpillTotal += 1.;
+
     // now check if using either histogram or mono fluxes, using
     // either n events per spill or basing events on POT per spill for the
     // histogram case
-    else if(fFluxType.compare("histogram") == 0){
+    if(fFluxType.compare("histogram") == 0){
       // set the flag in the parent object that says the 
       // fluxes came from histograms and fill related values
       flux.fFluxType = simb::kHistPlusFocus;
