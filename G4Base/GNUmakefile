@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2011-01-21 23:23:11 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.3 2011-03-04 19:43:18 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -15,7 +15,7 @@ LIBCXXFILES := $(wildcard *.cxx)
 
 CPPFLAGS     += -I$(G4INSTALL)/include
 
-LIBLINK    := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
+LIBLINK    := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 
 
 ########################################################################
@@ -23,4 +23,4 @@ include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 ########################################################################
 
-override LIBLIBS += -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
+override LIBLIBS += $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
