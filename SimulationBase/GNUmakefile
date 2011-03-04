@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2011-01-21 16:30:32 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.3 2011-03-04 19:58:12 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -11,8 +11,10 @@ LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
 JOBFILES    := $(wildcard *.fcl)
 
-LIBLINK     := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
+LIBLINK     := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 
 ########################################################################
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
+
+override LIBLIBS += $(LOADLIBES) 
