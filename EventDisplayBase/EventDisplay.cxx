@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.7 2011-02-09 22:49:59 paterno Exp $
+/// \version $Id: EventDisplay.cxx,v 1.8 2011-03-04 20:29:10 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -185,7 +185,7 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
     fInputSource->skipEvents(-1); 
   }
   else if (NavState::Which() == kGOTO_EVENT) {
-    art::EventID id(NavState::TargetRun(), NavState::TargetEvent());
+     art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
     fInputSource->readEvent(id);
     fInputSource->skipEvents(-1);
   }
