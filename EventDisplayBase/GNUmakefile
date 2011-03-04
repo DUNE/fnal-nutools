@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2011-01-23 16:08:50 p-nusoftart Exp $
+# $Id: GNUmakefile,v 1.7 2011-03-04 19:39:47 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -18,7 +18,7 @@ override LDFLAGS += $(shell root-config --libs)
 
 override LOADLIBES += $(ROOTLIBS)
 
-LIBLINK     := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
+LIBLINK     := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 
 # SUBDIRS     := test
 
@@ -26,3 +26,5 @@ LIBLINK     := $(LOADLIBES) -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_P
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 include SoftRelTools/arch_spec_root.mk
+
+override LIBLIBS += $(LOADLIBES) 
