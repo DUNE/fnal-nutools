@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.8 2011-03-04 20:29:10 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.9 2011-03-17 22:45:47 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -118,12 +118,27 @@ void EventDisplay::EditWorkerParameterSet(int i)
   
   fhicl::ParameterSetRegistry::get(fWorkers[i]->description().parameterSetID(), params);
   
-  std::string newpset;
   new ParameterSetEdit(0,
 		       fWorkers[i]->description().moduleName(),
 		       fWorkers[i]->description().moduleLabel(),
 		       params.to_string(),
 		       &fParamSets[i]);
+
+}
+
+//......................................................................
+
+void EventDisplay::EditDrawingOptionParameterSet(int i) 
+{
+  fhicl::ParameterSet params;
+  
+  //fhicl::ParameterSetRegistry::get(fWorkers[i]->description().parameterSetID(), params);
+  
+//   new ParameterSetEdit(0,
+// 		       fWorkers[i]->description().moduleName(),
+// 		       fWorkers[i]->description().moduleLabel(),
+// 		       params.to_string(),
+// 		       &fParamSets[i]);
 
 }
 

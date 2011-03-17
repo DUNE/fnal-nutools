@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.6 2011-02-16 21:49:42 messier Exp $
+/// \version $Id: JobMenu.cxx,v 1.7 2011-03-17 22:45:47 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -40,7 +40,6 @@ JobMenu::JobMenu(TGMenuBar* menubar, TGMainFrame* mf) :
   fLayout  = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
   
   fConfigMenu = new TGPopupMenu(gClient->GetRoot());
-  // this->BuildConfigMenu();
   
   // Create the list of functions. Associate each which a command code
   fJobMenu->AddEntry("&Load job",  kM_JOB_OPENXML);

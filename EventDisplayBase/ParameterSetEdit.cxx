@@ -2,7 +2,7 @@
 /// \file  ParameterSetEdit.cxx
 /// \brief Popup to edit configuration data
 ///
-/// \version $Id: ParameterSetEdit.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ParameterSetEdit.cxx,v 1.2 2011-03-17 22:45:47 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/ParameterSetEdit.h"
@@ -35,81 +35,23 @@ static void parse_pset_string(const std::string& pset,
   size_t istart = 0;
   size_t iend   = 0;
   while (1) {
-    iend = pset.find(';',istart);
+    iend = pset.find(' ',istart);
     
     std::string param = pset.substr(istart, iend-istart);
 
-    size_t ieq = param.find('=');
+    size_t ieq = param.find(':');
     if (ieq == param.npos) { abort(); }
     
-    std::string nm   = param.substr(0,ieq);
-    std::string assn = param.substr(ieq+1,param.size());
+    std::string nm    = param.substr(0,ieq);
+    std::string value = param.substr(ieq+1,param.size());
     
-    size_t paren = assn.find('(');
-    if (paren==assn.npos) abort();
-    
-    std::string type  = assn.substr(0,paren);
-    std::string value = assn.substr(paren+1, assn.size());
-
-    size_t openbracket;
-    size_t closebracket;
-    size_t openparen;
-    size_t closeparen;
-    size_t opencurly;
-    size_t closecurly;
-    while (1) {
-      openbracket = nm.find('<');
-      if (openbracket!=nm.npos) nm.erase(openbracket,1);
-
-      closebracket = nm.find('>');
-      if (closebracket!=nm.npos) nm.erase(closebracket,1);
-
-      openparen = nm.find('(');
-      if (openparen!=nm.npos) nm.erase(openparen,1);
-
-      closeparen = nm.find(')');
-      if (closeparen!=nm.npos) nm.erase(closeparen,1);
-
-      opencurly = nm.find('{');
-      if (opencurly!=nm.npos) nm.erase(opencurly,1);
-
-      closecurly = nm.find('}');
-      if (closecurly!=nm.npos) nm.erase(closecurly,1);
-
-      if (openbracket==nm.npos && closebracket==nm.npos &&
-	  openparen  ==nm.npos && closeparen  ==nm.npos &&
-	  opencurly  ==nm.npos && closecurly  ==nm.npos) break;
-    }
-    while (1) {
-      openbracket = value.find('<');
-      if (openbracket!=value.npos) value.erase(openbracket,1);
-
-      closebracket = value.find('>');
-      if (closebracket!=value.npos) value.erase(closebracket,1);
-
-      openparen = value.find('(');
-      if (openparen!=value.npos) value.erase(openparen,1);
-
-      closeparen = value.find(')');
-      if (closeparen!=value.npos) value.erase(closeparen,1);
-
-      opencurly = value.find('{');
-      if (opencurly!=value.npos) value.erase(opencurly,1);
-
-      closecurly = value.find('}');
-      if (closecurly!=value.npos) value.erase(closecurly,1);
-
-      if (openbracket==value.npos && closebracket==value.npos &&
-	  openparen  ==value.npos && closeparen  ==value.npos &&
-	  opencurly  ==value.npos && closecurly  ==value.npos) break;
-    }
     names. push_back(nm);
-    types. push_back(type);
     values.push_back(value);
     
     if (iend==pset.npos) break;
     istart = iend+1;
   }
+
 }
 
 
@@ -132,8 +74,12 @@ ParamFrame::ParamFrame(const TGWindow* p,
   fFrame->SetLayoutManager(fML);
   int h=0;
   
-  // Start at "2" since first two are module and label
-  for (unsigned int i=2; i<name.size(); ++i) {
+  for (unsigned int i=0; i<name.size(); ++i) {
+    // skip if the name is module_label, module_type or service_type
+    if(name[i].compare("module_label")    == 0
+       || name[i].compare("module_type")  == 0
+       || name[i].compare("service_type") == 0) continue;
+
     // Build the parameter label
     TGTextButton*
       b = new TGTextButton(fFrame, 
@@ -142,7 +88,7 @@ ParamFrame::ParamFrame(const TGWindow* p,
 			   TGButton::GetDefaultGC()(),
 			   TGTextButton::GetDefaultFontStruct(), 
 			   0);
-    b->SetToolTipText(type[i].c_str());
+    //b->SetToolTipText(type[i].c_str());
     fFrame->AddFrame(b, fLH3);
     
     // Build the text edit box for the values
@@ -298,16 +244,12 @@ int ParameterSetEdit::Edit()
   const char* values;
   std::ostringstream pset;
   
-  pset << "<" <<
-    fName[0] << "=" << fType[0] << "(" << fValue[0] << ");" <<
-    fName[1] << "=" << fType[1] << "(" << fValue[1] << ");";
-  
-  for (i=2; i<fName.size(); ++i) {
-    values = fT2[i-2]->GetText();
-    pset << fName[i] << "=" << fType[i] << "({" << values << "});";
+  for (i=0; i<fName.size(); ++i) {
+    if(i < fT2.size() ) values = fT2[i]->GetText();
+    else                values = fValue[i].c_str();
+    pset << fName[i] << ":" << values << " ";
   }
-  pset << ">";
-  
+
   (*fResult) = pset.str();
     
   return 1;

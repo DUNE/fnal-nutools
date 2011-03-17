@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.3 2011-01-20 16:43:29 p-nusoftart Exp $
+/// \version $Id: EventDisplay.h,v 1.4 2011-03-17 22:45:47 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EVENTDISPLAY_H
@@ -28,6 +28,7 @@ namespace evdb {
     ~EventDisplay();
     
     void EditWorkerParameterSet(int i);
+    void EditDrawingOptionParameterSet(int i);
     
   private:
     void postBeginJobWorkers(art::InputSource* inputs,
