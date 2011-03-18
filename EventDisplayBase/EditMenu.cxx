@@ -2,7 +2,7 @@
 /// \file  EditMenu.cxx
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.cxx,v 1.4 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: EditMenu.cxx,v 1.5 2011-03-18 18:01:59 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/EditMenu.h"
@@ -66,9 +66,9 @@ void EditMenu::SetWorkers(const std::vector<std::string>& w)
     fDrawingOptionsMenu->AddEntry(w[i].c_str(), i);
   }
   fDrawingOptionsMenu->Connect("Activated(Int_t)",
-		       "evdb::EditMenu",
-		       this,
-		       "EditDrawingOptions(int)");
+			       "evdb::EditMenu",
+			       this,
+			       "EditDrawingOptions(int)");
 }
 
 //......................................................................

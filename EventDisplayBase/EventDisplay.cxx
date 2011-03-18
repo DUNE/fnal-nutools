@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.9 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.10 2011-03-18 18:01:59 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -27,6 +27,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Worker.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 
 using namespace evdb;
 
@@ -78,6 +79,7 @@ EventDisplay::EventDisplay(fhicl::ParameterSet const& pset,
 //   evdb::DisplayWindow::Register("Test1","Test display #1",600,900,mk_canvas1);
 //   evdb::DisplayWindow::OpenWindow(0);
 
+  reg.watchPostBeginJob       (this, &EventDisplay::postBeginJob);
   reg.watchPostBeginJobWorkers(this, &EventDisplay::postBeginJobWorkers);
   reg.watchPreProcessEvent    (this, &EventDisplay::preProcessEvent);
   reg.watchPostProcessEvent   (this, &EventDisplay::postProcessEvent);
@@ -112,6 +114,32 @@ void EventDisplay::postBeginJobWorkers(art::InputSource* input_source,
 
 //......................................................................
 
+void EventDisplay::postBeginJob() 
+{
+  std::vector< fhicl::ParameterSet > psets;
+  art::ServiceRegistry& inst = art::ServiceRegistry::instance();
+  inst.presentToken().getParameterSets(psets);
+
+  // loop over the service parameter sets and get the names of those
+  // that have DrawingOptions in their names
+
+  fDrawingOptions.clear();
+  for(size_t i = 0; i < psets.size(); ++i){
+
+    std::string pset = psets[i].to_string();
+
+    if(pset.find("DrawingOptions") != std::string::npos)      
+      fDrawingOptions.push_back(psets[i].get<std::string>("service_type"));
+
+  }
+
+  fDrawingParamSets.resize(fDrawingOptions.size());
+  evdb::DisplayWindow::SetDrawingOptionsAll(fDrawingOptions);
+
+}
+
+//......................................................................
+
 void EventDisplay::EditWorkerParameterSet(int i) 
 {
   fhicl::ParameterSet params;
@@ -130,15 +158,19 @@ void EventDisplay::EditWorkerParameterSet(int i)
 
 void EventDisplay::EditDrawingOptionParameterSet(int i) 
 {
-  fhicl::ParameterSet params;
-  
-  //fhicl::ParameterSetRegistry::get(fWorkers[i]->description().parameterSetID(), params);
-  
-//   new ParameterSetEdit(0,
-// 		       fWorkers[i]->description().moduleName(),
-// 		       fWorkers[i]->description().moduleLabel(),
-// 		       params.to_string(),
-// 		       &fParamSets[i]);
+  std::vector< fhicl::ParameterSet > psets;
+  art::ServiceRegistry& inst = art::ServiceRegistry::instance();
+  inst.presentToken().getParameterSets(psets);
+
+  for(size_t ps = 0; ps < psets.size(); ++ps){
+    if(psets[ps].get<std::string>("service_type", "none").compare(fDrawingOptions[i]) == 0){
+      new ParameterSetEdit(0,
+			   "Service",
+			   fDrawingOptions[i],
+			   psets[ps].to_string(),
+			   &fDrawingParamSets[i]);
+    }// end if the correct configuration
+  }
 
 }
 
@@ -152,20 +184,8 @@ void EventDisplay::preProcessEvent(art::EventID const& evtid,
 
 //......................................................................
 
-void EventDisplay::postProcessEvent(art::Event const& evt )
+void EventDisplay::ReconfigureWorkers()
 {
-  // stuff the event into the holder
-  evdb::EventHolder *holder = evdb::EventHolder::Instance();
-  holder->SetEvent(&evt);
-
-  evdb::DisplayWindow::DrawAll();
-  
-  TApplication* app = gROOT->GetApplication();
-
-  // Hold here for user input from the GUI...
-  app->Run(kTRUE);
-
-
   // Look to see if we have any new configurations to apply
   for (unsigned int i=0; i<fParamSets.size(); ++i) {
     try {
@@ -186,7 +206,61 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
 		<< std::endl;
     }
   }
+}
 
+//......................................................................
+
+void EventDisplay::ReconfigureDrawingOptions()
+{
+  // Look to see if we have any new service configurations to apply
+  art::ServiceRegistry& inst = art::ServiceRegistry::instance();
+  std::vector< fhicl::ParameterSet > psets;
+  inst.presentToken().getParameterSets(psets);
+  for(size_t ps = 0; ps < psets.size(); ++ps){    
+    for (unsigned int i=0; i<fDrawingParamSets.size(); ++i) {
+      
+      if(fDrawingOptions[i].compare(psets[ps].get<std::string>("service_type", "none")) == 0){
+	try {
+	  if (!fDrawingParamSets[i].empty()) {
+	    fhicl::ParameterSet pset;
+	    fhicl::intermediate_table itable;
+	    // Each of the next 2 lines may throw on error: should check.
+	    fhicl::parse_document(fDrawingParamSets[i], itable); 
+	    fhicl::make_ParameterSet(itable, pset); 
+	    fDrawingParamSets[i] = "";
+	    psets[ps] = pset;
+	  }
+	}
+	catch (fhicl::exception& e) {
+	  std::cout << "Error parsing the new configuration:\n"
+		    << e
+		    << "\nRe-configuration has been ignored for service: "
+		    << fDrawingOptions[i]
+		    << std::endl;
+	}
+      }// end if this is the right service in the list
+    }// end loop over drawing options
+  }// end loop over service parameter sets
+  inst.presentToken().putParameterSets(psets);
+}
+
+//......................................................................
+
+void EventDisplay::postProcessEvent(art::Event const& evt )
+{
+  // stuff the event into the holder
+  evdb::EventHolder *holder = evdb::EventHolder::Instance();
+  holder->SetEvent(&evt);
+
+  evdb::DisplayWindow::DrawAll();
+  
+  TApplication* app = gROOT->GetApplication();
+
+  // Hold here for user input from the GUI...
+  app->Run(kTRUE);
+
+  this->ReconfigureWorkers();
+  this->ReconfigureDrawingOptions();
 
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {

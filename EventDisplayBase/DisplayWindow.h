@@ -3,7 +3,7 @@
 /// \brief A window, dressed with menus and buttons, that displays
 /// dector information
 ///
-/// \version $Id: DisplayWindow.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
+/// \version $Id: DisplayWindow.h,v 1.3 2011-03-18 18:01:59 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_DISPLAYWINDOW_H
@@ -43,6 +43,7 @@ namespace evdb {
     static int   OpenWindow(int type=0);
     static void  SetRunEventAll(int run, int event);
     static void  SetWorkersAll(const std::vector<std::string>& w);
+    static void  SetDrawingOptionsAll(const std::vector<std::string>& dopt);
     static void  DrawAll(const char* opt=0);
 
   public:
@@ -54,6 +55,8 @@ namespace evdb {
     void         Raise();
     void         SetRunEvent(int run, int event);
     void         SetWorkers(const std::vector<std::string>& w);
+    void         SetDrawingOptions(const std::vector<std::string>& dopt);
+
   private:
     TGMainFrame* fMain;      ///< Main window
     MenuBar*     fMenuBar;   ///< Top menu bar

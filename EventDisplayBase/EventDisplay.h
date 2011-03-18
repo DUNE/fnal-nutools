@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.4 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: EventDisplay.h,v 1.5 2011-03-18 18:01:59 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EVENTDISPLAY_H
@@ -31,10 +31,15 @@ namespace evdb {
     void EditDrawingOptionParameterSet(int i);
     
   private:
+
+    void postBeginJob();
     void postBeginJobWorkers(art::InputSource* inputs,
 			     std::vector<art::Worker*> const& workers);
     void preProcessEvent(art::EventID const&, art::Timestamp const&);
     void postProcessEvent(art::Event const&);
+
+    void ReconfigureWorkers();
+    void ReconfigureDrawingOptions();
 
   private:
     art::InputSource* fInputSource; ///< Input source of events
@@ -43,6 +48,8 @@ namespace evdb {
     unsigned int              fAutoAdvanceInterval; ///< Wait time in milliseconds
     std::vector<art::Worker*> fWorkers;             ///< needed for reconfiguration
     std::vector<std::string>  fParamSets;           ///< Reconfigure parameters
+    std::vector<std::string>  fDrawingOptions;      ///< The drawing option services in use
+    std::vector<std::string>  fDrawingParamSets;    ///< Reconfigure drawing parameters
   };
 }
 #endif // __CINT__

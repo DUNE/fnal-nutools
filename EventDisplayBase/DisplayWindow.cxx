@@ -3,7 +3,7 @@
 /// \brief A window containing a display of the detector or one of its
 /// components
 ///
-/// \version $Id: DisplayWindow.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: DisplayWindow.cxx,v 1.2 2011-03-18 18:01:59 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/DisplayWindow.h"
@@ -58,6 +58,16 @@ void DisplayWindow::SetWorkersAll(const std::vector<std::string>& w)
   }
 }
 
+
+//......................................................................
+
+void DisplayWindow::SetDrawingOptionsAll(const std::vector<std::string>& dopt)
+{
+  for (int i=0; i<gsWindows.size(); ++i) {
+    if (gsWindows[i]!=0) gsWindows[i]->SetDrawingOptions(dopt);
+  }
+}
+
 //......................................................................
 
 void DisplayWindow::DrawAll(const char* opt)
@@ -79,6 +89,13 @@ void DisplayWindow::SetRunEvent(int run, int event)
 void DisplayWindow::SetWorkers(const std::vector<std::string>& w) 
 {
   fMenuBar->fJobMenu->SetWorkers(w);
+}
+
+//......................................................................
+
+void DisplayWindow::SetDrawingOptions(const std::vector<std::string>& dopt) 
+{
+  fMenuBar->fEditMenu->SetWorkers(dopt);
 }
 
 //......................................................................
