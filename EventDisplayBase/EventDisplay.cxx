@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.10 2011-03-18 18:01:59 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.11 2011-03-29 16:06:07 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -195,7 +195,7 @@ void EventDisplay::ReconfigureWorkers()
 	fhicl::parse_document(fParamSets[i], itable); // May throw on error: should check.
 	fhicl::make_ParameterSet(itable, pset); // May throw on error: should check.
 	fParamSets[i] = "";
-	fWorkers[i]->reconfigure(std::cin, std::cout, pset);
+	fWorkers[i]->reconfigure(pset);
       }
     }
     catch (fhicl::exception& e) {
