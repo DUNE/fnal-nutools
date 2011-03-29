@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.13 2011-03-04 16:47:20 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.14 2011-03-29 19:32:14 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,7 @@
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJDriver.h"
+#include "GHEP/GHepUtils.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "FluxDrivers/GMonoEnergeticFlux.h"
 #include "FluxDrivers/GNuMIFlux.h"
@@ -688,10 +689,12 @@ namespace evgb{
     if(procInfo.IsDeepInelastic()) mode = simb::kDIS;
     else if(procInfo.IsResonant()) mode = simb::kRes;
     else if(procInfo.IsCoherent()) mode = simb::kCoh;
+    
+    int itype = simb::kNuanceOffset + genie::utils::ghep::NuanceReactionCode(record);
 
     // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
-    truth.SetNeutrino(CCNC, mode, 
+    truth.SetNeutrino(CCNC, mode, itype,
 		      initState.Tgt().Pdg(), 
 		      initState.Tgt().HitNucPdg(), 
 		      initState.Tgt().HitQrkPdg(),
