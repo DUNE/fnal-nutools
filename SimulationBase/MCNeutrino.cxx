@@ -2,7 +2,7 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCNeutrino.cxx,v 1.2 2011-03-29 19:31:22 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -19,11 +19,13 @@ namespace simb{
   //......................................................................
   ///nu is the incoming neutrino and lep is the outgoing lepton
   MCNeutrino::MCNeutrino(MCParticle &nu, MCParticle &lep, 
-			 int CCNC, int mode, int target, int nucleon,
+			 int CCNC, int mode, int interactionType,
+			 int target, int nucleon,
 			 int quark, double w, double x, double y, double qsqr) :
     fNu(nu),
     fLepton(lep),
     fMode(mode),
+    fInteractionType(interactionType),
     fCCNC(CCNC),
     fTarget(target),
     fHitNuc(nucleon),

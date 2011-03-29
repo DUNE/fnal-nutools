@@ -2,7 +2,7 @@
 /// \file  MCTruth.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCTruth.h,v 1.2 2011-01-12 18:14:30 p-nusoftart Exp $
+/// \version $Id: MCTruth.h,v 1.3 2011-03-29 19:31:22 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCTRUTH_H
@@ -44,6 +44,7 @@ namespace simb {
     void             SetOrigin(simb::Origin_t origin) { fOrigin = origin;             }
     void             SetNeutrino(int CCNC, 
 				 int mode, 
+				 int interactionType,
 				 int target, 
 				 int nucleon,
 				 int quark, 
