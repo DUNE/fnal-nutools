@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.15 2011-04-04 01:31:29 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.16 2011-04-04 19:02:22 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -218,16 +218,16 @@ namespace evgb{
     fDriver->UseSplines();
     fDriver->ForceSingleProbScale();
 
-    if(fFluxType.compare("histogram") == 0){
+    if(fFluxType.compare("histogram") == 0 && fEventsPerSpill < 0.01){
       // fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy 
       // integral over all fluxes removes energy dependence
       // histograms should have bin width that reflects the value of the /energy bit
       // ie if /energy = /50MeV then the bin width should be 50 MeV
       
       // determine product of pot/spill, mass, and cross section
-      // events = flux * pot * 10^-38 cm^2 (xsec) * (mass detector (in kg) / carbon mass (in kg)) * energy bin size
+      // events = flux * pot * 10^-38 cm^2 (xsec) * (mass detector (in kg) / nucleon mass (in kg))
       fXSecMassPOT  = 1.e-38*1.e-20;
-      fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(fTargetA*1.67262158e-27); 
+      fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(1.67262158e-27); 
 
       std::cout << "Number of events per spill will be based on poisson mean of "
 		<< fXSecMassPOT*fTotalHistFlux << std::endl;
