@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.1 2011-04-04 01:31:29 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.2 2011-04-04 19:00:08 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -34,7 +34,10 @@
 namespace evgen {
 
   //____________________________________________________________________________
-  EventGeneratorTest::EventGeneratorTest(fhicl::ParameterSet const& pset) 
+  EventGeneratorTest::EventGeneratorTest(fhicl::ParameterSet const& pset)
+    : fTotalGENIEPOT         ( pset.get< double >("TotalGENIEPOT",          5e18))
+    , fTotalGENIEInteractions( pset.get< double >("TotalGENIEInteractions", 100) )
+    , fTotalCRYSpills        ( pset.get< double >("TotalCRYSpills",         1000))
   {  
   }
 
@@ -56,16 +59,16 @@ namespace evgen {
     this->GENIEHistogramFluxTest();
     mf::LogWarning("EventGeneratorTest") << "\t \t done."
 					 << "\t simple flux...";
-//     this->GENIESimpleFluxTest();
-//     mf::LogWarning("EventGeneratorTest") << "\t \t done."
-// 					 << "\t mono flux...";
-//     this->GENIEMonoFluxTest();
-//     mf::LogWarning("EventGeneratorTest") << "\t \t done.\n"
-// 					 << "GENIE tests done";
+    this->GENIESimpleFluxTest();
+    mf::LogWarning("EventGeneratorTest") << "\t \t done."
+					 << "\t mono flux...";
+    this->GENIEMonoFluxTest();
+    mf::LogWarning("EventGeneratorTest") << "\t \t done.\n"
+					 << "GENIE tests done";
 
-//     mf::LogWarning("EventGeneratorTest") << "testing CRY...";
-//     this->CRYTest();
-//     mf::LogWarning("EventGeneratorTest") << "\t CRY test done.";
+    mf::LogWarning("EventGeneratorTest") << "testing CRY...";
+    this->CRYTest();
+    mf::LogWarning("EventGeneratorTest") << "\t CRY test done.";
   }
 
   //____________________________________________________________________________
@@ -129,7 +132,14 @@ namespace evgen {
     int interactionCount = 0;
 
     int nspill = 0;
-    while(nspill < 1000){
+    int spillLimit = 0;
+
+    // decide if we are in POT/Spill or Events/Spill mode
+    double eps = pset.get<double>("EventsPerSpill");
+    if(eps > 0.) spillLimit = TMath::Nint(fTotalGENIEInteractions/eps);
+    else         spillLimit = 1000;
+
+    while(nspill < spillLimit){
       ++nspill;
       while( !help.Stop() ){
 
@@ -159,11 +169,11 @@ namespace evgen {
       
       // see comments in GENIEHelper::Initialize() for how this calculation was done.
       double totalExp = 1.e-38*1.e-20*help.TotalHistFlux();
-      totalExp *= help.POTUsed()*help.TotalMass()/(help.TargetA()*1.67262158e-27);
+      totalExp *= help.POTUsed()*help.TotalMass()/(1.67262158e-27);
 
       mf::LogWarning("EventGeneratorTest") << "expected " << totalExp << " interactions";
-      if(fabs(interactionCount - totalExp) > 2.*TMath::Sqrt(totalExp) ){
-	mf::LogWarning("EventGeneratorTest") << "generated count is more than 2 sigma off expectation";
+      if(fabs(interactionCount - totalExp) > 3.*TMath::Sqrt(totalExp) ){
+	mf::LogWarning("EventGeneratorTest") << "generated count is more than 3 sigma off expectation";
 	assert(0);
       }
 
@@ -257,7 +267,7 @@ namespace evgen {
     double avPartIntersectPerSpill = 0.;
     double avMuonIntersectPerSpill = 0.;
     double avEIntersectPerSpill    = 0.;
-    while(nspill < 1000){
+    while(nspill < TMath::Nint(fTotalCRYSpills) ){
 
       simb::MCTruth mct;
       

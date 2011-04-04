@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file EventGeneratorTest.h
 //
-/// \version $Id: EventGeneratorTest.h,v 1.1 2011-04-04 01:31:29 brebel Exp $
+/// \version $Id: EventGeneratorTest.h,v 1.2 2011-04-04 19:00:08 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGEN_TEST_H
@@ -50,6 +50,12 @@ namespace evgen {
 					  double surfaceLoc,
 					  double* xyz);
 
+
+    double fTotalGENIEPOT;          ///< number of POT to generate with GENIE when 
+                                    ///< in total POT mode
+    double fTotalGENIEInteractions; ///< number of interactions to generate with 
+                                    ///< GENIE when in EventsPerSpill mode
+    double fTotalCRYSpills;         ///< number of spills to use when testing CRY
   };
 };
 
