@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.6 2011-03-29 19:34:17 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.7 2011-04-04 01:31:29 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -98,9 +98,8 @@ namespace evgb{
   //......................................................................
   void CRYHelper::Sample(simb::MCTruth& mctruth, double* w)
   {
-    double tstart; // Generator time at start of sample
-
-    tstart = fGen->timeSimulated();
+    // Generator time at start of sample
+    double tstart = fGen->timeSimulated();
     while (1) {
       fEvt->clear();
       fGen->genEvent(fEvt);
@@ -114,8 +113,7 @@ namespace evgb{
 	// Get the energies of the particles
 	double ke = cryp->ke()*1.0E-3; // MeV to GeV conversion
 	if (ke<fEthresh) continue;
-	
-	
+		
 	double m    = 0.; // in GeV
 
 	static TDatabasePDG*  pdgt = TDatabasePDG::Instance();
@@ -133,7 +131,6 @@ namespace evgb{
 	double py = ptot * cryp->w();
 	double pz = ptot * cryp->u();
       
-
 	art::ServiceHandle<geo::Geometry> geo;
 
 	// Particle start position. CRY distributes uniformly in x-y

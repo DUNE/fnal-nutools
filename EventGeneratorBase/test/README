@@ -1,0 +1,12 @@
+This code provides test of the GENIEHelper and CRYHelper
+
+To run it, edit evgentest.fcl as follows:
+
+line 1: change geometry.fcl to the name of the file containing your geometry configuration
+line 24: change @local::geometry to @local::XXX where XXX is the name of your geometry configuration
+
+then
+
+<exe> -c evgentest.fcl 
+
+will run the test, where <exe> is the name of your executable, ie nova, lar, etc.

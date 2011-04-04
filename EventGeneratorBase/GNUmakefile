@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2011-03-29 19:32:14 brebel Exp $
+# $Id: GNUmakefile,v 1.6 2011-04-04 01:31:29 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -10,6 +10,7 @@ include SoftRelTools/arch_spec_cry.mk
 
 #VERBOSE     := true
 PACKAGE     := EventGeneratorBase
+SUBDIRS     := test
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)

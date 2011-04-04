@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.14 2011-03-29 19:32:14 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.15 2011-04-04 01:31:29 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -80,29 +80,29 @@ namespace evgb{
     fFluxD             (0),
     fFluxD2GMCJD       (0),
     fDriver            (0),
-    fFluxType          (pset.get< std::string              >("FluxType")        ),
-    fFluxFile          (pset.get< std::string              >("FluxFile")        ),
-    fBeamName          (pset.get< std::string              >("BeamName")        ),
-    fTopVolume         (pset.get< std::string              >("TopVolume")       ),
-    fWorldVolume       ("volWorld"),
-    fDetLocation       (pset.get< std::string              >("DetectorLocation")),
-    fTargetA           (pset.get< double                   >("TargetA")         ),
-    fEventsPerSpill    (pset.get< double                   >("EventsPerSpill")  ),
-    fPOTPerSpill       (pset.get< double                   >("POTPerSpill")     ),
+    fFluxType          (pset.get< std::string              >("FluxType")               ),
+    fFluxFile          (pset.get< std::string              >("FluxFile")               ),
+    fBeamName          (pset.get< std::string              >("BeamName")               ),
+    fTopVolume         (pset.get< std::string              >("TopVolume")              ),
+    fWorldVolume       ("volWorld"),						         
+    fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  ),
+    fTargetA           (pset.get< double                   >("TargetA",          12.)  ),
+    fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    ),
+    fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13)),
     fHistEventsPerSpill(0.),
-    fMonoEnergy        (pset.get< double                   >("MonoEnergy")      ),
-    fPOTUsed           (0.),
-    fBeamRadius        (pset.get< double                   >("BeamRadius")      ),
-    fSurroundingMass   (pset.get< double                   >("SurroundingMass") ),
-    fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset")),
-    fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset")),
-    fZCutOff           (pset.get< double                   >("ZCutOff")         ),
-    fEnvironment       (pset.get< std::vector<std::string> >("Environment")     ),
-    fMixerConfig       (pset.get< std::string              >("MixerConfig")     ),
-    fMixerBaseline     (pset.get< double                   >("MixerBaseline")   ),
-    fDebugFlags        (pset.get< unsigned int             >("DebugFlags")      )
+    fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  ),
+    fPOTUsed           (0.),							         
+    fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  ),
+    fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   ),
+    fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) ),
+    fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) ),
+    fZCutOff           (pset.get< double                   >("ZCutOff",          2.5)  ),
+    fEnvironment       (pset.get< std::vector<std::string> >("Environment")            ),
+    fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none")),
+    fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   ),
+    fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
   {
-    int ranseed(pset.get< int >("RandomSeed"));
+    int ranseed(pset.get< int >("RandomSeed", 0));
 
     std::vector<double> beamCenter   (pset.get< std::vector<double> >("BeamCenter")   );
     std::vector<double> beamDirection(pset.get< std::vector<double> >("BeamDirection"));
@@ -219,18 +219,17 @@ namespace evgb{
     fDriver->ForceSingleProbScale();
 
     if(fFluxType.compare("histogram") == 0){
-      // fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy in histogram bin width
+      // fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy 
+      // integral over all fluxes removes energy dependence
+      // histograms should have bin width that reflects the value of the /energy bit
+      // ie if /energy = /50MeV then the bin width should be 50 MeV
       
-      // get the bin width to remove energy dependence
-      // bins are assumed to be in GeV while fluxes are in /MeV
-      double binWidth = fFluxHistograms[0]->GetBinWidth(1)*1000.; 
-
       // determine product of pot/spill, mass, and cross section
       // events = flux * pot * 10^-38 cm^2 (xsec) * (mass detector (in kg) / carbon mass (in kg)) * energy bin size
-      fXSecMassPOT  = 1.e-38*1.e-20*binWidth;
+      fXSecMassPOT  = 1.e-38*1.e-20;
       fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(fTargetA*1.67262158e-27); 
 
-      std::cout << "Number of events per spill will be base on poisson mean of "
+      std::cout << "Number of events per spill will be based on poisson mean of "
 		<< fXSecMassPOT*fTotalHistFlux << std::endl;
 
       fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
@@ -403,8 +402,10 @@ namespace evgb{
       if( ( fFluxType.compare("ntuple")      == 0 || 
             fFluxType.compare("simple_flux") == 0    ) && 
           fSpillTotal < fPOTPerSpill) return false;
-      else if(fFluxType.compare("histogram") == 0      && 
-              fSpillTotal < fHistEventsPerSpill) return false;
+      else if(fFluxType.compare("histogram") == 0){
+	if(fSpillTotal < fHistEventsPerSpill) return false;
+	else fSpillTotal = fPOTPerSpill;
+      }
     }
 
     // made it to here, means need to reset the counters

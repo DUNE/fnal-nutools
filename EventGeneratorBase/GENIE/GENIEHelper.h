@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.6 2011-02-22 21:40:04 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.7 2011-04-04 01:31:29 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -41,9 +41,15 @@ namespace evgb{
     bool                   Sample(simb::MCTruth &truth, 
 				  simb::MCFlux  &flux);
     double                 TotalHistFlux();
-    double                 POTUsed()          const { return fPOTUsed;     }
-    std::string            FluxType()         const { return fFluxType;    }
-    std::string            DetectorLocation() const { return fDetLocation; }
+    double                 POTUsed()          const { return fPOTUsed;        }
+    std::string            FluxType()         const { return fFluxType;       }
+    std::string            DetectorLocation() const { return fDetLocation;    }
+    
+    // methods for checking the various algorithms in GENIEHelper - please
+    // do not use these in your code!!!!!
+    std::vector<TH1D*>     FluxHistograms()   const { return fFluxHistograms; }   
+    double                 TotalMass()        const { return fDetectorMass+fSurroundingMass; }
+    double                 TargetA()          const { return fTargetA;        }
 
   private:
 
