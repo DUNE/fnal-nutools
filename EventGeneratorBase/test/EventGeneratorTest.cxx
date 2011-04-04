@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.2 2011-04-04 19:00:08 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.3 2011-04-04 19:05:56 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -23,13 +23,9 @@
 #include "art/Framework/Core/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-// NOvA includes
 #include "SimulationBase/simbase.h"
 #include "EventGeneratorBase/test/EventGeneratorTest.h"
 #include "Geometry/geo.h"
-#include "Utilities/RandomHandler.h"
-#include "SummaryData/POTSum.h"
-#include "SummaryData/summary.h"
 
 namespace evgen {
 
