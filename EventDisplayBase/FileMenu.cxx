@@ -1,10 +1,10 @@
-////////////////////////////////////////////////////////////////////////
+///
 /// \file  FileMenu.cxx
 /// \brief The file pull down menu
 ///
-/// \version $Id: FileMenu.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: FileMenu.cxx,v 1.2 2011-04-05 22:26:55 messier Exp $
 /// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
 #include "EventDisplayBase/FileMenu.h"
 #include "EventDisplayBase/evdb.h"
 #include <cstdlib>
@@ -117,7 +117,7 @@ int FileMenu::SaveAs()
 
 int FileMenu::Print() 
 {
-  // new PrintDialog();
+  new PrintDialog();
   return 1;
 }
 

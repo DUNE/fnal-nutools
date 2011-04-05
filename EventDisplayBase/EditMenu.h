@@ -2,7 +2,7 @@
 /// \file  EditMenu.h
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.h,v 1.2 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: EditMenu.h,v 1.3 2011-04-05 22:26:55 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EDITMENU_H
@@ -36,7 +36,6 @@ namespace evdb {
   private:
     TGMainFrame*   fMainFrame;          ///< Main graphics frame
     TGPopupMenu*   fEditMenu;           ///< The file menu
-    TGPopupMenu*   fDrawingOptionsMenu; ///< Menu for the various drawing options
     TGLayoutHints* fLayout;             ///< How to layout the menu
   };
 }

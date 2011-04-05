@@ -2,7 +2,7 @@
 /// \file  EditMenu.cxx
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.cxx,v 1.5 2011-03-18 18:01:59 brebel Exp $
+/// \version $Id: EditMenu.cxx,v 1.6 2011-04-05 22:26:55 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/EditMenu.h"
@@ -27,11 +27,6 @@ EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
   fEditMenu = new TGPopupMenu(gClient->GetRoot());
   fLayout   = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
   
-  // Create the list of functions. Associate each which a command code
-  fDrawingOptionsMenu = new TGPopupMenu(gClient->GetRoot());
-  
-  fEditMenu->AddPopup("&Drawing Options", fDrawingOptionsMenu);
-  
   fEditMenu->Connect("Activated(Int_t)",
 		     "evdb::EditMenu",
 		     this,
@@ -45,9 +40,8 @@ EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
 
 EditMenu::~EditMenu() 
 {
-  if (fLayout)             { delete fLayout;             fLayout   = 0; }
-  if (fEditMenu) 	   { delete fEditMenu;   	 fEditMenu = 0; }
-  if (fDrawingOptionsMenu) { delete fDrawingOptionsMenu; fDrawingOptionsMenu = 0; }
+  if (fLayout)   { delete fLayout;   fLayout   = 0; }
+  if (fEditMenu) { delete fEditMenu; fEditMenu = 0; }
 }
 
 //......................................................................
@@ -56,19 +50,19 @@ void EditMenu::SetWorkers(const std::vector<std::string>& w)
 {
   // Wipe out the existing menus and lists
   for (unsigned int i=0;;++i) {
-    TGMenuEntry* m = fDrawingOptionsMenu->GetEntry(i);
-    if (m) fDrawingOptionsMenu->DeleteEntry(i);
+    TGMenuEntry* m = fEditMenu->GetEntry(i);
+    if (m) fEditMenu->DeleteEntry(i);
     else   break;
   }
   
   // Rebuild the list
   for (unsigned int i=0; i<w.size(); ++i) {
-    fDrawingOptionsMenu->AddEntry(w[i].c_str(), i);
+    fEditMenu->AddEntry(w[i].c_str(), i);
   }
-  fDrawingOptionsMenu->Connect("Activated(Int_t)",
-			       "evdb::EditMenu",
-			       this,
-			       "EditDrawingOptions(int)");
+  fEditMenu->Connect("Activated(Int_t)",
+		     "evdb::EditMenu",
+		     this,
+		     "EditDrawingOptions(int)");
 }
 
 //......................................................................

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ButtonBar.cxx,v 1.2 2011-02-16 21:49:42 messier Exp $
+// $Id: ButtonBar.cxx,v 1.3 2011-04-05 22:26:55 messier Exp $
 //
 // The button bar across the top of the display
 //
@@ -206,7 +206,7 @@ void ButtonBar::FileList()
 
 //......................................................................
 
-void ButtonBar::Print() { /* new PrintDialog(); */ }
+void ButtonBar::Print() { new PrintDialog(); }
 
 //......................................................................
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-//  $Id: evdb.h,v 1.3 2011-02-17 15:26:47 brebel Exp $
+//  $Id: evdb.h,v 1.4 2011-04-05 22:26:55 messier Exp $
 //
 //! Collection of global resources for the event display
 //
@@ -15,6 +15,7 @@
 #include "EventDisplayBase/EventDisplay.h"
 #include "EventDisplayBase/EventHolder.h"
 #include "EventDisplayBase/FileMenu.h"
+#include "EventDisplayBase/PrintDialog.h"
 #include "EventDisplayBase/Functors.h"
 #include "EventDisplayBase/HelpMenu.h"
 #include "EventDisplayBase/JobMenu.h"
@@ -31,6 +32,7 @@
 #include "EventDisplayBase/View2D.h"
 #include "EventDisplayBase/View3D.h"
 #include "EventDisplayBase/WindowMenu.h"
+
 
 class TGMainFrame;
 class TGWindow;

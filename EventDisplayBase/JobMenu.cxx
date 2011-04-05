@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.7 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: JobMenu.cxx,v 1.8 2011-04-05 22:26:55 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -124,8 +124,8 @@ int JobMenu::OpenJobXML()
 {
   static TString dir(getenv("SRT_PRIVATE_CONTEXT"));
   const char* filetypes[] = {
-    "Python Files", "*.py",
-    0,           0
+    "Configuration Files", "*.fcl",
+    0,                     0
   };
   
   TGFileInfo finfo;

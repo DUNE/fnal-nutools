@@ -1,10 +1,10 @@
-////////////////////////////////////////////////////////////////////////
+///
 /// \file  WindowMenu.cxx
 /// \brief Implement the pull down window menu
 ///
-/// \version $Id: WindowMenu.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: WindowMenu.cxx,v 1.2 2011-04-05 22:26:55 messier Exp $
 /// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
 #include "EventDisplayBase/WindowMenu.h"
 #include <cstdlib>
 #include <string>
@@ -63,6 +63,18 @@ WindowMenu::~WindowMenu()
 
 void WindowMenu::HandleMenu(int menu) 
 {
+  //
+  // Check if the menu has selected one of the named "user" windows
+  //
+  if (menu < DisplayWindow::Names().size()) {
+    int aok = DisplayWindow::OpenWindow(menu);
+    if (aok<0) this->NoImpl("Error openning requested window");
+    return;
+  }
+  //
+  // Fall through here if one of the special windows was
+  // requested. Currently these are not implemented
+  //
 }
 
 //......................................................................
