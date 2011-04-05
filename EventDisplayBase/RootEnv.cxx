@@ -2,7 +2,7 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.4 2011-04-05 21:38:03 messier Exp $
+/// \version $Id: RootEnv.cxx,v 1.5 2011-04-05 22:16:14 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
@@ -208,10 +208,10 @@ void RootEnv::SetStyle()
   
   // Set margins -- I like to shift the plot a little up and to the
   // right to make more room for axis labels
-  gStyle->SetPadTopMargin(0.01);
+  gStyle->SetPadTopMargin(0.08);
   gStyle->SetPadBottomMargin(0.36);
   gStyle->SetPadRightMargin(0.03);
-  gStyle->SetPadLeftMargin(0.08);
+  gStyle->SetPadLeftMargin(0.10);
   
   // Set fonts
   gStyle->SetTextFont(132);
