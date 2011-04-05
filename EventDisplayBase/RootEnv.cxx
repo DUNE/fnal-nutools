@@ -2,7 +2,7 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.3 2011-04-05 20:50:42 messier Exp $
+/// \version $Id: RootEnv.cxx,v 1.4 2011-04-05 21:38:03 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
@@ -208,10 +208,10 @@ void RootEnv::SetStyle()
   
   // Set margins -- I like to shift the plot a little up and to the
   // right to make more room for axis labels
-  gStyle->SetPadTopMargin(0.04);
-  gStyle->SetPadBottomMargin(0.18);
-  gStyle->SetPadRightMargin(0.05);
-  gStyle->SetPadLeftMargin(0.15);
+  gStyle->SetPadTopMargin(0.01);
+  gStyle->SetPadBottomMargin(0.36);
+  gStyle->SetPadRightMargin(0.03);
+  gStyle->SetPadLeftMargin(0.08);
   
   // Set fonts
   gStyle->SetTextFont(132);
@@ -219,11 +219,11 @@ void RootEnv::SetStyle()
   gStyle->SetStatFont(132);
   gStyle->SetTitleFont(132,"XYZ");
   
-  gStyle->SetStatFontSize(0.05);
-  gStyle->SetTitleFontSize(0.05);
-  gStyle->SetLabelSize(0.05,"XYZ");
-  gStyle->SetTitleSize(0.05,"XYZ");
-  gStyle->SetTextSize(0.05);
+  gStyle->SetStatFontSize(0.07);
+  gStyle->SetTitleFontSize(0.07);
+  gStyle->SetLabelSize(0.07,"XYZ");
+  gStyle->SetTitleSize(0.07,"XYZ");
+  gStyle->SetTextSize(0.07);
   
   gStyle->SetStatW(0.19);
   gStyle->SetStatX(0.90);
