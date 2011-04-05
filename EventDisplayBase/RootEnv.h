@@ -2,7 +2,7 @@
 /// \file  RootEnv.h
 /// \brief Setup the root environment
 ///
-/// \version $Id: RootEnv.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: RootEnv.h,v 1.2 2011-04-05 20:50:42 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_ROOTENV_H
@@ -19,6 +19,7 @@ namespace evdb {
     int Run();
     
   private:
+    void SetStyle();
     void InterpreterConfig();
     void SignalConfig();
     void LoadIncludes();

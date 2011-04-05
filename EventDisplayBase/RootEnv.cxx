@@ -2,7 +2,7 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.2 2011-01-20 16:43:29 p-nusoftart Exp $
+/// \version $Id: RootEnv.cxx,v 1.3 2011-04-05 20:50:42 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
@@ -52,13 +52,11 @@ RootEnv::RootEnv(int /*argc*/, char** argv)
     }
   }
 
+  this->SetStyle();
   this->SignalConfig();
   this->InterpreterConfig();
   this->LoadIncludes();
   this->LoadClasses();
-  
-  gROOT->SetStyle("Plain");
-  gStyle->SetOptStat(0);
 }
 
 //......................................................................
@@ -190,6 +188,60 @@ void RootEnv::LoadClasses()
     gROOT->LoadClass("TCanvas",     "Gpad");
     gROOT->LoadClass("THtml",       "Html");
   }
+}
+
+//......................................................................
+
+void RootEnv::SetStyle() 
+{
+  gROOT->SetStyle("Plain");
+  
+  // Set Line Widths
+  gStyle->SetFrameLineWidth(1);
+  gStyle->SetFuncWidth(1);
+  gStyle->SetHistLineWidth(1);
+  
+  gStyle->SetFuncColor(2);
+  gStyle->SetGridColor(18);
+  gStyle->SetGridStyle(1);
+  gStyle->SetGridWidth(0.5);
+  
+  // Set margins -- I like to shift the plot a little up and to the
+  // right to make more room for axis labels
+  gStyle->SetPadTopMargin(0.04);
+  gStyle->SetPadBottomMargin(0.18);
+  gStyle->SetPadRightMargin(0.05);
+  gStyle->SetPadLeftMargin(0.15);
+  
+  // Set fonts
+  gStyle->SetTextFont(132);
+  gStyle->SetLabelFont(132,"XYZ");
+  gStyle->SetStatFont(132);
+  gStyle->SetTitleFont(132,"XYZ");
+  
+  gStyle->SetStatFontSize(0.05);
+  gStyle->SetTitleFontSize(0.05);
+  gStyle->SetLabelSize(0.05,"XYZ");
+  gStyle->SetTitleSize(0.05,"XYZ");
+  gStyle->SetTextSize(0.05);
+  
+  gStyle->SetStatW(0.19);
+  gStyle->SetStatX(0.90);
+  gStyle->SetStatY(0.90);
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
+  
+  // Set tick marks and turn off grids
+  gStyle->SetNdivisions(510,"XYZ");
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  
+  // Set paper size for life in the US
+  gStyle->SetPaperSize(TStyle::kUSLetter);
+  gStyle->SetPalette(1);
+  
+  // Force this style on all histograms
+  gROOT->ForceStyle();
 }
 
 ////////////////////////////////////////////////////////////////////////
