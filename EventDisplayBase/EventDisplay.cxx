@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.11 2011-03-29 16:06:07 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.12 2011-04-11 21:36:05 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -24,7 +24,7 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/IO/Root/RootInput.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -94,7 +94,11 @@ EventDisplay::~EventDisplay() { }
 void EventDisplay::postBeginJobWorkers(art::InputSource* input_source,
 				       std::vector<art::Worker*> const& w) 
 {
-  fInputSource = input_source;
+  fInputSource = dynamic_cast<art::RootInput*>(input_source);
+  if (fInputSource == 0) {
+    throw art::Exception(art::errors::Configuration)
+      << "EventDisplay requires a RootInput source for proper operation.\n";
+  }
 
   std::vector<std::string> lbl;
   fWorkers.clear();
@@ -264,19 +268,29 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
 
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {
-    // This happens by default -- nothing to do...
-    // noop
+    // Contrary to appearances, this is *not* a NOP: it ensures run and
+    // subRun are (re-)read as necessary if we've been doing random
+    // access. Come the revolution ...
+    //
+    // 2011/04/10 CG.
+    fInputSource->seekToEvent(0);
   }
   else if (NavState::Which() == kPREV_EVENT) {
-    fInputSource->skipEvents(-2); 
+    fInputSource->seekToEvent(-2);
   }
   else if (NavState::Which() == kRELOAD_EVENT) {
-    fInputSource->skipEvents(-1); 
+    fInputSource->seekToEvent(evt.id());
   }
   else if (NavState::Which() == kGOTO_EVENT) {
-     art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
-    fInputSource->readEvent(id);
-    fInputSource->skipEvents(-1);
+    art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
+    if (!fInputSource->seekToEvent(id)) { // Couldn't find event
+      std::cout << "Unable to find "
+                << id
+                << " -- reloading current event."
+                << std::endl;
+      // Reload current event.
+      fInputSource->seekToEvent(evt.id());
+    }
   }
   else abort();
 }

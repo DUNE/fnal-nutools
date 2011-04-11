@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.5 2011-03-18 18:01:59 brebel Exp $
+/// \version $Id: EventDisplay.h,v 1.6 2011-04-11 21:36:05 greenc Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EVENTDISPLAY_H
@@ -14,7 +14,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
 namespace art{ 
-  class InputSource;
+  class RootInput;
   class Worker; 
 }
 
@@ -42,7 +42,7 @@ namespace evdb {
     void ReconfigureDrawingOptions();
 
   private:
-    art::InputSource* fInputSource; ///< Input source of events
+    art::RootInput* fInputSource; ///< Input source of events
     
   public:
     unsigned int              fAutoAdvanceInterval; ///< Wait time in milliseconds

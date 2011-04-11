@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2011-03-04 19:39:47 brebel Exp $
+# $Id: GNUmakefile,v 1.8 2011-04-11 21:36:05 greenc Exp $
 #
 # messier@indiana.edu
 #
@@ -16,7 +16,7 @@ ROOTLIBS  = $(shell root-config --libs) -lEG -lTreePlayer -lGeom -lFFTW -lReflex
 override CPPFLAGS += $(shell root-config --cflags) 
 override LDFLAGS += $(shell root-config --libs) 
 
-override LOADLIBES += $(ROOTLIBS)
+override LOADLIBES += -L$(ART_LIB) -lart_Framework_IO_Root_RootInput_source $(ROOTLIBS)
 
 LIBLINK     := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 
