@@ -2,7 +2,7 @@
 /// \file  ColorScale.h
 /// \brief Define a color scale for displaying numeric data
 ///
-/// \version $Id: ColorScale.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ColorScale.cxx,v 1.2 2011-04-11 20:14:26 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/ColorScale.h"
@@ -36,6 +36,7 @@ ColorScale::ColorScale(double xlo, double xhi,
 {
   switch(which) {
   case kSequential:     this->MakeSequential();                         break;
+  case kFocus:          this->MakeFocus();                              break;
   case kInvRainbow:     this->MakeInvRainbow();                         break;
   case kGreenToMagenta: this->MakeGreenToMagenta();                     break;
   case kBlueToRed:      this->MakeBlueToRed();                          break;
@@ -216,6 +217,45 @@ void ColorScale::MakeSequential()
     {101,      81,     204},
     {143,     126,     229},
     {191,     178,     255}
+  };
+  for (int i=0; i<25; ++i) {
+    fColors[i] = TColor::GetColor(rgb[i][0],rgb[i][1],rgb[i][2]);
+  }
+}
+
+//......................................................................
+///
+/// Build a sequential color map with red at the center
+///
+void ColorScale::MakeFocus()
+{
+  fNcolor = 25;
+  static int rgb[25][3] = {
+    {178,     229,     255}, // blue5
+    {126,     195,     229}, // blue4
+    {81,      163,     204}, // blue3
+    {44,      133,     178}, // blue2
+    {15,      107,     153}, // blue1
+    {191,     178,     255}, // violet5
+    {143,     126,     229}, // violet4
+    {101,      81,     204}, // violet3
+    {66,       44,     178}, // violet2
+    {38,       15,     153}, // violet1
+    {153,      15,      15}, // red1
+    {178,      44,      44}, // red2
+    {204,      81,      81}, // red3
+    {229,     126,     126}, // red4
+    {255,     178,     178}, // red5
+    {153,      84,      15}, // brown1
+    {178,     111,      44}, // brown2
+    {204,     142,      81}, // brown3
+    {229,     177,     126}, // brown4
+    {255,     216,     178}, // brown5
+    {107,     153,      15}, // green1
+    {133,     178,      44}, // green2
+    {163,     204,      81}, // green3
+    {195,     229,     126}, // green4
+    {229,     255,     178}  // green5
   };
   for (int i=0; i<25; ++i) {
     fColors[i] = TColor::GetColor(rgb[i][0],rgb[i][1],rgb[i][2]);

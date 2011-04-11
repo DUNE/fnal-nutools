@@ -3,7 +3,7 @@
 /// \brief Build an association between a numerical range and a ROOT
 /// color index
 ///
-/// \version $Id: ColorScale.h,v 1.2 2011-01-20 16:43:29 p-nusoftart Exp $
+/// \version $Id: ColorScale.h,v 1.3 2011-04-11 20:14:26 messier Exp $
 /// \author messier@indiana.edu
 ///
 #ifndef EVDB_COLORSCALE_H
@@ -26,6 +26,7 @@ namespace evdb {
     kBlueToOrange,  /// Blue to orange transition
     kGreenToMagenta,/// Green to magenta transition
     kSequential,    /// Useful for sequential data
+    kFocus,         /// Sequential data with focus in center of scale
     kCustom         /// User specfied 
   };
   
@@ -60,6 +61,7 @@ namespace evdb {
 
     void MakeHSVScale(int n, double h1, double h2, double vs1, double vs2);
     void MakeSequential();
+    void MakeFocus();
     void MakeInvRainbow();
     void MakeRainbow();
     void MakeGreenToMagenta();
