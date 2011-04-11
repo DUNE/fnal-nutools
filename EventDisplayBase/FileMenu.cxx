@@ -2,7 +2,7 @@
 /// \file  FileMenu.cxx
 /// \brief The file pull down menu
 ///
-/// \version $Id: FileMenu.cxx,v 1.2 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: FileMenu.cxx,v 1.3 2011-04-11 20:13:56 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/FileMenu.h"
@@ -87,12 +87,6 @@ int FileMenu::Open()
   finfo.fIniDir    = StrDup(dir.Data());
   
   new TGFileDialog(evdb::TopWindow(),evdb::TopWindow(),kFDOpen, &finfo);
-  
-  // Add the file to the list of files in the IoModule. Make it the
-  // current file
-  // IoModule::Instance()->AddFile(finfo.fFilename);
-  // IoModule::Instance()->GoToFile(finfo.fFilename);
-  // IoModule::Instance()->Reload();
   
   return 1;
 }
