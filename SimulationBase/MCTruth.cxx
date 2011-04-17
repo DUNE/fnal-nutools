@@ -2,7 +2,7 @@
 /// \file  MCTruth.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCTruth.cxx,v 1.2 2011-03-29 19:31:22 brebel Exp $
+/// \version $Id: MCTruth.cxx,v 1.3 2011-04-17 15:07:12 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -81,10 +81,11 @@ namespace simb{
     }  
 
     const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
-  
     for (unsigned int i=0; i<fPartList.size(); ++i) {
+      const TParticlePDG* p = databasePDG->GetParticle(fPartList[i].PdgCode());
+      std::string name = p ? p->GetName() : "(unknown)";
       std::cout << i << ") " 
-		<< databasePDG->GetParticle(fPartList[i].PdgCode())->GetName() << "\t"
+		<< name << "\t"   
 		<< fPartList[i].PdgCode() << "\t"
 		<< fPartList[i].Process() << "\t"
 		<< "["
