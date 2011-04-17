@@ -2,7 +2,7 @@
 /// \file  EditMenu.cxx
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.cxx,v 1.6 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: EditMenu.cxx,v 1.7 2011-04-17 14:55:31 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/EditMenu.h"
@@ -26,11 +26,11 @@ EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
 {
   fEditMenu = new TGPopupMenu(gClient->GetRoot());
   fLayout   = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
-  
-  fEditMenu->Connect("Activated(Int_t)",
-		     "evdb::EditMenu",
-		     this,
-		     "HandleMenu(int)");
+
+//   fEditMenu->Connect("Activated(Int_t)",
+//  		     "evdb::EditMenu",
+//  		     this,
+//  		     "HandleMenu(int)");
   
   // Attach the menu to the menu bar
   menubar->AddPopup("&Edit",fEditMenu,fLayout);
@@ -67,14 +67,14 @@ void EditMenu::SetWorkers(const std::vector<std::string>& w)
 
 //......................................................................
 
-void EditMenu::HandleMenu(int i) 
-{
-  switch(i){
-  default:
-    this->EditDrawingOptions(i);
-    break;
-  }
-}
+// void EditMenu::HandleMenu(int i) 
+// {
+//   switch(i){
+//   default:
+//     this->EditDrawingOptions(i);
+//     break;
+//   }
+// }
 
 //......................................................................
 void EditMenu::EditDrawingOptions(int i)

@@ -2,7 +2,7 @@
 /// \file  EditMenu.h
 /// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.h,v 1.3 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: EditMenu.h,v 1.4 2011-04-17 14:55:31 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EDITMENU_H
@@ -26,7 +26,7 @@ namespace evdb {
     void SetWorkers(const std::vector<std::string>& w);
   
     // slots
-    void HandleMenu(int menu);
+    //void HandleMenu(int menu);
     void EditDrawingOptions(int drawopt);
   
   private:

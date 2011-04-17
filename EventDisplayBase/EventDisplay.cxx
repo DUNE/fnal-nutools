@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.12 2011-04-11 21:36:05 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.13 2011-04-17 14:55:31 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -128,15 +128,25 @@ void EventDisplay::postBeginJob()
   // that have DrawingOptions in their names
 
   fDrawingOptions.clear();
+  fServices.clear();
   for(size_t i = 0; i < psets.size(); ++i){
 
-    std::string pset = psets[i].to_string();
+    std::string stype = psets[i].get<std::string>("service_type","none");
 
-    if(pset.find("DrawingOptions") != std::string::npos)      
-      fDrawingOptions.push_back(psets[i].get<std::string>("service_type"));
+    if(stype.find("DrawingOptions") != std::string::npos)      
+      fDrawingOptions.push_back(stype);
+    else if(stype.compare("Timing")                   != 0
+	    || stype.compare("TFileService")          != 0
+	    || stype.compare("SimpleMemoryCheck")     != 0
+	    || stype.compare("message")               != 0
+	    || stype.compare("scheduler")             != 0
+	    || stype.compare("RandomNumberGenerator") != 0
+	    )
+      fServices.push_back(stype);
 
   }
-
+  
+  fServiceParamSets.resize(fServices.size());
   fDrawingParamSets.resize(fDrawingOptions.size());
   evdb::DisplayWindow::SetDrawingOptionsAll(fDrawingOptions);
 
@@ -173,6 +183,26 @@ void EventDisplay::EditDrawingOptionParameterSet(int i)
 			   fDrawingOptions[i],
 			   psets[ps].to_string(),
 			   &fDrawingParamSets[i]);
+    }// end if the correct configuration
+  }
+
+}
+
+//......................................................................
+
+void EventDisplay::EditServiceParameterSet(int i) 
+{
+  std::vector< fhicl::ParameterSet > psets;
+  art::ServiceRegistry& inst = art::ServiceRegistry::instance();
+  inst.presentToken().getParameterSets(psets);
+
+  for(size_t ps = 0; ps < psets.size(); ++ps){
+    if(psets[ps].get<std::string>("service_type", "none").compare(fServices[i]) == 0){
+      new ParameterSetEdit(0,
+			   "Service",
+			   fServices[i],
+			   psets[ps].to_string(),
+			   &fServiceParamSets[i]);
     }// end if the correct configuration
   }
 

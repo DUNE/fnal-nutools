@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.6 2011-04-11 21:36:05 greenc Exp $
+/// \version $Id: EventDisplay.h,v 1.7 2011-04-17 14:55:31 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EVENTDISPLAY_H
@@ -29,6 +29,7 @@ namespace evdb {
     
     void EditWorkerParameterSet(int i);
     void EditDrawingOptionParameterSet(int i);
+    void EditServiceParameterSet(int i);
     
   private:
 
@@ -50,6 +51,8 @@ namespace evdb {
     std::vector<std::string>  fParamSets;           ///< Reconfigure parameters
     std::vector<std::string>  fDrawingOptions;      ///< The drawing option services in use
     std::vector<std::string>  fDrawingParamSets;    ///< Reconfigure drawing parameters
+    std::vector<std::string>  fServices;            ///< Experiment services
+    std::vector<std::string>  fServiceParamSets;    ///< Reconfigure experiment services
   };
 }
 #endif // __CINT__
