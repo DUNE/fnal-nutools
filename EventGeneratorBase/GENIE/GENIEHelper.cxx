@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.16 2011-04-04 19:02:22 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.17 2011-04-17 16:11:43 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,7 @@
 
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "cetlib/search_path.h"
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -81,7 +82,6 @@ namespace evgb{
     fFluxD2GMCJD       (0),
     fDriver            (0),
     fFluxType          (pset.get< std::string              >("FluxType")               ),
-    fFluxFile          (pset.get< std::string              >("FluxFile")               ),
     fBeamName          (pset.get< std::string              >("BeamName")               ),
     fTopVolume         (pset.get< std::string              >("TopVolume")              ),
     fWorldVolume       ("volWorld"),						         
@@ -122,11 +122,19 @@ namespace evgb{
     else
       junk += ranseed;
 
+    cet::search_path sp("FW_SEARCH_PATH");
+    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+
     std::string seed(junk);
     fEnvironment.push_back("GSEED");
     fEnvironment.push_back(seed);
     // set the environment, the vector should come in pairs of variable name, then value
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
+      if(fEnvironment[i].compare("GSPLOAD") == 0){
+	std::string fullpath;
+	sp.find_file(fEnvironment[i+1], fullpath);
+	fEnvironment[i+1] = fullpath;
+      }
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
       std::cout << "setting GENIE environment " << fEnvironment[i]
 		<< " to " << fEnvironment[i+1] << std::endl; 
