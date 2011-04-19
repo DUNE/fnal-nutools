@@ -2,7 +2,7 @@
 /// \file  ColorScale.h
 /// \brief Define a color scale for displaying numeric data
 ///
-/// \version $Id: ColorScale.cxx,v 1.2 2011-04-11 20:14:26 messier Exp $
+/// \version $Id: ColorScale.cxx,v 1.3 2011-04-19 22:50:49 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/ColorScale.h"
@@ -31,15 +31,19 @@ ColorScale::ColorScale(double xlo, double xhi,
   fXlo(xlo),
   fXhi(xhi),
   fScale(scale),
+  fNcolor(n),
   fUnderFlowColor(-1),
   fOverFlowColor(-1)
 {
+  if(fNcolor > 256) fNcolor = 256;
+
   switch(which) {
   case kSequential:     this->MakeSequential();                         break;
   case kFocus:          this->MakeFocus();                              break;
   case kInvRainbow:     this->MakeInvRainbow();                         break;
   case kGreenToMagenta: this->MakeGreenToMagenta();                     break;
   case kBlueToRed:      this->MakeBlueToRed();                          break;
+  case kBlueToRedII:    this->MakeBlueToRedII();                        break;
   case kBlueToOrange:   this->MakeBlueToOrange();                       break;
   case kGeographic:     this->MakeBrownToBlue();                        break;
   case kLinGray:        this->MakeLinGray();                            break;
@@ -91,6 +95,7 @@ int ColorScale::GetColor(double x) const
   int indx = (int)floor(f*(float)fNcolor);
   if (indx<0)        indx = 0;
   if (indx>=fNcolor) indx = fNcolor-1;
+
   return fColors[indx];
 }
 int ColorScale::operator()(double x) const { 
@@ -853,6 +858,23 @@ void ColorScale::MakeBlueToRed()
 
 //......................................................................
 
+void ColorScale::MakeBlueToRedII() 
+{
+  const int NRGBs = 5;
+  double stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+  double red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+  double green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+  double blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, fNcolor);
+  gStyle->SetNumberContours(fNcolor);
+  
+  for (int i=0; i<fNcolor; ++i) 
+    fColors[i] = gStyle->GetColorPalette(i);
+
+}
+
+//......................................................................
+
 void ColorScale::MakeBlueToGreen() 
 {
   static int rgb[14][3] = {
@@ -938,13 +960,17 @@ void ColorScale::MakeBrownToBlue()
 
 void ColorScale::MakeLinGray()
 {
-  fNcolor = 20;
-  for (int i=0; i<20; ++i) {
-    fColors[i] = TColor::GetColor(256-240*i/20-8,
-				  256-240*i/20-8,
-				  256-240*i/20-8);
-    
-  }
+  const int NRGBs = 3;
+  double stops[NRGBs] = { 0.00, .50, 1.00 };
+  double red[NRGBs]   = { 1.00, .75, 0.00 };
+  double green[NRGBs] = { 1.00, .75, 0.00 };
+  double blue[NRGBs]  = { 1.00, .75, 0.00 };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, fNcolor);
+  gStyle->SetNumberContours(fNcolor);
+  
+  for (int i=0; i<fNcolor; ++i) 
+    fColors[i] = gStyle->GetColorPalette(i);
+
 }
 
 //......................................................................

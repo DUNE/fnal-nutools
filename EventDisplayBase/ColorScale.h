@@ -3,7 +3,7 @@
 /// \brief Build an association between a numerical range and a ROOT
 /// color index
 ///
-/// \version $Id: ColorScale.h,v 1.3 2011-04-11 20:14:26 messier Exp $
+/// \version $Id: ColorScale.h,v 1.4 2011-04-19 22:50:49 brebel Exp $
 /// \author messier@indiana.edu
 ///
 #ifndef EVDB_COLORSCALE_H
@@ -17,6 +17,7 @@ namespace evdb {
     kLinGray,       /// Linearized gray scale
     kColdToHot,     /// A color scale primarily in reds
     kBlueToRed,     /// Blue = cold, red = hot
+    kBlueToRedII,   /// A color scale from dark blue (very cold) to red (hot) passing through yellow
     kHeatedObject,  /// A color scale from light to "burned"
     kReds,          /// A color scale primarily in reds
     kGreens,        /// A color scale primarily in greens
@@ -66,6 +67,7 @@ namespace evdb {
     void MakeRainbow();
     void MakeGreenToMagenta();
     void MakeBlueToRed();
+    void MakeBlueToRedII();
     void MakeBlueToGreen();
     void MakeBlueToOrange();
     void MakeBrownToBlue();
