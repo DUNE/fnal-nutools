@@ -12,12 +12,12 @@
 
 # The following line, if enabled, will trace through the execution of
 # some Geant4 routines.
-#/run/verbose 2
+/run/verbose 2
 
 # The following line will display every track and step for every
 # event. Don't enable it unless you're prepared to handle a lot of
 # output!
-#/tracking/verbose 1
+/tracking/verbose 1
 
 #################################################################
 
