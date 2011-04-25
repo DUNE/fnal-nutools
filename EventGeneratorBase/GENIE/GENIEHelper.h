@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.7 2011-04-04 01:31:29 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.8 2011-04-25 20:03:01 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -26,6 +26,9 @@ namespace simb  { class MCFlux;      }
 
 ///GENIE neutrino interaction simulation
 namespace genie { class EventRecord; }
+
+///GENIE flux objects
+namespace genie::flux { class GNuMIFlux; }
 
 namespace evgb{
 
