@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCParticle.cxx,v 1.2 2011-04-26 17:24:36 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -41,12 +41,12 @@ namespace simb {
 			 const int mother, 
 			 const double mass,
 			 const int status)
-    : m_trackId(trackId)
+    : m_status(status)
+    , m_trackId(trackId)
     , m_pdgCode(pdg)
     , m_mother(mother)
     , m_process(process)
     , m_mass(0)
-    , m_status(status)
   {
     // If the user has supplied a mass, use it.  Otherwise, get the
     // particle mass from the PDG table.
