@@ -27,11 +27,11 @@
 ///            So {12:0.5,0.5,0,0,0,0,0} means nu_e => 50/50% nu_e/nu_mu.
 ///            Each list *must* have an int + 7 fractions.
 ///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
+/// \author  Robert Hatcher <rhatcher@fnal.gov>
 ///          Fermi National Accelerator Laboratory
 ///
-/// \created 2010-10-31
-/// \version $Id: GFlavorMap.h,v 1.1 2011-02-14 21:12:30 rhatcher Exp $
+/// created 2010-10-31
+/// \version $Id: GFlavorMap.h,v 1.2 2011-04-26 13:36:22 brebel Exp $
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef GENIE_FLUX_GFLAVORSWAP_H

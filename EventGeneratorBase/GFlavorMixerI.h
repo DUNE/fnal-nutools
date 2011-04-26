@@ -19,11 +19,11 @@
 ///        Probability is expected to be normalized (that is, the sum
 ///        of all possible outcomes, including 0, must be 1).
 ///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
+/// \author  Robert Hatcher <rhatcher@fnal.gov>
 ///          Fermi National Accelerator Laboratory
 ///
-/// \created 2010-10-31
-/// \version $Id: GFlavorMixerI.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// created 2010-10-31
+/// \version $Id: GFlavorMixerI.h,v 1.2 2011-04-26 13:36:22 brebel Exp $
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef GENIE_FLUX_GFLAVORMIXERI_H
