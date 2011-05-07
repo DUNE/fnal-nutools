@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.2 2011-04-26 17:24:36 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.3 2011-05-07 02:33:28 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -41,12 +41,13 @@ namespace simb {
 			 const int mother, 
 			 const double mass,
 			 const int status)
-    : m_status(status)
-    , m_trackId(trackId)
-    , m_pdgCode(pdg)
-    , m_mother(mother)
-    , m_process(process)
-    , m_mass(0)
+    : fstatus(status)
+    , ftrackId(trackId)
+    , fpdgCode(pdg)
+    , fmother(mother)
+    , fprocess(process)
+    , fmass(0)
+    , fWeight(0.)
   {
     // If the user has supplied a mass, use it.  Otherwise, get the
     // particle mass from the PDG table.
@@ -59,12 +60,12 @@ namespace simb {
 	// scheme for nuclei that ROOT doesn't recognize.
 	if ( definition != 0 )
 	  {
-	    m_mass = definition->Mass();
+	    fmass = definition->Mass();
 	  }
       }
     else
       {
-	m_mass = mass;
+	fmass = mass;
       }
   }
 
@@ -77,13 +78,13 @@ namespace simb {
 //   // TObject, we have to copy its information explicitly.
 //   MCParticle::MCParticle( const MCParticle& rhs ) 
 //   {
-//     m_trackId      = rhs.m_trackId;
-//     m_pdgCode      = rhs.m_pdgCode;
-//     m_mother       = rhs.m_mother;
-//     m_trajectory   = new sim::Trajectory(*(rhs.m_trajectory));
-//     m_mass         = rhs.m_mass;
-//     m_process      = rhs.m_process;
-//     m_polarization = rhs.m_polarization;
+//     ftrackId      = rhs.ftrackId;
+//     fpdgCode      = rhs.fpdgCode;
+//     fmother       = rhs.fmother;
+//     ftrajectory   = new sim::Trajectory(*(rhs.ftrajectory));
+//     fmass         = rhs.fmass;
+//     fprocess      = rhs.fprocess;
+//     fpolarization = rhs.fpolarization;
 //   }
 
   //------------------------------------------------------------
@@ -97,15 +98,15 @@ namespace simb {
     // As a trivial exercise, let's make this operator exception-safe:
 
     // Copy the non-pointer items.
-    m_status       = rhs.m_status;
-    m_trackId      = rhs.m_trackId;
-    m_pdgCode      = rhs.m_pdgCode;
-    m_mother       = rhs.m_mother;
-    m_process      = rhs.m_process;
-    m_trajectory   = rhs.m_trajectory;
-    m_mass         = rhs.m_mass;
-    m_polarization = rhs.m_polarization;
-    m_daughters    = rhs.m_daughters;
+    fstatus       = rhs.fstatus;
+    ftrackId      = rhs.ftrackId;
+    fpdgCode      = rhs.fpdgCode;
+    fmother       = rhs.fmother;
+    fprocess      = rhs.fprocess;
+    ftrajectory   = rhs.ftrajectory;
+    fmass         = rhs.fmass;
+    fpolarization = rhs.fpolarization;
+    fdaughters    = rhs.fdaughters;
 
     return *this;
   }
@@ -114,7 +115,7 @@ namespace simb {
   // Return the "index-th' daughter in the list.
   int MCParticle::Daughter( const int index ) const
   {
-    daughters_type::const_iterator i = m_daughters.begin();
+    daughters_type::const_iterator i = fdaughters.begin();
     std::advance( i, index );
     return *i;
   }
@@ -122,19 +123,19 @@ namespace simb {
   //------------------------------------------------------------
   void MCParticle::AddTrajectoryPoint( const TLorentzVector& position, const TLorentzVector& momentum )
   {
-    m_trajectory.Add( position, momentum );
+    ftrajectory.Add( position, momentum );
   }
 
   //------------------------------------------------------------
   const TLorentzVector& MCParticle::Position( const int i ) const
   {
-    return m_trajectory.Position(i);
+    return ftrajectory.Position(i);
   }
 
   //------------------------------------------------------------
   const TLorentzVector& MCParticle::Momentum( const int i ) const
   {
-    return m_trajectory.Momentum(i);
+    return ftrajectory.Momentum(i);
   }
 
   //------------------------------------------------------------
