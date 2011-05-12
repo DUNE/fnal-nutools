@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.3 2011-04-04 19:05:56 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.4 2011-05-12 15:10:24 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -164,7 +164,7 @@ namespace evgen {
       }
       
       // see comments in GENIEHelper::Initialize() for how this calculation was done.
-      double totalExp = 1.e-38*1.e-20*help.TotalHistFlux();
+      totalExp = 1.e-38*1.e-20*help.TotalHistFlux();
       totalExp *= help.POTUsed()*help.TotalMass()/(1.67262158e-27);
 
       mf::LogWarning("EventGeneratorTest") << "expected " << totalExp << " interactions";
