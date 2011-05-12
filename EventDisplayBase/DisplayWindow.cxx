@@ -3,7 +3,7 @@
 /// \brief A window containing a display of the detector or one of its
 /// components
 ///
-/// \version $Id: DisplayWindow.cxx,v 1.2 2011-03-18 18:01:59 brebel Exp $
+/// \version $Id: DisplayWindow.cxx,v 1.3 2011-05-12 15:22:06 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/DisplayWindow.h"
@@ -44,7 +44,7 @@ static std::vector<CanvasCreator_t> gsCanvasCreator;
 
 void DisplayWindow::SetRunEventAll(int run, int event) 
 {
-  for (int i=0; i<gsWindows.size(); ++i) {
+  for (size_t i=0; i<gsWindows.size(); ++i) {
     if (gsWindows[i]!=0) gsWindows[i]->SetRunEvent(run, event);
   }
 }
@@ -53,7 +53,7 @@ void DisplayWindow::SetRunEventAll(int run, int event)
 
 void DisplayWindow::SetWorkersAll(const std::vector<std::string>& w)
 {
-  for (int i=0; i<gsWindows.size(); ++i) {
+  for (size_t i=0; i<gsWindows.size(); ++i) {
     if (gsWindows[i]!=0) gsWindows[i]->SetWorkers(w);
   }
 }
@@ -63,7 +63,7 @@ void DisplayWindow::SetWorkersAll(const std::vector<std::string>& w)
 
 void DisplayWindow::SetDrawingOptionsAll(const std::vector<std::string>& dopt)
 {
-  for (int i=0; i<gsWindows.size(); ++i) {
+  for (size_t i=0; i<gsWindows.size(); ++i) {
     if (gsWindows[i]!=0) gsWindows[i]->SetDrawingOptions(dopt);
   }
 }
@@ -72,7 +72,7 @@ void DisplayWindow::SetDrawingOptionsAll(const std::vector<std::string>& dopt)
 
 void DisplayWindow::DrawAll(const char* opt)
 {
-  for (int i=0; i<gsWindows.size(); ++i) {
+  for (size_t i=0; i<gsWindows.size(); ++i) {
     if (gsWindows[i]!=0) gsWindows[i]->Draw(opt);
   }
 }

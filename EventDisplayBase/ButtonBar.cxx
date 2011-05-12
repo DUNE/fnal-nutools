@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: ButtonBar.cxx,v 1.3 2011-04-05 22:26:55 messier Exp $
+// $Id: ButtonBar.cxx,v 1.4 2011-05-12 15:22:06 brebel Exp $
 //
 // The button bar across the top of the display
 //
@@ -160,6 +160,8 @@ void ButtonBar::NextEvt()
 Bool_t ButtonBar::HandleTimer(TTimer* t)
 {
   this->NextEvt();
+
+  return kTRUE;
 }
 
 //......................................................................

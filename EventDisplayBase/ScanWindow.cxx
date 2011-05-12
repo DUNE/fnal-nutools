@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.4 2011-01-20 16:43:29 p-nusoftart Exp $
+/// \version $Id: ScanWindow.cxx,v 1.5 2011-05-12 15:22:06 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -270,7 +270,6 @@ namespace evdb{
     outfile << evt->run() << " " << evt->id().event() << " ";
 
     // loop over the input fields
-    unsigned int pos = 0;
     unsigned int txtctr = 0;
     unsigned int numctr = 0;
     unsigned int radctr = 0;

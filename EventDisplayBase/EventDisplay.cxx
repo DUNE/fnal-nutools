@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.13 2011-04-17 14:55:31 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.14 2011-05-12 15:22:06 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -65,10 +65,10 @@ public:
 };
 
 //......................................................................
-
-static evdb::Canvas* mk_canvas1(TGMainFrame* mf) {
-  return new testCanvas1(mf);
-}
+// Uncomment this static method for testing purposes
+// static evdb::Canvas* mk_canvas1(TGMainFrame* mf) {
+//   return new testCanvas1(mf);
+// }
 
 //......................................................................
 

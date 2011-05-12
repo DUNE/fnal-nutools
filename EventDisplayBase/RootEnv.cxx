@@ -2,7 +2,7 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.5 2011-04-05 22:16:14 messier Exp $
+/// \version $Id: RootEnv.cxx,v 1.6 2011-05-12 15:22:06 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
@@ -40,8 +40,8 @@ RootEnv::RootEnv(int /*argc*/, char** argv)
     char** largv = 0;
     TRint* rapp = new TRint("TAPP",&largc, largv, 0, 0, kTRUE);
     
-    //std::string p = gSystem->BaseName(argv[0]); p+= " [%d] ";
-    //rapp->SetPrompt(p.c_str());
+//     std::string p = gSystem->BaseName(argv[0]); p+= " [%d] ";
+    rapp->SetPrompt("evd [%d] ");
   }
   else {
     gROOT->SetBatch(kFALSE);
