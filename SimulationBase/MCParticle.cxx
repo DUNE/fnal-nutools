@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.3 2011-05-07 02:33:28 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.4 2011-05-12 15:06:38 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -51,22 +51,21 @@ namespace simb {
   {
     // If the user has supplied a mass, use it.  Otherwise, get the
     // particle mass from the PDG table.
-    if ( mass < 0 )
-      {
-	const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
-	const TParticlePDG* definition = databasePDG->GetParticle( pdg );
-	// Check that the particle is known to ROOT.  If not, this is
-	// not a major error; Geant4 has an internal particle coding
-	// scheme for nuclei that ROOT doesn't recognize.
-	if ( definition != 0 )
-	  {
-	    fmass = definition->Mass();
-	  }
+    if ( mass < 0 ){
+      const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
+      const TParticlePDG* definition = databasePDG->GetParticle( pdg );
+      // Check that the particle is known to ROOT.  If not, this is
+      // not a major error; Geant4 has an internal particle coding
+      // scheme for nuclei that ROOT doesn't recognize.
+      if ( definition != 0 ){
+	fmass = definition->Mass();
       }
-    else
-      {
-	fmass = mass;
-      }
+    }
+    else{
+      fmass = mass;
+    }
+    
+    return;
   }
 
   //------------------------------------------------------------
