@@ -1,7 +1,7 @@
 <!--                                                                                  -->
-<!--  $Id: classes_def.xml,v 1.5 2011-05-07 02:33:28 brebel Exp $                          -->
+<!--  $Id: classes_def.xml,v 1.6 2011-05-15 22:26:13 brebel Exp $                          -->
 <!--  $Author: brebel $                                                                     -->
-<!--  $Date: 2011-05-07 02:33:28 $                                                    -->
+<!--  $Date: 2011-05-15 22:26:13 $                                                    -->
 <!--                                                                                  -->
 <!--  Include art::Wrapper lines for objects that we would like to put into the event -->
 <!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
@@ -10,7 +10,7 @@
 
 <lcgdict>
  <class name="std::set<int>"                                          />
- <class name="simb::MCParticle"    ClassVersion="11"                  />
+ <class name="simb::MCParticle"    ClassVersion="12"                  />
  <class name="simb::MCTrajectory"  ClassVersion="10"                  />
  <class name="simb::MCNeutrino"    ClassVersion="10"                  />
  <class name="simb::MCFlux"        ClassVersion="10"                  />
