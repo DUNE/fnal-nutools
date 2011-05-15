@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.4 2011-05-07 02:33:28 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.5 2011-05-15 22:25:27 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -58,42 +58,42 @@ namespace simb {
     //
     // The track ID number assigned by the Monte Carlo.  This will be
     // unique for each Particle in an event. - 0 for primary particles
-    const int TrackId()    const { return ftrackId; }
+    const int TrackId()    const { return m_trackId; }
 
     // Get at the status code returned by GENIE, Geant4, etc
-    const int StatusCode() const { return fstatus; }
+    const int StatusCode() const { return m_status; }
 
     // The PDG code of the particle.  Note that Geant4 uses the
     // "extended" system for encoding nuclei; e.g., 1000180400 is an
     // Argon nucleus.  See "Monte Carlo PArticle Numbering Scheme" in
     // any Review of Particle Physics.
-    const int PdgCode()    const { return fpdgCode; }
+    const int PdgCode()    const { return m_pdgCode; }
 
     // The track ID of the mother particle.  Note that it's possible
     // for a particle to have a mother that's not recorded in the
     // ParticleList; e.g., an excited nucleus with low kinetic energy
     // emits a photon with high kinetic energy.
-    const int Mother()      const { return fmother; }
-    void SetMother( const int m ) { fmother = m;    }
+    const int Mother()      const { return m_mother; }
+    void SetMother( const int m ) { m_mother = m;    }
 
-    const TVector3&  Polarization()                 const { return fpolarization; }
-    void             SetPolarization( const TVector3& p ) { fpolarization = p;    }
+    const TVector3&  Polarization()                 const { return m_polarization; }
+    void             SetPolarization( const TVector3& p ) { m_polarization = p;    }
 
     // The detector-simulation physics process that created the
     // particle. If this is a primary particle, it will have the
     // value "primary"
-    std::string Process()   const { return fprocess; }
+    std::string Process()   const { return m_process; }
 
     // Accessors for daughter information.  Note that it's possible
     // (even likely) for a daughter track not to be included in a
     // ParticleList, if that daughter particle falls below the energy
     // cut.
-    void AddDaughter( const int trackID )         { fdaughters.insert( trackID ); }
-    int  NumberDaughters()               const    { return fdaughters.size();     }
+    void AddDaughter( const int trackID )         { m_daughters.insert( trackID ); }
+    int  NumberDaughters()               const    { return m_daughters.size();     }
     int  Daughter(const int i)           const; //> Returns the track ID for the "i-th" daughter.
 
     // Accessors for trajectory information.  
-    unsigned int NumberTrajectoryPoints() const { return ftrajectory.size(); }
+    unsigned int NumberTrajectoryPoints() const { return m_trajectory.size(); }
 
     const TLorentzVector& Position( const int i = 0 ) const;
     // To avoid confusion with the X() and Y() methods of MCTruth
@@ -109,12 +109,12 @@ namespace simb {
     double   Py(const int i = 0) const { return Momentum(i).Py(); }
     double   Pz(const int i = 0) const { return Momentum(i).Pz(); }
     double    E(const int i = 0) const { return Momentum(i).E();  }
-    double    P(const int i = 0) const { return sqrt(pow(Momentum(i).E(),2.) - pow(fmass,2.));  }
+    double    P(const int i = 0) const { return sqrt(pow(Momentum(i).E(),2.) - pow(m_mass,2.));  }
     double   Pt(const int i = 0) const { return sqrt(pow(Momentum(i).Px(),2.) + pow(Momentum(i).Py(),2.)); }
-    double Mass()                const { return fmass; }
+    double Mass()                const { return m_mass; }
 
     // Access to the trajectory in both a const and non-const context.
-    const simb::MCTrajectory& Trajectory() const { return ftrajectory; }
+    const simb::MCTrajectory& Trajectory() const { return m_trajectory; }
 
     // Make it easier to add a (position,momentum) point to the
     // trajectory. You must add this information for every point you wish to keep
@@ -122,8 +122,8 @@ namespace simb {
 
     // methods for giving/accessing a weight to this particle for use
     // in studies of rare processes, etc
-    const double Weight()             const { return fWeight;}
-    void         SetWeight(double wt)       { fWeight = wt;  }
+    //const double Weight()             const { return m_Weight;}
+    //void         SetWeight(double wt)       { m_Weight = wt;  }
 
     // Define a comparison operator for particles.  This allows us to
     // keep them in sets or maps.  It makes sense to order a list of
@@ -131,25 +131,23 @@ namespace simb {
     // primary particles in an event, it is NOT safe to assume that a
     // particle with a lower track ID is "closer" to the event
     // vertex.
-    bool operator<( const MCParticle& other ) const { return ftrackId < other.ftrackId; }
+    bool operator<( const MCParticle& other ) const { return m_trackId < other.m_trackId; }
 
     friend std::ostream& operator<< ( std::ostream& output, const MCParticle& );
 
   protected:
-    int                     fstatus;        ///> Status code from generator, geant, etc
-    int                     ftrackId;       ///> TrackId
-    int                     fpdgCode;       ///> PDG code
-    int                     fmother;        ///> Mother
-    std::string             fprocess;       ///> Detector-simulation physics process that created the particle
-    simb::MCTrajectory      ftrajectory;    ///> particle trajectory (posn,mom)
-    double                  fmass;          ///> Mass; from PDG unless overridden
-    double                  fWeight;        ///> Weighting factor for rare processes, etc
-    TVector3                fpolarization;  ///> Polarization
-
     typedef std::set<int>   daughters_type;
-    daughters_type          fdaughters;     ///> Sorted list of daughters of this particle.
 
-  public:
+    int                     m_status;        ///> Status code m_rom generator, geant, etc
+    int                     m_trackId;       ///> TrackId
+    int                     m_pdgCode;       ///> PDG code
+    int                     m_mother;        ///> Mother
+    std::string             m_process;       ///> Detector-simulation physics process that created the particle
+    simb::MCTrajectory      m_trajectory;    ///> particle trajectory (posn,mom)
+    double                  m_mass;          ///> Mass; m_rom PDG unless overridden
+    TVector3                m_polarization;  ///> Polarization
+    daughters_type          m_daughters;     ///> Sorted list of daughters of this particle.
+    //double                  m_Weight;        ///> Assigned weight to this particle for MC tests
 
   };
 

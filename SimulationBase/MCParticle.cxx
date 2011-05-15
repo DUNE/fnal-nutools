@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.4 2011-05-12 15:06:38 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.5 2011-05-15 22:25:27 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -41,13 +41,13 @@ namespace simb {
 			 const int mother, 
 			 const double mass,
 			 const int status)
-    : fstatus(status)
-    , ftrackId(trackId)
-    , fpdgCode(pdg)
-    , fmother(mother)
-    , fprocess(process)
-    , fmass(0)
-    , fWeight(0.)
+    : m_status(status)
+    , m_trackId(trackId)
+    , m_pdgCode(pdg)
+    , m_mother(mother)
+    , m_process(process)
+    , m_mass(0)
+      //, m_Weight(0.)
   {
     // If the user has supplied a mass, use it.  Otherwise, get the
     // particle mass from the PDG table.
@@ -58,14 +58,11 @@ namespace simb {
       // not a major error; Geant4 has an internal particle coding
       // scheme for nuclei that ROOT doesn't recognize.
       if ( definition != 0 ){
-	fmass = definition->Mass();
+	m_mass = definition->Mass();
       }
     }
-    else{
-      fmass = mass;
-    }
-    
-    return;
+    else m_mass = mass;
+
   }
 
   //------------------------------------------------------------
@@ -77,13 +74,14 @@ namespace simb {
 //   // TObject, we have to copy its information explicitly.
 //   MCParticle::MCParticle( const MCParticle& rhs ) 
 //   {
-//     ftrackId      = rhs.ftrackId;
-//     fpdgCode      = rhs.fpdgCode;
-//     fmother       = rhs.fmother;
-//     ftrajectory   = new sim::Trajectory(*(rhs.ftrajectory));
-//     fmass         = rhs.fmass;
-//     fprocess      = rhs.fprocess;
-//     fpolarization = rhs.fpolarization;
+//     m_trackId      = rhs.m_trackId;
+//     m_pdgCode      = rhs.m_pdgCode;
+//     m_mother       = rhs.m_mother;
+//     m_trajectory   = new sim::Trajectory(*(rhs.m_trajectory));
+//     m_mass         = rhs.m_mass;
+//     m_process      = rhs.m_process;
+//     m_polarization = rhs.m_polarization;
+//     m_Weight       = rhs.m_Weight;
 //   }
 
   //------------------------------------------------------------
@@ -93,19 +91,19 @@ namespace simb {
     // Usual test for self-assignment.
     if ( this == &rhs ) return *this;
 
-    
     // As a trivial exercise, let's make this operator exception-safe:
 
     // Copy the non-pointer items.
-    fstatus       = rhs.fstatus;
-    ftrackId      = rhs.ftrackId;
-    fpdgCode      = rhs.fpdgCode;
-    fmother       = rhs.fmother;
-    fprocess      = rhs.fprocess;
-    ftrajectory   = rhs.ftrajectory;
-    fmass         = rhs.fmass;
-    fpolarization = rhs.fpolarization;
-    fdaughters    = rhs.fdaughters;
+    m_status       = rhs.m_status;
+    m_trackId      = rhs.m_trackId;
+    m_pdgCode      = rhs.m_pdgCode;
+    m_mother       = rhs.m_mother;
+    m_process      = rhs.m_process;
+    m_trajectory   = rhs.m_trajectory;
+    m_mass         = rhs.m_mass;
+    m_polarization = rhs.m_polarization;
+    m_daughters    = rhs.m_daughters;
+    //m_Weight       = m_Weight;
 
     return *this;
   }
@@ -114,7 +112,7 @@ namespace simb {
   // Return the "index-th' daughter in the list.
   int MCParticle::Daughter( const int index ) const
   {
-    daughters_type::const_iterator i = fdaughters.begin();
+    daughters_type::const_iterator i = m_daughters.begin();
     std::advance( i, index );
     return *i;
   }
@@ -122,19 +120,19 @@ namespace simb {
   //------------------------------------------------------------
   void MCParticle::AddTrajectoryPoint( const TLorentzVector& position, const TLorentzVector& momentum )
   {
-    ftrajectory.Add( position, momentum );
+    m_trajectory.Add( position, momentum );
   }
 
   //------------------------------------------------------------
   const TLorentzVector& MCParticle::Position( const int i ) const
   {
-    return ftrajectory.Position(i);
+    return m_trajectory.Position(i);
   }
 
   //------------------------------------------------------------
   const TLorentzVector& MCParticle::Momentum( const int i ) const
   {
-    return ftrajectory.Momentum(i);
+    return m_trajectory.Momentum(i);
   }
 
   //------------------------------------------------------------
@@ -149,14 +147,8 @@ namespace simb {
     // Check that the particle is known to ROOT.  If not, this is
     // not a major error; Geant4 has an internal particle coding
     // scheme for nuclei that ROOT doesn't recognize.
-    if ( definition != 0 )
-      {
-	output << definition->GetName();
-      }
-    else
-      {
-	output << "PDG=" << pdg;
-      }
+    if ( definition != 0 ) output << definition->GetName();
+    else output << "PDG=" << pdg;
     
     output << ", Mother ID=" << particle.Mother()
 	   << ", Process=" << particle.Process();
