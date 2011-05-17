@@ -2,7 +2,7 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.cxx,v 1.2 2011-03-29 19:31:22 brebel Exp $
+/// \version $Id: MCNeutrino.cxx,v 1.3 2011-05-17 01:47:35 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -68,6 +68,8 @@ namespace simb{
 	   << " X =               " << mcnu.X() 
 	   << " Y =               " << mcnu.Y() 
 	   << " Q^2 =             " << mcnu.QSqr() << std::endl;
+
+    return output;
   }
 
   MCNeutrino::~MCNeutrino() { }
