@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCTrajectory.h
-/// \version $Id: MCTrajectory.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCTrajectory.h,v 1.2 2011-05-23 03:08:08 brebel Exp $
 /// \brief Trajectory class
 ///
 /// \author  seligman@nevis.columbia.edu
@@ -95,33 +95,33 @@ namespace simb {
     /// Standard STL methods, to make this class look like an STL map.
     /// Again, if you don't know STL, you can just ignore these
     /// methods.
-    iterator               begin()        { return m_trajectory.begin();  }
-    const_iterator         begin()  const { return m_trajectory.begin();  }
-    iterator               end()          { return m_trajectory.end();    }
-    const_iterator         end()    const { return m_trajectory.end();    }
-    reverse_iterator       rbegin()       { return m_trajectory.rbegin(); }
-    const_reverse_iterator rbegin() const { return m_trajectory.rbegin(); }
-    reverse_iterator       rend()         { return m_trajectory.rend();   }
-    const_reverse_iterator rend()   const { return m_trajectory.rend();   }
+    iterator               begin()        { return ftrajectory.begin();  }
+    const_iterator         begin()  const { return ftrajectory.begin();  }
+    iterator               end()          { return ftrajectory.end();    }
+    const_iterator         end()    const { return ftrajectory.end();    }
+    reverse_iterator       rbegin()       { return ftrajectory.rbegin(); }
+    const_reverse_iterator rbegin() const { return ftrajectory.rbegin(); }
+    reverse_iterator       rend()         { return ftrajectory.rend();   }
+    const_reverse_iterator rend()   const { return ftrajectory.rend();   }
 
-    size_type size()                    const { return m_trajectory.size();              }
-    bool      empty()                   const { return m_trajectory.empty();             }
-    void      swap(MCTrajectory& other)       { m_trajectory.swap( other.m_trajectory ); }
-    void      clear()                         { m_trajectory.clear();                    }
+    size_type size()                    const { return ftrajectory.size();              }
+    bool      empty()                   const { return ftrajectory.empty();             }
+    void      swap(MCTrajectory& other)       { ftrajectory.swap( other.ftrajectory ); }
+    void      clear()                         { ftrajectory.clear();                    }
 
     // Note that there's no non-const version of operator[] or at() here; once
     // you've added a point to a trajectory, you can't modify it.
-    const value_type& operator[](const size_type i) const { return m_trajectory[i]; }
-    const value_type& at(const size_type i)         const { return m_trajectory.at(i); }
+    const value_type& operator[](const size_type i) const { return ftrajectory[i]; }
+    const value_type& at(const size_type i)         const { return ftrajectory.at(i); }
 
     /// The only "set" methods for this class; once you've added a
     /// trajectory point, you can't take it back.
-    void push_back( const value_type& v )                              { m_trajectory.push_back(v); }
-    void push_back( const TLorentzVector& p, const TLorentzVector& m ) { m_trajectory.push_back( value_type(p,m) ); }
+    void push_back( const value_type& v )                              { ftrajectory.push_back(v); }
+    void push_back( const TLorentzVector& p, const TLorentzVector& m ) { ftrajectory.push_back( value_type(p,m) ); }
     void Add( const TLorentzVector& p, const TLorentzVector& m )       { push_back(p,m); }
 
   private:
-    list_type m_trajectory;
+    list_type ftrajectory;
 
   };
 

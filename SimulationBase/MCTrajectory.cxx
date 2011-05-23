@@ -20,7 +20,7 @@ namespace simb {
   MCTrajectory::MCTrajectory( const TLorentzVector& position, 
 			      const TLorentzVector& momentum )
   {
-    m_trajectory.push_back( value_type( position, momentum ) );
+    ftrajectory.push_back( value_type( position, momentum ) );
   }
 
   // Nothing special need be done for the default constructor or destructor.
@@ -29,14 +29,14 @@ namespace simb {
 
   const TLorentzVector& MCTrajectory::Position( const size_type index ) const
   {
-    const_iterator i = m_trajectory.begin();
+    const_iterator i = ftrajectory.begin();
     std::advance(i,index);
     return (*i).first;
   }
 
   const TLorentzVector& MCTrajectory::Momentum( const size_type index ) const
   {
-    const_iterator i = m_trajectory.begin();
+    const_iterator i = ftrajectory.begin();
     std::advance(i,index);
     return (*i).second;
   }
