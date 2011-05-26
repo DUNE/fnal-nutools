@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.14 2011-05-12 15:22:06 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.15 2011-05-26 13:30:34 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -135,12 +135,13 @@ void EventDisplay::postBeginJob()
 
     if(stype.find("DrawingOptions") != std::string::npos)      
       fDrawingOptions.push_back(stype);
-    else if(stype.compare("Timing")                   != 0
-	    || stype.compare("TFileService")          != 0
-	    || stype.compare("SimpleMemoryCheck")     != 0
-	    || stype.compare("message")               != 0
-	    || stype.compare("scheduler")             != 0
-	    || stype.compare("RandomNumberGenerator") != 0
+    else if(stype.find("Timing")                == std::string::npos &&
+	    stype.find("TFileService")          == std::string::npos &&
+	    stype.find("SimpleMemoryCheck")     == std::string::npos &&
+	    stype.find("message")               == std::string::npos &&
+	    stype.find("scheduler")             == std::string::npos &&
+	    stype.find("RandomNumberGenerator") == std::string::npos &&
+	    stype.find("none")                  == std::string::npos 
 	    )
       fServices.push_back(stype);
 
@@ -149,6 +150,7 @@ void EventDisplay::postBeginJob()
   fServiceParamSets.resize(fServices.size());
   fDrawingParamSets.resize(fDrawingOptions.size());
   evdb::DisplayWindow::SetDrawingOptionsAll(fDrawingOptions);
+  evdb::DisplayWindow::SetServicesAll(fServices);
 
 }
 
@@ -243,7 +245,6 @@ void EventDisplay::ReconfigureWorkers()
 }
 
 //......................................................................
-
 void EventDisplay::ReconfigureDrawingOptions()
 {
   // Look to see if we have any new service configurations to apply
@@ -279,6 +280,41 @@ void EventDisplay::ReconfigureDrawingOptions()
 }
 
 //......................................................................
+void EventDisplay::ReconfigureServices()
+{
+  // Look to see if we have any new service configurations to apply
+  art::ServiceRegistry& inst = art::ServiceRegistry::instance();
+  std::vector< fhicl::ParameterSet > psets;
+  inst.presentToken().getParameterSets(psets);
+  for(size_t ps = 0; ps < psets.size(); ++ps){    
+    for (unsigned int i=0; i<fServiceParamSets.size(); ++i) {
+      
+      if(fServices[i].compare(psets[ps].get<std::string>("service_type", "none")) == 0){
+	try {
+	  if (!fServiceParamSets[i].empty()) {
+	    fhicl::ParameterSet pset;
+	    fhicl::intermediate_table itable;
+	    // Each of the next 2 lines may throw on error: should check.
+	    fhicl::parse_document(fServiceParamSets[i], itable); 
+	    fhicl::make_ParameterSet(itable, pset); 
+	    fServiceParamSets[i] = "";
+	    psets[ps] = pset;
+	  }
+	}
+	catch (fhicl::exception& e) {
+	  std::cout << "Error parsing the new configuration:\n"
+		    << e
+		    << "\nRe-configuration has been ignored for service: "
+		    << fServices[i]
+		    << std::endl;
+	}
+      }// end if this is the right service in the list
+    }// end loop over services
+  }// end loop over service parameter sets
+  inst.presentToken().putParameterSets(psets);
+}
+
+//......................................................................
 
 void EventDisplay::postProcessEvent(art::Event const& evt )
 {
@@ -295,6 +331,7 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
 
   this->ReconfigureWorkers();
   this->ReconfigureDrawingOptions();
+  this->ReconfigureServices();
 
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {

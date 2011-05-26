@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.7 2011-04-17 14:55:31 brebel Exp $
+/// \version $Id: EventDisplay.h,v 1.8 2011-05-26 13:30:34 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_EVENTDISPLAY_H
@@ -41,6 +41,7 @@ namespace evdb {
 
     void ReconfigureWorkers();
     void ReconfigureDrawingOptions();
+    void ReconfigureServices();
 
   private:
     art::RootInput* fInputSource; ///< Input source of events

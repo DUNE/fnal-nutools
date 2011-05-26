@@ -2,7 +2,7 @@
 /// \file  JobMenu.cxx
 /// \brief The job pull down menu
 ///
-/// \version $Id: JobMenu.cxx,v 1.8 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: JobMenu.cxx,v 1.9 2011-05-26 13:30:34 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/JobMenu.h"
@@ -24,8 +24,9 @@ using namespace evdb;
 // Define ID codes for the actions on the file menu
 enum {
   kM_JOB_OPENXML            = 99001,
-  kM_JOB_EDITCONFIG         = 99002,
-  kM_JOB_RESETJOB           = 99003
+  kM_JOB_EDITCONFIG         = 99100,
+  kM_JOB_RESETJOB           = 99003,
+  kM_JOB_EDITSERVICE        = 99200
 };
 
 //......................................................................
@@ -39,19 +40,25 @@ JobMenu::JobMenu(TGMenuBar* menubar, TGMainFrame* mf) :
   fJobMenu = new TGPopupMenu(gClient->GetRoot());
   fLayout  = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
   
-  fConfigMenu = new TGPopupMenu(gClient->GetRoot());
+  fConfigMenu  = new TGPopupMenu();
+  fServiceMenu = new TGPopupMenu();
   
   // Create the list of functions. Associate each which a command code
   fJobMenu->AddEntry("&Load job",  kM_JOB_OPENXML);
   fJobMenu->AddEntry("&Reset Job", kM_JOB_RESETJOB);
   fJobMenu->AddSeparator();
-  fJobMenu->AddPopup("&Configure Module", fConfigMenu);
+  fJobMenu->AddPopup("&Configure Module",  fConfigMenu);
+  fJobMenu->AddSeparator();
+  fJobMenu->AddPopup("&Configure Service", fServiceMenu);
   
+  // Connect only the fJobMenu - the other pop-ups that are embedded in 
+  // it do not get their own signals for some reason known only to the 
+  // ROOT developers
   fJobMenu->Connect("Activated(Int_t)",
 		    "evdb::JobMenu",
 		    this,
 		    "HandleMenu(int)");
-  
+
   // Attach the menu to the menu bar
   menubar->AddPopup("&Job",fJobMenu,fLayout);
 }
@@ -80,12 +87,25 @@ void JobMenu::SetWorkers(const std::vector<std::string>& w)
   
   // Rebuild the list
   for (unsigned int i=0; i<w.size(); ++i) {
-    fConfigMenu->AddEntry(w[i].c_str(), i);
+    fConfigMenu->AddEntry(w[i].c_str(), kM_JOB_EDITCONFIG+i);
   }
-  fConfigMenu->Connect("Activated(Int_t)",
-		       "evdb::JobMenu",
-		       this,
-		       "EditConfig(int)");
+}
+
+//......................................................................
+
+void JobMenu::SetServices(const std::vector<std::string>& w)
+{
+  // Wipe out the existing menus and lists
+  for (unsigned int i=0;;++i) {
+    TGMenuEntry* m = fConfigMenu->GetEntry(i);
+    if (m) fConfigMenu->DeleteEntry(i);
+    else   break;
+  }
+  
+  // Rebuild the list
+  for (unsigned int i=0; i<w.size(); ++i) {
+    fServiceMenu->AddEntry(w[i].c_str(), kM_JOB_EDITSERVICE+i);
+  }
 }
 
 //......................................................................
@@ -97,15 +117,15 @@ void JobMenu::HandleMenu(int menu)
 //======================================================================
   switch(menu) {
   case kM_JOB_OPENXML: 
-    this->OpenJobXML(); 
+    this->OpenJob(); 
     break;
   case kM_JOB_RESETJOB: 
     this->ResetJob(); 
     break;
   default:
-    // This is bogus, but it works. TODO: Figure out why the fConfigMenu
-    // signals are misrouted here
-    this->EditConfig(menu);
+    if(menu >= kM_JOB_EDITCONFIG && 
+       menu < kM_JOB_EDITSERVICE)       this->EditConfig(menu);
+    else if(menu >= kM_JOB_EDITSERVICE) this->EditService(menu);
     break;
   }
 }
@@ -114,13 +134,25 @@ void JobMenu::HandleMenu(int menu)
 
 void JobMenu::EditConfig(int i)
 {  
+  // make sure to subtract off the offset used to distinguish between
+  // module and service configs
   art::ServiceHandle<evdb::EventDisplay> evd;
-  evd->EditWorkerParameterSet(i);
+  evd->EditWorkerParameterSet(i-kM_JOB_EDITCONFIG);
 }
 
 //......................................................................
 
-int JobMenu::OpenJobXML() 
+void JobMenu::EditService(int i)
+{  
+  // make sure to subtract off the offset used to distinguish between
+  // module and service configs
+  art::ServiceHandle<evdb::EventDisplay> evd;
+  evd->EditServiceParameterSet(i-kM_JOB_EDITSERVICE);
+}
+
+//......................................................................
+
+int JobMenu::OpenJob() 
 {
   static TString dir(getenv("SRT_PRIVATE_CONTEXT"));
   const char* filetypes[] = {
