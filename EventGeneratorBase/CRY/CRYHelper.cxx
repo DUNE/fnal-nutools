@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.7 2011-04-04 01:31:29 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.8 2011-06-03 21:43:36 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -159,9 +159,12 @@ namespace evgb{
 				  << z1 << " " << z2;
 
 	this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
-	vx = xyzo[0];
-	vy = xyzo[1];
-	vz = xyzo[2];
+
+	// us the floor function to make sure we don't have rounding errors making the 
+	// points beyond the edge of the world
+	vx = floor(xyzo[0]);
+	vy = floor(xyzo[1]);
+	vz = floor(xyzo[2]);
       
 	// Boiler plate...
 	int istatus    =  1;
