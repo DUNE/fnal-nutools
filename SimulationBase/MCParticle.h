@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.6 2011-05-23 03:08:08 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.7 2011-06-15 21:35:36 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -99,10 +99,15 @@ namespace simb {
     // To avoid confusion with the X() and Y() methods of MCTruth
     // (which return Feynmann x and y), use "Vx,Vy,Vz" for the
     // vertex.
-    double Vx(const int i = 0) const { return Position(i).X(); }
-    double Vy(const int i = 0) const { return Position(i).Y(); }
-    double Vz(const int i = 0) const { return Position(i).Z(); }
-    double  T(const int i = 0) const { return Position(i).T(); }
+    double Vx(const int i = 0)   const { return Position(i).X(); }		   
+    double Vy(const int i = 0) 	 const { return Position(i).Y(); }		   
+    double Vz(const int i = 0) 	 const { return Position(i).Z(); }		   
+    double  T(const int i = 0) 	 const { return Position(i).T(); }		   
+				                                                     
+    double EndX()              	 const { return Position(ftrajectory.size()-1).X(); }
+    double EndY()              	 const { return Position(ftrajectory.size()-1).Y(); }
+    double EndZ()              	 const { return Position(ftrajectory.size()-1).Z(); }
+    double EndT()              	 const { return Position(ftrajectory.size()-1).T(); }
 
     const TLorentzVector& Momentum( const int i = 0 ) const;
     double   Px(const int i = 0) const { return Momentum(i).Px(); }
@@ -112,6 +117,11 @@ namespace simb {
     double    P(const int i = 0) const { return sqrt(pow(Momentum(i).E(),2.) - pow(fmass,2.));  }
     double   Pt(const int i = 0) const { return sqrt(pow(Momentum(i).Px(),2.) + pow(Momentum(i).Py(),2.)); }
     double Mass()                const { return fmass; }
+
+    double EndPx()               const { return Momentum(ftrajectory.size()-1).Px(); }
+    double EndPy()               const { return Momentum(ftrajectory.size()-1).Py(); }
+    double EndPz()               const { return Momentum(ftrajectory.size()-1).Pz(); }
+    double EndE()                const { return Momentum(ftrajectory.size()-1).E();  }
 
     // Access to the trajectory in both a const and non-const context.
     const simb::MCTrajectory& Trajectory() const { return ftrajectory; }
