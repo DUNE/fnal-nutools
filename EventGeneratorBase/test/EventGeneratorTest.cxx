@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.4 2011-05-12 15:10:24 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.5 2011-06-28 22:21:19 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -83,7 +83,7 @@ namespace evgen {
     flavors.push_back(12); flavors.push_back(14); flavors.push_back(-12); flavors.push_back(-14);
 
     std::vector<std::string> env;
-    env.push_back("GSPLOAD");   env.push_back("/grid/fermiapp/nova/aux/gxspl-NUMI-R2.6.0.xml");
+    env.push_back("GSPLOAD");   env.push_back("gxspl-NUMI-R2.6.0.xml");
     env.push_back("GPRODMODE"); env.push_back("YES");
     env.push_back("GEVGL");     env.push_back("Default");
 
@@ -91,9 +91,9 @@ namespace evgen {
     double eventsPerSpill = 0;
     if(!usePOTPerSpill) eventsPerSpill = 1;
 
-    std::string fluxFile("/grid/fermiapp/nova/aux/L010z185i_lowthr_ipndshed.root");
+    std::string fluxFile("L010z185i_lowthr_ipndshed.root");
     if(fluxType.compare("simple_flux") == 0) 
-      fluxFile = "/nova/data/flux/gsimple/NDOS/le010z185i/gsimple_NOvA-NDOS_le010z185i_20100402_lowth_s_00001.root";
+      fluxFile = "flux/gsimple/NDOS/le010z-185i/gsimple_NOvA-NDOS_le010z185i_20100521_RHC_lowth_s_00001.root";
     else if(fluxType.compare("ntuple") == 0){
       std::cerr <<"No ntuple flux file exists, bail ungracefully";
       assert(0);
@@ -120,10 +120,13 @@ namespace evgen {
   //____________________________________________________________________________
   void EventGeneratorTest::GENIETest(fhicl::ParameterSet const& pset)
   {
+    std::cout << "Test GENIE" << std::endl;
 
     // make the GENIEHelper object
     evgb::GENIEHelper help(pset);
     help.Initialize();
+
+    std::cout << "GENIE initialized" << std::endl;
     
     int interactionCount = 0;
 
