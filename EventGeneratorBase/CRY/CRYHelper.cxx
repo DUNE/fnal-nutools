@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.8 2011-06-03 21:43:36 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.9 2011-06-29 17:13:40 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -31,17 +31,9 @@
 // Experiment include files
 #include "Geometry/geo.h"
 
+#include "CLHEP/Random/RandFlat.h"
+
 namespace evgb{
-
-  //......................................................................
-
-  ///
-  /// Force CRY to use the ROOT random number generator
-  ///
-  static double gsUniformRandom() 
-  {
-    return gRandom->Uniform();
-  }
 
   //......................................................................
   CRYHelper::CRYHelper() 
@@ -49,14 +41,14 @@ namespace evgb{
   }
 
   //......................................................................
-  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset) :
-    fSampleTime(pset.get< double      >("SampleTime")     ),
-    fToffset   (pset.get< double      >("TimeOffset")     ),
-    fEthresh   (pset.get< double      >("EnergyThreshold")),
-    fLatitude  (pset.get< std::string >("Latitude")       ),
-    fAltitude  (pset.get< std::string >("Altitude")       ),
-    fSubBoxL   (pset.get< std::string >("SubBoxLength")   )  
-  {
+  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset) 
+    : fSampleTime(pset.get< double      >("SampleTime")     )
+    , fToffset   (pset.get< double      >("TimeOffset")     )
+    , fEthresh   (pset.get< double      >("EnergyThreshold"))
+    , fLatitude  (pset.get< std::string >("Latitude")       )
+    , fAltitude  (pset.get< std::string >("Altitude")       )
+    , fSubBoxL   (pset.get< std::string >("SubBoxLength")   ) 
+  {    
     // Construct the CRY generator
     std::string config("date 1-1-2014 "
 		       "returnGammas 1 "
@@ -81,7 +73,7 @@ namespace evgb{
       
     // Construct the event generator object
     fSetup = new CRYSetup(config, crydatadir);
-    fSetup->setRandomFunction(gsUniformRandom);
+    fSetup->setRandomFunction(CLHEP::RandFlat::shoot);
   
     fGen = new CRYGenerator(fSetup);
     fEvt = new std::vector<CRYParticle*>;

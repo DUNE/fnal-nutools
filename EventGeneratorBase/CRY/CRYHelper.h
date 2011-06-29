@@ -5,7 +5,7 @@
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
 /// 
-/// \version $Id: CRYHelper.h,v 1.3 2011-01-21 16:30:32 p-nusoftart Exp $
+/// \version $Id: CRYHelper.h,v 1.4 2011-06-29 17:13:40 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -38,15 +38,15 @@ namespace evgb {
 			  double zlo, double zhi,
 			  double xyzout[]);
 
-    CRYSetup*                  fSetup;      /// CRY configuration
-    CRYGenerator*              fGen;        /// The CRY generator
-    std::vector<CRYParticle*>* fEvt;        /// List of particles
-    double                     fSampleTime; /// Amount of time to sample (seconds)
-    double                     fToffset;    /// Shift in time of particles (s)
-    double                     fEthresh;    /// Cut on kinetic energy (GeV)
-    std::string                fLatitude;   /// Latitude of detector need space after value
-    std::string                fAltitude;   /// Altitude of detector need space after value
-    std::string                fSubBoxL;    /// Length of subbox (m) need space after value
+    CRYSetup*                  fSetup;      ///< CRY configuration
+    CRYGenerator*              fGen;        ///< The CRY generator
+    std::vector<CRYParticle*>* fEvt;        ///< List of particles
+    double                     fSampleTime; ///< Amount of time to sample (seconds)
+    double                     fToffset;    ///< Shift in time of particles (s)
+    double                     fEthresh;    ///< Cut on kinetic energy (GeV)
+    std::string                fLatitude;   ///< Latitude of detector need space after value
+    std::string                fAltitude;   ///< Altitude of detector need space after value
+    std::string                fSubBoxL;    ///< Length of subbox (m) need space after value
   };
 }
 #endif // EVGB_CRYHELPER_H

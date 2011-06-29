@@ -17,5 +17,7 @@ namespace evgb {
     kNeutrinoGenerator  = -100,
     kCosmicRayGenerator = -200
   };
+
+  unsigned int GetRandomNumberSeed();
 }
 #endif
