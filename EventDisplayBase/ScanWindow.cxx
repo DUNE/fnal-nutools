@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.5 2011-05-12 15:22:06 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.6 2011-07-11 19:35:05 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -103,7 +103,7 @@ namespace evdb{
 
 	if(types[i] == "Text"){
 	  // only add a label for text entry if the category is not Comments, otherwise
-	  // the labe is redundant
+	  // the label is redundant
 	  if(opts->fCategories[c].compare("Comments") != 0){
 	    TGLabel *l = new TGLabel(frame, labels[i].c_str());
 	    frame->AddFrame(l, lh);
@@ -150,7 +150,7 @@ namespace evdb{
 
     // pad out the size of the Scan and Button frames to accomodate the various fields
     fScanCompFrame->Resize(w, 60*fCatFrames.size());
-    fButtonCompFrame->Resize(120*fButtonFrames.size(), fScanCompFrame->GetSize().fHeight);
+    fButtonCompFrame->Resize(w, fScanCompFrame->GetSize().fHeight);
 
     // add the Scan and ButtonCompFrames to the Main frame, and set its size
     fMainFrame->AddFrame(fButtonCompFrame, fLHButton);
@@ -164,7 +164,7 @@ namespace evdb{
     outfile << std::endl;
     
     // Button bar across the bottom
-    fF3 = new TGCompositeFrame(this, w, 60, kHorizontalFrame);
+    fF3 = new TGHorizontalFrame(this, 0.3*w, 0.9*h, kHorizontalFrame);
     fB3 = new TGTextButton(fF3, " Prev   ");
     fB4 = new TGTextButton(fF3, " Next   ");
     fB5 = new TGTextButton(fF3, " Record ");

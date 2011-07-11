@@ -2,7 +2,7 @@
 /// \file  WindowMenu.cxx
 /// \brief Implement the pull down window menu
 ///
-/// \version $Id: WindowMenu.cxx,v 1.3 2011-05-12 15:22:06 brebel Exp $
+/// \version $Id: WindowMenu.cxx,v 1.4 2011-07-11 19:35:05 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/WindowMenu.h"
@@ -25,25 +25,24 @@ WindowMenu::WindowMenu(TGMenuBar* menubar, TGMainFrame* /*mf*/)
   fLayout     = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 
   // Create the list of functions. Associate each which a command code
+  unsigned int cnt = 2;
   unsigned int i=0;
   const std::vector<std::string>& names = DisplayWindow::Names();
   for (; i<names.size(); ++i) {
-    fWindowMenu->AddEntry(names[i].c_str(), i);
+    fWindowMenu->AddEntry(names[i].c_str(), cnt+i);
   }
   fWindowMenu->AddSeparator();
 
   // Create the list of functions. Associate each which a command code
   const std::vector<std::string>& lnames = ListWindow::Names();
   for (unsigned int j=0; j<lnames.size(); ++j) {
-    fWindowMenu->AddEntry(lnames[j].c_str(), i+j);
+    fWindowMenu->AddEntry(lnames[j].c_str(), cnt+i+j);
   }
   fWindowMenu->AddSeparator();
-  /*
-  fWindowMenu->AddEntry("&Scan Categories",  -1);
+  fWindowMenu->AddEntry("&Scan Window",  0);
   fWindowMenu->AddSeparator();
-  fWindowMenu->AddEntry("&MC Information",   -2);
-  */
-  fWindowMenu->AddEntry("&ROOT Browser",    -3);
+  //fWindowMenu->AddEntry("&MC Information",   -2);
+  fWindowMenu->AddEntry("&ROOT Browser",    1);
   fWindowMenu->Connect("Activated(Int_t)",
 		       "evdb::WindowMenu",this,"HandleMenu(int)");
   
@@ -63,18 +62,18 @@ WindowMenu::~WindowMenu()
 
 void WindowMenu::HandleMenu(int menu) 
 {
-  //
-  // Check if the menu has selected one of the named "user" windows
-  //
-  if (menu < (int)DisplayWindow::Names().size()) {
-    int aok = DisplayWindow::OpenWindow(menu);
-    if (aok<0) this->NoImpl("Error openning requested window");
+  if( menu == 0 ){
+    new ScanWindow();
     return;
   }
   //
-  // Fall through here if one of the special windows was
-  // requested. Currently these are not implemented
+  // Check if the menu has selected one of the named "user" windows
   //
+  if (menu-2 < (int)DisplayWindow::Names().size()) {
+    int aok = DisplayWindow::OpenWindow(menu-2);
+    if (aok<0) this->NoImpl("Error openning requested window");
+    return;
+  }
 }
 
 //......................................................................
