@@ -2,7 +2,7 @@
 /// \file  View2D.cxx
 /// \brief A collection of drawable 2-D objects
 ///
-/// \version $Id: View2D.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: View2D.cxx,v 1.2 2011-07-11 21:34:39 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <algorithm>
@@ -180,6 +180,7 @@ TPolyLine& View2D::AddPolyLine(int n, int c, int w, int s)
     // Reuse the polyline at the current position
     pl = *fNextPolyLine;
     pl->SetPolyLine(n); // reset elements in PolyLine
+    pl->SetOption("");
     pl->SetLineColor(c);
     pl->SetLineWidth(w);
     pl->SetLineStyle(s);
