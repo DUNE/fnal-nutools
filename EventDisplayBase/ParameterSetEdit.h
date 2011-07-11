@@ -88,6 +88,7 @@ namespace evdb {
     std::vector<std::string>  fValue;
     std::string*              fResult; ///< New parameter set
 
+    ClassDef(ParameterSetEdit, 0);
   };
 }
 #endif // EDVB_PARAMETERSETEDIT_H

@@ -9,16 +9,16 @@
 
 #pragma link C++ namespace evdb;
 
-#pragma link C++ class evdb::ButtonBar-;
+#pragma link C++ class evdb::ButtonBar+;
 #pragma link C++ class evdb::Printable-;
 #pragma link C++ class evdb::Canvas-;
 #pragma link C++ class evdb::FileMenu-;
-#pragma link C++ class evdb::PrintDialog-;
+#pragma link C++ class evdb::PrintDialog+;
 #pragma link C++ class evdb::WindowMenu-;
 #pragma link C++ class evdb::JobMenu-;
 #pragma link C++ class evdb::EditMenu-;
-#pragma link C++ class evdb::ParameterSetEdit-;
+#pragma link C++ class evdb::ParameterSetEdit+;
 #pragma link C++ class evdb::ParamFrame-;
-#pragma link C++ class evdb::ScanWindow-;
+#pragma link C++ class evdb::ScanWindow+;
 
 #endif

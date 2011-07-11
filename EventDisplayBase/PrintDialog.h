@@ -2,7 +2,7 @@
 /// \file  PrintDialog.h
 /// \brief Dialog box for printing displays
 ///
-/// \version $Id: PrintDialog.h,v 1.1 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: PrintDialog.h,v 1.2 2011-07-11 22:29:16 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_PRINTDIALOG_H
@@ -49,6 +49,8 @@ namespace evdb {
     int         fNprintable;    // Number of printable objects
     std::string fPrintTag[10];  // Tag names of printables
     Printable*  fPrintable[10]; // Pointers to printables. Not owner!
+
+    ClassDef(PrintDialog, 0);
   };
 }
 #endif

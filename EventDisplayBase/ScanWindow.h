@@ -3,7 +3,7 @@
 /// \file    ScanWindow.h
 /// \brief   A window containing dialog boxes for handscans
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: ScanWindow.h,v 1.2 2011-07-11 22:29:16 bckhouse Exp $
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,8 @@ namespace evdb {
     std::vector<TGRadioButton*>     fRadioButtons;    ///< Radio button entry fields
     std::vector<TGCheckButton*>     fCheckButtons;    ///< Check button entry fields
     std::vector<int>  fRadioButtonIds;
-    
+
+    ClassDef(ScanWindow, 0);
   };
 
 }// namespace

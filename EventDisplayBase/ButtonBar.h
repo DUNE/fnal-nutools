@@ -1,7 +1,7 @@
 ///
 /// \file    ButtonBar.h
 /// \brief   A bar containing the next event and related buttons
-//  \version $Id: ButtonBar.h,v 1.2 2011-02-16 21:49:42 messier Exp $
+//  \version $Id: ButtonBar.h,v 1.3 2011-07-11 22:29:16 bckhouse Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_BUTTONBAR_H
@@ -57,6 +57,8 @@ namespace evdb {
     
     TGTextButton*     fGoTo;  ///< Go To event button
     TGTextButton*     fPrint; ///< Print button
+
+    ClassDef(ButtonBar, 0);
   };
 }
 
