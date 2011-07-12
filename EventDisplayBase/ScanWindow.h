@@ -3,7 +3,7 @@
 /// \file    ScanWindow.h
 /// \brief   A window containing dialog boxes for handscans
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.h,v 1.2 2011-07-11 22:29:16 bckhouse Exp $
+/// \version $Id: ScanWindow.h,v 1.3 2011-07-12 17:09:48 brebel Exp $
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,44 @@ class TGTextButton;
 class TGTextEntry;
 class TGVScrollBar;
 
+namespace evdb{
+
+  /// Helper class to setup scroll bars in evdb::ScanWindow
+  class ScanFrame {
+    RQ_OBJECT("evdb::ScanFrame");
+    
+  public:
+    ScanFrame(const TGWindow *p, 
+	      unsigned int nCategories,
+	      unsigned int maxFields);
+    virtual ~ScanFrame();
+    
+    TGGroupFrame *GetFrame() const { return fFrame; }
+    
+    void SetCanvas(TGCanvas *canvas) { fCanvas = canvas; }
+    void HandleMouseWheel(Event_t *event);
+    void RadioButton();
+    void Record(std::string outfilename, 
+		const char* comments);
+
+    int  GetHeight() const;
+    int  GetWidth() const;
+
+  private:
+
+    TGGroupFrame     *fFrame;
+    TGCanvas         *fCanvas;
+    TGMatrixLayout   *fML;
+    
+    std::vector<TGGroupFrame*>      fCatFrames;       ///< frames to hold fields for a given category
+    std::vector<TGTextEntry*>       fTextBoxes;       ///< Text box entry fields
+    std::vector<TGNumberEntry*>     fNumberBoxes;     ///< Number box entry fields
+    std::vector<TGRadioButton*>     fRadioButtons;    ///< Radio button entry fields
+    std::vector<TGCheckButton*>     fCheckButtons;    ///< Check button entry fields
+    std::vector<int>                fRadioButtonIds;  ///< Ids for the radio buttons
+    
+  };
+}
 
 namespace evdb {
 
@@ -52,28 +90,20 @@ namespace evdb {
     void Rec();
     void Prev();
     void Next();
-    void RadioButton();
 
   private:
-
-    TGCompositeFrame*               fScanCompFrame;   ///< Frame to hold all Category Frames
-    TGCompositeFrame*               fButtonCompFrame; ///< Frame to hold all Button Frames
-    TGCompositeFrame*               fMainFrame;       ///< Frame to hold all fScanCompFrame and fButtonCompFrame
-
-    TGCompositeFrame*               fF3;              ///< Frame to hold record button
-    TGTextButton*                   fB3;              ///< Record button
-    TGTextButton*                   fB4;              ///< Prev button
-    TGTextButton*                   fB5;              ///< Next button
-
-    std::string                     fOutFileName;     ///< Output file name for scan results
-
-    std::vector<TGGroupFrame*>      fCatFrames;       ///< frames to hold fields for non-button entry
-    std::vector<TGGroupFrame*>      fButtonFrames;    ///< frames to hold fields for button entry
-    std::vector<TGTextEntry*>       fTextBoxes;       ///< Text box entry fields
-    std::vector<TGNumberEntry*>     fNumberBoxes;     ///< Number box entry fields
-    std::vector<TGRadioButton*>     fRadioButtons;    ///< Radio button entry fields
-    std::vector<TGCheckButton*>     fCheckButtons;    ///< Check button entry fields
-    std::vector<int>  fRadioButtonIds;
+    
+    ScanFrame*          fScan;        ///< Frame holding the scan fields    
+    TGCanvas*           fCanvas;      ///< Canvas holding the ScanFrame     
+    TGCompositeFrame*   fF3;          ///< Frame to hold record button      
+    TGTextButton*       fB3;          ///< Record button		       
+    TGTextButton*       fB4;          ///< Prev button		       
+    TGTextButton*       fB5;          ///< Next button		       
+    TGTextEntry*        fComments;    ///< Next button		       
+    TGLabel*            fL1;
+    TGCompositeFrame*   fF1;
+					                                        
+    std::string         fOutFileName; ///< Output file name for scan results
 
     ClassDef(ScanWindow, 0);
   };

@@ -20,5 +20,6 @@
 #pragma link C++ class evdb::ParameterSetEdit+;
 #pragma link C++ class evdb::ParamFrame-;
 #pragma link C++ class evdb::ScanWindow+;
+#pragma link C++ class evdb::ScanFrame-;
 
 #endif
