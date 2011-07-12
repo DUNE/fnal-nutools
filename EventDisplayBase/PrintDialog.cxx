@@ -3,7 +3,7 @@
 /// \brief Pop up dialog for printing
 ///
 /// \author  messier@indiana.edu
-/// \version $Id: PrintDialog.cxx,v 1.1 2011-04-05 22:26:55 messier Exp $
+/// \version $Id: PrintDialog.cxx,v 1.2 2011-07-12 15:53:25 messier Exp $
 ///
 #include "EventDisplayBase/PrintDialog.h"
 #include <map>
@@ -114,7 +114,11 @@ PrintDialog::PrintDialog() :
   fButtonFrame = new TGHorizontalFrame(this,20,20);
 
   fPrintButton = new TGTextButton(fButtonFrame,"&Print",150);
-  fPrintButton->Connect("Clicked()", "evdb::PrintDialog", this, "Print()");
+  fPrintButton->Connect("Clicked()", 
+			"evdb::PrintDialog",
+			this,
+			"PrintToFile()");
+  
   fButtonFrame->AddFrame(fPrintButton, 
 			 new TGLayoutHints(kLHintsLeft,4,4,4,4));
 
@@ -165,7 +169,7 @@ void PrintDialog::Cancel() { this->SendCloseMessage(); }
 
 //......................................................................
 
-void PrintDialog::Print() 
+void PrintDialog::PrintToFile() 
 {
   int         nFormats = 4;
   std::string format[4] = { ".png", ".gif", ".pdf", ".eps" };

@@ -1,7 +1,7 @@
 ///
 /// \file    ButtonBar.h
 /// \brief   A bar containing the next event and related buttons
-//  \version $Id: ButtonBar.h,v 1.3 2011-07-11 22:29:16 bckhouse Exp $
+//  \version $Id: ButtonBar.h,v 1.4 2011-07-12 15:53:25 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_BUTTONBAR_H
@@ -31,7 +31,7 @@ namespace evdb {
     void AutoAdvance();
     void FileList();
     void GoTo();
-    void Print();
+    void PrintToFile();
     int  NoImpl(const char* c);
     
     void SetRunEvent(int run, int event);

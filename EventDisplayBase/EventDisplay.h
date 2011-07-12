@@ -1,10 +1,10 @@
-////////////////////////////////////////////////////////////////////////
+///
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.8 2011-05-26 13:30:34 brebel Exp $
+/// \version $Id: EventDisplay.h,v 1.9 2011-07-12 15:53:25 messier Exp $
 /// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
 #ifndef EVDB_EVENTDISPLAY_H
 #define EVDB_EVENTDISPLAY_H
 #ifndef __CINT__

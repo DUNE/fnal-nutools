@@ -1,10 +1,10 @@
-////////////////////////////////////////////////////////////////////////
+///
 /// \file  PrintDialog.h
 /// \brief Dialog box for printing displays
 ///
-/// \version $Id: PrintDialog.h,v 1.2 2011-07-11 22:29:16 bckhouse Exp $
+/// \version $Id: PrintDialog.h,v 1.3 2011-07-12 15:53:25 messier Exp $
 /// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
 #ifndef EVDB_PRINTDIALOG_H
 #define EVDB_PRINTDIALOG_H
 #include <string>
@@ -27,7 +27,7 @@ namespace evdb {
     ~PrintDialog();
     
     void CloseWindow();
-    void Print();
+    void PrintToFile();
     void Cancel();
     
   private:

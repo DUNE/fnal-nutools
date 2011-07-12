@@ -1,10 +1,9 @@
-////////////////////////////////////////////////////////////////////////
-// $Id: ButtonBar.cxx,v 1.4 2011-05-12 15:22:06 brebel Exp $
-//
-// The button bar across the top of the display
-//
-// messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
+/// \file    ButtonBar.cxx
+/// \brief   The button bar at the top of every display window
+/// \version $Id: ButtonBar.cxx,v 1.5 2011-07-12 15:53:25 messier Exp $
+/// \author  messier@indiana.edu
+///
 #include "EventDisplayBase/ButtonBar.h"
 #include <iostream>
 #include <string>
@@ -84,8 +83,8 @@ ButtonBar::ButtonBar(TGMainFrame* frame) :
 
   // Print button
   fPrint = new TGTextButton(fButtonBar, "Print", 150);
-  fPrint->SetToolTipText("Print Display");
-  fPrint->Connect("Clicked()", "evdb::ButtonBar", this, "Print()");
+  fPrint->SetToolTipText("Print display to a file");
+  fPrint->Connect("Clicked()", "evdb::ButtonBar", this, "PrintToFile()");
   fButtonBar->AddFrame(fPrint,
 		       new TGLayoutHints(kLHintsTop|kLHintsRight, 
 					 2, 0, 2, 2));
@@ -208,7 +207,7 @@ void ButtonBar::FileList()
 
 //......................................................................
 
-void ButtonBar::Print() { new PrintDialog(); }
+void ButtonBar::PrintToFile() { new PrintDialog(); }
 
 //......................................................................
 
