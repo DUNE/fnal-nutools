@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.7 2011-07-12 17:09:48 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.8 2011-07-12 19:28:46 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -226,29 +226,44 @@ namespace evdb{
 		
     }// end loop over input field types
     
-//     // do we need to get the truth information?
-//     if(scanopt->fIncludeMCInfo){
+    // do we need to get the truth information?
+    if(scanopt->fIncludeMCInfo){
 
-//       art::Handle< std::vector<simb::MCTruth> > mclist;
-//       evt->getByLabel(mcopt->fMCTruthModules[0], mclist);
+      std::vector< art::Handle< std::vector<simb::MCTruth> > > mclist;
 
-//       art::Ptr<simb::MCTruth> mc(mclist,0);
-//       const simb::MCNeutrino& neutrinoInteraction = mc->GetNeutrino();
+      try{
+	evt->getManyByType(mclist);
+	if(mclist.size() < 1){
+	  mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
+				       << " but no MCTruth objects found in event - "
+				       << " put garbage numbers into the file";
+	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
+	  return;
+	}
 	  
-//       if ( mc->Origin() != simb::kBeamNeutrino ){
-// 	std::cout<<"Unknown particle source or truth information N/A"<<std::endl;
-//       }
-//       else{	      
-// 	// get the event vertex and energy information,
+	if ( mclist[0]->at(0).Origin() != simb::kBeamNeutrino ){
+	  mf::LogWarning("ScanWindow") <<"Unknown particle source or truth information N/A"
+				       << " put garbage numbers into the file";
+	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
+	  return;
+	}
+	else{	      
+	  // get the event vertex and energy information,
+	  
+	  const simb::MCParticle& nu = mclist[0]->at(0).GetNeutrino().Nu();
+	  
+	  outfile << nu.Vx() << " " << nu.Vy() << " " << nu.Vz() << " " << nu.E();
+	  
+	}
+      }
+      catch(cet::exception &e){
+	mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
+				     << " but no MCTruth objects found in event - "
+				     << " put garbage numbers into the file";
+	outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
+      }
 
-// 	const simb::MCParticle& nu = mc->GetNeutrino().Nu();
-
-// 	std::cout << nu.Vx() << " " << nu.Vy() << " " << nu.Vz() << " " << nu.E();
-	      
-//       } // MC Truth	
-
-
-//     }//end if using MC information
+    }//end if using MC information
 
     // end this line for the event
     outfile << comments << std::endl;
