@@ -3,7 +3,7 @@
 /// \brief A window containing a display of the detector or one of its
 /// components
 ///
-/// \version $Id: DisplayWindow.cxx,v 1.4 2011-05-26 13:30:34 brebel Exp $
+/// \version $Id: DisplayWindow.cxx,v 1.5 2011-07-13 16:32:03 messier Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/DisplayWindow.h"
@@ -196,7 +196,7 @@ DisplayWindow::DisplayWindow(int id)
   // Plug the display into its signal/slots
   fDisplay->Connect();
 
-  // fMain->Connect("CloseWindow()","evdb::DisplayWindow",this,"CloseWindow()");
+  fMain->Connect("CloseWindow()","evdb::DisplayWindow",this,"CloseWindow()");
 
   // Add to list of windows open
   gsWindows[id] = this;
