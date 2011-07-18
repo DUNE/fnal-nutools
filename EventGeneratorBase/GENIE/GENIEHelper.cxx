@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.18 2011-07-18 15:28:44 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.19 2011-07-18 17:01:33 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,7 @@
 #include "TCollection.h"
 #include "TSystem.h"
 #include "TString.h"
+#include "TRandom.h" //needed for gRandom to be defined
 
 //GENIE includes
 #include "Conventions/Units.h"

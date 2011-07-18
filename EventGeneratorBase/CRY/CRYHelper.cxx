@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.11 2011-07-18 15:28:44 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.12 2011-07-18 17:01:33 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -41,12 +41,13 @@ namespace evgb{
 
   //......................................................................
   CRYHelper::CRYHelper(fhicl::ParameterSet const& pset) 
-    : fSampleTime(pset.get< double      >("SampleTime")     )
-    , fToffset   (pset.get< double      >("TimeOffset")     )
-    , fEthresh   (pset.get< double      >("EnergyThreshold"))
-    , fLatitude  (pset.get< std::string >("Latitude")       )
-    , fAltitude  (pset.get< std::string >("Altitude")       )
-    , fSubBoxL   (pset.get< std::string >("SubBoxLength")   ) 
+    : fSampleTime(pset.get< double      >("SampleTime")          )
+    , fToffset   (pset.get< double      >("TimeOffset")     	 )
+    , fEthresh   (pset.get< double      >("EnergyThreshold")	 )
+    , fLatitude  (pset.get< std::string >("Latitude")       	 )
+    , fAltitude  (pset.get< std::string >("Altitude")       	 )
+    , fSubBoxL   (pset.get< std::string >("SubBoxLength")    	 )
+    , fBoxDelta  (pset.get< double      >("WorldBoxDelta", 1.e-5))
   {    
     // Construct the CRY generator
     std::string config("date 1-1-2014 "
@@ -144,25 +145,12 @@ namespace evgb{
 	double z1, z2;
 	geo->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
 	
-	double box_delta=0.00001;//eventually this will be set from the .fcl file
-	x1=x1+box_delta;
-	x2=x2-box_delta;
-	y2=y2+box_delta;
-	y2=y2-box_delta;
-	z1=z1+box_delta;
-	z2=z2-box_delta;
 	mf::LogDebug("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
 				  << x1 << " " << x2 << " " 
 				  << y1 << " " << y2 << " " 
 				  << z1 << " " << z2;
 
 	this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
-
-	// us the floor function to make sure we don't have rounding errors making the 
-	// points beyond the edge of the world
-	vx = floor(xyzo[0]);
-	vy = floor(xyzo[1]);
-	vz = floor(xyzo[2]);
       
 	// Boiler plate...
 	int istatus    =  1;
@@ -215,16 +203,25 @@ namespace evgb{
   ///
   void CRYHelper::ProjectToBoxEdge(const double xyz[],
 				   const double dxyz[],
-				   double xlo, double xhi,
-				   double ylo, double yhi,
-				   double zlo, double zhi,
+				   double &xlo, double &xhi,
+				   double &ylo, double &yhi,
+				   double &zlo, double &zhi,
 				   double xyzout[])
   {
+    // make the world box slightly smaller so that the projection to 
+    // the edge avoids possible rounding errors later on with Geant4
+    xlo += fBoxDelta;
+    xhi -= fBoxDelta;
+    ylo += fBoxDelta;
+    yhi -= fBoxDelta;
+    zlo += fBoxDelta;
+    zhi -= fBoxDelta;
+
     // Make sure we're inside the box!
     assert(xyz[0]>=xlo && xyz[0]<=xhi);
     assert(xyz[1]>=ylo && xyz[1]<=yhi);
     assert(xyz[2]>=zlo && xyz[2]<=zhi);
-    
+
     // Compute the distances to the x/y/z walls
     double dx = 99.E99;
     double dy = 99.E99;

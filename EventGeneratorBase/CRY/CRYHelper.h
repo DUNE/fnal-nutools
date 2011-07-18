@@ -5,7 +5,7 @@
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
 /// 
-/// \version $Id: CRYHelper.h,v 1.4 2011-06-29 17:13:40 brebel Exp $
+/// \version $Id: CRYHelper.h,v 1.5 2011-07-18 17:01:33 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -33,9 +33,9 @@ namespace evgb {
     
     void ProjectToBoxEdge(const double xyz[],
 			  const double dxyz[],
-			  double xlo, double xhi,
-			  double ylo, double yhi,
-			  double zlo, double zhi,
+			  double &xlo, double &xhi,
+			  double &ylo, double &yhi,
+			  double &zlo, double &zhi,
 			  double xyzout[]);
 
     CRYSetup*                  fSetup;      ///< CRY configuration
@@ -47,6 +47,7 @@ namespace evgb {
     std::string                fLatitude;   ///< Latitude of detector need space after value
     std::string                fAltitude;   ///< Altitude of detector need space after value
     std::string                fSubBoxL;    ///< Length of subbox (m) need space after value
+    double                     fBoxDelta;   ///< Adjustment to the size of the world box in each dimension to avoid G4 rounding errors
   };
 }
 #endif // EVGB_CRYHELPER_H
