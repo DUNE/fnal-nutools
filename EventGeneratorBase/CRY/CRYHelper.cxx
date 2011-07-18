@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.10 2011-07-15 20:36:49 rhatcher Exp $
+/// \version $Id: CRYHelper.cxx,v 1.11 2011-07-18 15:28:44 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -15,7 +15,6 @@
 #include "CRYGenerator.h"
 
 // ROOT include files
-#include "TRandom3.h"
 #include "TDatabasePDG.h"
 #include "TLorentzVector.h"
 #include "TGeoManager.h"

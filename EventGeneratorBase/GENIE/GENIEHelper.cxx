@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.17 2011-04-17 16:11:43 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.18 2011-07-18 15:28:44 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "TCollection.h"
 #include "TSystem.h"
 #include "TString.h"
-#include "TRandom3.h"
 
 //GENIE includes
 #include "Conventions/Units.h"
@@ -102,8 +101,6 @@ namespace evgb{
     fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   ),
     fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
   {
-    int ranseed(pset.get< int >("RandomSeed", 0));
-
     std::vector<double> beamCenter   (pset.get< std::vector<double> >("BeamCenter")   );
     std::vector<double> beamDirection(pset.get< std::vector<double> >("BeamDirection"));
     fBeamCenter.SetXYZ(beamCenter[0], beamCenter[1], beamCenter[2]);
@@ -113,22 +110,16 @@ namespace evgb{
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
 
-    TString junk = "";
-    TRandom3 *rand = new TRandom3();
-    rand->SetSeed();
-    gRandom = rand;
-    if(ranseed == 0)
-      junk += gRandom->Integer(100000000);
-    else
-      junk += ranseed;
-
     cet::search_path sp("FW_SEARCH_PATH");
     sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
 
+    // set the environment, the vector should come in pairs of variable name, then value
+    TString junk = "";
+    junk += pset.get< int >("RandomSeed", evgb::GetRandomNumberSeed());
     std::string seed(junk);
     fEnvironment.push_back("GSEED");
     fEnvironment.push_back(seed);
-    // set the environment, the vector should come in pairs of variable name, then value
+
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
       if(fEnvironment[i].compare("GSPLOAD") == 0){
 	std::string fullpath;
