@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.12 2011-07-18 17:01:33 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.13 2011-07-20 00:11:03 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -151,7 +151,11 @@ namespace evgb{
 				  << z1 << " " << z2;
 
 	this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
-      
+
+	vx = xyzo[0];
+	vy = xyzo[1];
+	vz = xyzo[2];
+
 	// Boiler plate...
 	int istatus    =  1;
 	int imother1   = kCosmicRayGenerator;
