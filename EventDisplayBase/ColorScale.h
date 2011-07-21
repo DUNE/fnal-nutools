@@ -3,7 +3,7 @@
 /// \brief Build an association between a numerical range and a ROOT
 /// color index
 ///
-/// \version $Id: ColorScale.h,v 1.4 2011-04-19 22:50:49 brebel Exp $
+/// \version $Id: ColorScale.h,v 1.5 2011-07-21 21:04:34 brebel Exp $
 /// \author messier@indiana.edu
 ///
 #ifndef EVDB_COLORSCALE_H
@@ -52,7 +52,7 @@ namespace evdb {
     int  operator()(double x) const;
     int  GetColor(double x)   const;
     void SetPalette();
-    
+    void SetBounds(double xlo, double xhi) { fXlo = xlo; fXhi = xhi; }
     void SetUnderFlowColor(int c);
     void SetOverFlowColor(int c);
     
