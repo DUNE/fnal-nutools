@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.6 2011-05-23 03:08:08 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.7 2011-08-01 20:56:42 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -151,7 +151,8 @@ namespace simb {
     else output << "PDG=" << pdg;
     
     output << ", Mother ID=" << particle.Mother()
-	   << ", Process=" << particle.Process();
+	   << ", Process=" << particle.Process()
+	   << ", there are " << particle.NumberTrajectoryPoints() << " trajectory points";
 
     if(particle.NumberTrajectoryPoints() > 0 )
       output << ", Initial vtx (x,y,z,t)=(" << particle.Vx()
