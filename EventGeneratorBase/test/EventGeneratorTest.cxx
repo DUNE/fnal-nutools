@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.5 2011-06-28 22:21:19 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.6 2011-08-01 16:43:56 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -69,7 +69,7 @@ namespace evgen {
 
   //____________________________________________________________________________
   fhicl::ParameterSet EventGeneratorTest::GENIEParameterSet(std::string fluxType,
-								   bool usePOTPerSpill)
+							    bool usePOTPerSpill)
   {
     // make a parameter set first so that we can pass it to the GENIEHelper
     // object we are going to make

@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.13 2011-07-20 00:11:03 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.14 2011-08-01 16:43:56 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -145,10 +145,10 @@ namespace evgb{
 	double z1, z2;
 	geo->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
 	
-	mf::LogDebug("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
-				  << x1 << " " << x2 << " " 
-				  << y1 << " " << y2 << " " 
-				  << z1 << " " << z2;
+	LOG_DEBUG("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
+			       << x1 << " " << x2 << " " 
+			       << y1 << " " << y2 << " " 
+			       << z1 << " " << z2;
 
 	this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
 
