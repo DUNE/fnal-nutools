@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.9 2011-04-26 14:14:41 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.10 2011-08-04 22:42:25 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -58,6 +58,8 @@ namespace evgb{
     void PackNuMIFlux(simb::MCFlux &flux);
     void PackSimpleFlux(simb::MCFlux &flux);
     void PackMCTruth(genie::EventRecord *record, simb::MCTruth &truth);
+
+    void FindFluxPath(std::string userpattern);
 
     genie::GeomAnalyzerI*    fGeomD;       
     genie::GFluxI*           fFluxD;             ///< real flux driver

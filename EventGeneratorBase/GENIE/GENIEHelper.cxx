@@ -2,13 +2,15 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.20 2011-08-04 15:11:06 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.21 2011-08-04 22:42:25 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
 
 // C/C++ includes
 #include <math.h>
+#include <map>
+#include <cassert>
 
 //ROOT includes
 #include "TH1.h"
@@ -20,6 +22,7 @@
 #include "TSystem.h"
 #include "TString.h"
 #include "TRandom.h" //needed for gRandom to be defined
+#include "TRegexp.h"
 
 //GENIE includes
 #include "Conventions/Units.h"
@@ -63,11 +66,13 @@
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "cetlib/search_path.h"
+#include "cetlib/getenv.h"
+#include "cetlib/split_path.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 
-namespace evgb{
+namespace evgb {
 
   static const int kNue      = 0;
   static const int kNueBar   = 1;
@@ -112,12 +117,18 @@ namespace evgb{
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
 
+    // need to find the right alternative in FW_SEARCH_PATH to find 
+    // the flux files without attempting to expand any actual wildcard
+    // that might be in the name; the cet::search_path class seemed
+    // like it could help in this.  In the end, it can't deal with
+    // wildcarding in the way we want.
+    /* was:
     cet::search_path sp("FW_SEARCH_PATH");
-    sp.find_file(pset.get< std::string >("FluxFile"), fFluxFile);
+    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+    */
+    FindFluxPath(pset.get<std::string>("FluxFile"));
 
-    mf::LogInfo("GENIEHelper") << "Generating events for " << fFluxType << " fluxes from "
-			       << fFluxFile;
-
+    cet::search_path sp("FW_SEARCH_PATH");
     // set the environment, the vector should come in pairs of variable name, then value
     TString junk = "";
     junk += pset.get< int >("RandomSeed", evgb::GetRandomNumberSeed());
@@ -168,9 +179,11 @@ namespace evgb{
 
     }//end if getting fluxes from histograms
 
-    mf::LogInfo("GENIEHelper" << "Generating flux with the following flavors: ";
+    std::string flvlist;
     for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
-      mf::LogInfo("GENIEHelper") << "\t" << *itr;
+      flvlist += Form(" %d",*itr);
+    mf::LogInfo("GENIEHelper") 
+      << "Generating flux with the following flavors: " << flvlist;
 
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
@@ -248,7 +261,9 @@ namespace evgb{
   void GENIEHelper::InitializeGeometry()
   {
     art::ServiceHandle<geo::Geometry> geo;
-    genie::geometry::ROOTGeomAnalyzer *rgeom = new genie::geometry::ROOTGeomAnalyzer(geo->ROOTGeoManager());
+    TGeoManager* rootgeom = geo->ROOTGeoManager();
+    genie::geometry::ROOTGeomAnalyzer *rgeom = 
+      new genie::geometry::ROOTGeomAnalyzer(rootgeom);
 
     // get the world volume name from the geometry
     fWorldVolume = geo->ROOTGeoManager()->GetTopVolume()->GetName();
@@ -803,4 +818,98 @@ namespace evgb{
     return;
   }
 
-}
+  void GENIEHelper::FindFluxPath(std::string userpattern)
+  {
+    // Using the the FW_SEARCH_PATH list of directories, apply the
+    // user supplied pattern as a suffix to find the flux files.
+    // The userpattern might include simple wildcard globs (in contrast 
+    // to proper regexp patterns) for the filename part, but not any
+    // part of the directory path.  If files are found in more than
+    // one FW_SEARCH_PATH alternative take the one with the most files.
+
+    /* was (but only works for single files):
+    cet::search_path sp("FW_SEARCH_PATH");
+    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+    */
+
+    std::vector<std::string> dirs;
+    cet::split_path(cet::getenv("FW_SEARCH_PATH"),dirs);
+    if ( dirs.empty() ) dirs.push_back(std::string()); // at least null string 
+
+    // count the number files in each of the distinct alternative paths
+    std::map<std::string,size_t> path2n;
+
+    std::vector<std::string>::const_iterator ditr = dirs.begin();
+    for ( ; ditr != dirs.end(); ++ditr ) {
+      std::string dalt = *ditr;
+      // if non-null, does it end with a "/"?  if not add one
+      size_t len = dalt.size();
+      if ( len > 0 && dalt.rfind('/') != len-1 ) dalt.append("/");
+
+      // GENIE uses 'glob' style wildcards not true regex, i.e. "*" vs ".*"
+
+      std::string filepatt = dalt + userpattern;
+
+      // !WILDCARD only works for file name ... NOT directory                       
+      string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
+      size_t slashpos = filepatt.find_last_of("/");
+      size_t fbegin;
+      if ( slashpos != std::string::npos ) {
+        dirname = filepatt.substr(0,slashpos);
+        fbegin = slashpos + 1;
+      } else { fbegin = 0; }
+      
+      const char* epath = gSystem->ExpandPathName(dirname.c_str());
+      void* dirp = gSystem->OpenDirectory(epath);
+      delete [] epath;
+      if ( dirp ) {
+        std::string basename = filepatt.substr(fbegin,filepatt.size()-fbegin);
+        TRegexp re(basename.c_str(),kTRUE);
+        const char* onefile;
+        while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
+          TString afile = onefile;
+          if ( afile=="." || afile==".." ) continue;
+          if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
+          //std::string fullname = dirname + "/" + afile.Data();
+          path2n[filepatt]++;  // found one in this directory
+        }
+        gSystem->FreeDirectory(dirp);
+      } // open directory
+    } // loop over alternative prefixes 
+
+    // find the path with the maximum # of files in it
+    std::map<std::string,size_t>::const_iterator mitr = path2n.begin();
+    size_t nfmax = 0, nftot = 0;
+    std::string pathmax;
+    for ( ; mitr != path2n.end(); ++mitr) {
+      nftot += mitr->second;
+      if ( mitr->second > nfmax ) {
+        pathmax = mitr->first;
+        nfmax = mitr->second;
+      }
+    }
+
+    // no null path allowed for at least these
+    if ( fFluxType.compare("ntuple")      == 0 ||
+         fFluxType.compare("simple_flux") == 0    )
+      assert( pathmax != "" && nftot > 0 );  
+
+    // print something out about what we found
+    size_t npath = path2n.size();
+    if ( npath > 1 ) {
+      mf::LogInfo("GENIEHelper") 
+        << " found " << nftot << " files in " << npath << " distinct paths";
+      mitr = path2n.begin();
+      for ( ; mitr != path2n.end(); ++mitr) {
+        mf::LogInfo("GENIEHelper") << mitr->second << " files at: "
+                                   << mitr->first;
+      }
+    }
+      
+    fFluxFile = pathmax;
+    mf::LogInfo("GENIEHelper") << "Generating events for " << fFluxType 
+                               << " using " << nfmax << " files at " << fFluxFile;
+  } // FindFluxPath
+
+} // namespace evgb
+
