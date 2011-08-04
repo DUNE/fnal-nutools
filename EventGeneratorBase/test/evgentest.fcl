@@ -40,7 +40,11 @@ physics:
 
  analyzers:
  {
-  evgentest: { module_type: "EventGeneratorTest" }
+  evgentest: 
+  { 
+   module_type: "EventGeneratorTest" 
+   TopVolume:   "vDetEnclosure"
+  }
  }
 
  #define the path for analyzer modules, order does not matter.

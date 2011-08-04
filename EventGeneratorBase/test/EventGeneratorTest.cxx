@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.6 2011-08-01 16:43:56 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.7 2011-08-04 15:10:15 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -31,9 +31,10 @@ namespace evgen {
 
   //____________________________________________________________________________
   EventGeneratorTest::EventGeneratorTest(fhicl::ParameterSet const& pset)
-    : fTotalGENIEPOT         ( pset.get< double >("TotalGENIEPOT",          5e18))
-    , fTotalGENIEInteractions( pset.get< double >("TotalGENIEInteractions", 100) )
-    , fTotalCRYSpills        ( pset.get< double >("TotalCRYSpills",         1000))
+    : fTotalGENIEPOT         ( pset.get< double      >("TotalGENIEPOT",          5e18))
+    , fTotalGENIEInteractions( pset.get< double      >("TotalGENIEInteractions", 100) )
+    , fTotalCRYSpills        ( pset.get< double      >("TotalCRYSpills",         1000))
+    , fTopVolume             ( pset.get< std::string >("TopVolume"                   ))
   {  
   }
 
@@ -91,9 +92,9 @@ namespace evgen {
     double eventsPerSpill = 0;
     if(!usePOTPerSpill) eventsPerSpill = 1;
 
-    std::string fluxFile("L010z185i_lowthr_ipndshed.root");
+    std::string fluxFile("samples_for_geniehelper/L010z185i_lowthr_ipndshed.root");
     if(fluxType.compare("simple_flux") == 0) 
-      fluxFile = "flux/gsimple/NDOS/le010z-185i/gsimple_NOvA-NDOS_le010z185i_20100521_RHC_lowth_s_00001.root";
+      fluxFile = "samples_for_geniehelper/gsimple_NOvA-NDOS_le010z185i_20100521_RHC_lowth_s_00001.root";
     else if(fluxType.compare("ntuple") == 0){
       std::cerr <<"No ntuple flux file exists, bail ungracefully";
       assert(0);
@@ -103,7 +104,7 @@ namespace evgen {
     pset.put("FluxType",         fluxType);
     pset.put("FluxFile",         fluxFile);
     pset.put("BeamName",         "numi");
-    pset.put("TopVolume",        "vDetEnclosure");
+    pset.put("TopVolume",        fTopVolume);
     pset.put("EventsPerSpill",   eventsPerSpill);
     pset.put("POTPerSpill",      potPerSpill);
     pset.put("BeamCenter",       beamCenter);
