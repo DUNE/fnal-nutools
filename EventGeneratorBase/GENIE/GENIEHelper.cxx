@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.19 2011-07-18 17:01:33 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.20 2011-08-04 15:11:06 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -64,6 +64,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "cetlib/search_path.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 
 namespace evgb{
@@ -107,12 +108,15 @@ namespace evgb{
     fBeamCenter.SetXYZ(beamCenter[0], beamCenter[1], beamCenter[2]);
     fBeamDirection.SetXYZ(beamDirection[0], beamDirection[1], beamDirection[2]);
 
-    std::vector<int>genFlavors(pset.get< std::vector<int> >("GenFlavors"));
+    std::vector<int> genFlavors(pset.get< std::vector<int> >("GenFlavors"));
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
 
     cet::search_path sp("FW_SEARCH_PATH");
-    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+    sp.find_file(pset.get< std::string >("FluxFile"), fFluxFile);
+
+    mf::LogInfo("GENIEHelper") << "Generating events for " << fFluxType << " fluxes from "
+			       << fFluxFile;
 
     // set the environment, the vector should come in pairs of variable name, then value
     TString junk = "";
@@ -128,16 +132,16 @@ namespace evgb{
 	fEnvironment[i+1] = fullpath;
       }
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
-      std::cout << "setting GENIE environment " << fEnvironment[i]
-		<< " to " << fEnvironment[i+1] << std::endl; 
+      mf::LogInfo("GENIEHelper") << "setting GENIE environment " << fEnvironment[i]
+				 << " to " << fEnvironment[i+1];
     }
 
     // make the histograms
     if(fFluxType.compare("histogram") == 0){
-      std::cout << "setting beam direction and center at "
-		<< fBeamDirection.X() << " " << fBeamDirection.Y() << " " << fBeamDirection.Z()
-		<< " (" << fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z()
-		<< ")" << std::endl;
+      mf::LogInfo("GENIEHelper") << "setting beam direction and center at "
+				 << fBeamDirection.X() << " " << fBeamDirection.Y() << " " << fBeamDirection.Z()
+				 << " (" << fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z()
+				 << ") with radius " << fBeamRadius;
 
       TDirectory *savedir = gDirectory;
     
@@ -159,28 +163,26 @@ namespace evgb{
 	fTotalHistFlux += fFluxHistograms[i]->Integral();
       }
 
-      std::cout << "total histogram flux over desired flavors = " << fTotalHistFlux << std::endl;
+      mf::LogInfo("GENIEHelper") << "total histogram flux over desired flavors = " 
+				 << fTotalHistFlux;
 
     }//end if getting fluxes from histograms
 
-    std::cout << "Generating events for " << fFluxType << " from "
-	      << fFluxFile << std::endl;  
-
-    std::cout << "Generating flux with the following flavors: ";
+    mf::LogInfo("GENIEHelper" << "Generating flux with the following flavors: ";
     for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
-      std::cout << " " << *itr;
-    std::cout << std::endl;
+      mf::LogInfo("GENIEHelper") << "\t" << *itr;
 
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
-      std::cout << "Generating monoenergetic (" << fMonoEnergy << " GeV) neutrinos " 
-		<< "with " << fEventsPerSpill << " events per spill" << std::endl;
+      mf::LogInfo("GENIEHelper") << "Generating monoenergetic (" << fMonoEnergy 
+				 << " GeV) neutrinos ";
     }
 
     if(fEventsPerSpill != 0)
-      std::cout << "Generating " << fEventsPerSpill << " events for each spill" << std::endl;
+      mf::LogInfo("GENIEHelper") << "Generating " << fEventsPerSpill 
+				 << " events for each spill";
     else
-      std::cout << "Using " << fPOTPerSpill << " pot for each spill" << std::endl;
+      mf::LogInfo("GENIEHelper") << "Using " << fPOTPerSpill << " pot for each spill";
 
     return;
   }
@@ -229,8 +231,8 @@ namespace evgb{
       fXSecMassPOT  = 1.e-38*1.e-20;
       fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(1.67262158e-27); 
 
-      std::cout << "Number of events per spill will be based on poisson mean of "
-		<< fXSecMassPOT*fTotalHistFlux << std::endl;
+      mf::LogInfo("GENIEHelper") << "Number of events per spill will be based on poisson mean of "
+				 << fXSecMassPOT*fTotalHistFlux;
 
       fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     }
@@ -293,7 +295,7 @@ namespace evgb{
     else if(fFluxType.compare("simple_flux")==0){
 
 #ifdef MISSING_GSIMPLENTPFLUX
-      std::cerr << "Not built with GSimpleNtpFlux enabled" << std::endl;
+      mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
       assert(0);
 #else
       genie::flux::GSimpleNtpFlux* simpleFlux = 
@@ -314,9 +316,6 @@ namespace evgb{
 
       genie::flux::GCylindTH1Flux* histFlux = new genie::flux::GCylindTH1Flux();
     
-      std::cout << "beam r = " << fBeamRadius << " centered at ("
-		<< fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z() << ")" << std::endl; 
-
       // now add the different fluxes - fluxes were added to the vector in the same 
       // order that the flavors appear in fGenFlavors
       int ctr = 0;
@@ -363,9 +362,9 @@ namespace evgb{
       // configure the mixer
       if ( mixer ) mixer->Config(fMixerConfig);
       else {
-        std::cout << "GENIEHelper MixerConfig keyword was \"" << keyword
-                  << "\" but that did not map to a class" << std::endl
-                  << "GFluxBlender in use, but no mixer" << std::endl;
+	mf::LogWarning("GENIEHelper") << "GENIEHelper MixerConfig keyword was \"" << keyword
+				      << "\" but that did not map to a class" << std::endl
+				      << "GFluxBlender in use, but no mixer";
         
       }
       // 
@@ -442,7 +441,7 @@ namespace evgb{
     else if ( fFluxType.compare("simple_flux")==0 ) {
  
 #ifdef MISSING_GSIMPLENTPFLUX
-      std::cerr << "Not built with GSimpleNtpFlux enabled" << std::endl;
+      mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
       assert(0);
 #else
       // pack the flux information
@@ -521,12 +520,12 @@ namespace evgb{
     }
 
     if ( fDebugFlags & 0x04 ) {
-      std::cout << "vertex loc " << vertex->X() << "," 
-                << vertex->Y() << "," << vertex->Z() << std::endl;  
-      std::cout << "flux ray start " << nuray_pos.X() << ","
-                << nuray_pos.Y() << "," << nuray_pos.Z() << std::endl;
-      std::cout << " ray2vtx = " << flux.fgen2vtx
-                << " dk2ray = " << flux.fdk2gen << std::endl;
+      LOG_DEBUG("GENIEHelper") << "vertex loc " << vertex->X() << "," 
+			       << vertex->Y() << "," << vertex->Z() << std::endl 
+			       << "flux ray start " << nuray_pos.X() << ","
+			       << nuray_pos.Y() << "," << nuray_pos.Z() << std::endl
+			       << " ray2vtx = " << flux.fgen2vtx
+			       << " dk2ray = " << flux.fdk2gen;
     }
 
     // set the top volume of the geometry back to the world volume
@@ -548,8 +547,8 @@ namespace evgb{
     //  nflux.pcodes: 0=original GEANT particle codes, 1=converted to PDG
     //  nflux.units:  0=original GEANT cm, 1=meters
     if(nflux.pcodes != 1 && nflux.units != 0)
-      std::cerr << "either wrong particle codes or units from flux object - beware!!" 
-		<< std::endl;
+      mf::LogWarning("GENIEHelper") << "either wrong particle codes or units "
+				    << "from flux object - beware!!";
 
     // maintained variable names from gnumi ntuples
     // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
@@ -708,7 +707,7 @@ namespace evgb{
   void GENIEHelper::PackSimpleFlux(simb::MCFlux &flux)
   {
 #ifdef MISSING_GSIMPLENTPFLUX
-    std::cerr << "Not built with GSimpleNtpFlux enabled" << std::endl;
+    mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
     assert(0);
 #else
     flux.Reset();
