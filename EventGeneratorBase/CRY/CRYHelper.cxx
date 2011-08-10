@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.14 2011-08-01 16:43:56 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.15 2011-08-10 01:33:04 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -73,6 +73,9 @@ namespace evgb{
       
     // Construct the event generator object
     fSetup = new CRYSetup(config, crydatadir);
+    
+    // set the seed for the static function of CLHEP::RandFlat
+    CLHEP::RandFlat::setTheSeed(pset.get< int >("Seed", evgb::GetRandomNumberSeed()));
     fSetup->setRandomFunction(CLHEP::RandFlat::shoot);
   
     fGen = new CRYGenerator(fSetup);
