@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.10 2011-08-04 22:42:25 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.11 2011-08-15 20:38:07 guenette Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -15,6 +15,7 @@
 #include "EVGDrivers/GMCJDriver.h"
 
 class TH1D;
+class TH2D;
 
 ///parameter set interface
 namespace fhicl {
@@ -41,7 +42,7 @@ namespace evgb{
     bool                   Sample(simb::MCTruth &truth, 
 				  simb::MCFlux  &flux);
     double                 TotalHistFlux();
-    double                 POTUsed()          const { return fPOTUsed;        }
+    double                 TotalExposure()          const { return fTotalExposure;        }
     std::string            FluxType()         const { return fFluxType;       }
     std::string            DetectorLocation() const { return fDetLocation;    }
     
@@ -66,8 +67,8 @@ namespace evgb{
     genie::GFluxI*           fFluxD2GMCJD;       ///< flux driver passed to genie GMCJDriver, might be GFluxBlender
     genie::GMCJDriver*       fDriver;
 
-    std::string              fFluxType;          ///< histogram or ntuple
-    std::string              fFluxFile;          ///< name of file containing histograms or ntuples, or txt
+    std::string              fFluxType;          ///< histogram or ntuple or atmo_FLUKA or atmo_BARTOL
+    std::set<std::string>    fFluxFiles;          ///< names of files containing histograms or ntuples, or txt
     std::string              fBeamName;          ///< name of the beam we are simulating
     std::string              fTopVolume;         ///< top volume in the ROOT geometry in which to generate events
     std::string              fWorldVolume;       ///< name of the world volume in the ROOT geometry
@@ -75,12 +76,12 @@ namespace evgb{
     std::vector<TH1D *>      fFluxHistograms;    ///< histograms for each nu species
 
     double                   fTargetA;           ///< A of the target nucleus
-    double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill
+    double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill. If using Atmo, set to 1
     double                   fPOTPerSpill;       ///< number of pot per spill
     double                   fHistEventsPerSpill;///< number of events per spill for histogram fluxes - changes each spill
     double                   fSpillTotal;        ///< total of either pot or events for this spill
     double                   fMonoEnergy;        ///< energy of monoenergetic neutrinos
-    double                   fPOTUsed;           ///< pot used from flux ntuple
+    double                   fTotalExposure;           ///< pot used from flux ntuple
     double                   fXSecMassPOT;       ///< product of cross section, mass and POT/spill for histogram fluxes
     double                   fTotalHistFlux;     ///< total flux of neutrinos from flux histograms for used flavors
     TVector3                 fBeamDirection;     ///< direction of the beam for histogram fluxes
@@ -94,6 +95,10 @@ namespace evgb{
     double                   fRandomTimeOffset;  ///< additional random time shift (ns) added to every particle time 
     double                   fZCutOff;           ///< distance in z beyond the end of the detector that you allow interactions, in m
     std::set<int>            fGenFlavors;        ///< pdg codes for flavors to generate
+    double                   fAtmoEmin;          ///< atmo: Minimum energy of neutrinos in GeV
+    double                   fAtmoEmax;          ///< atmo: Maximum energy of neutrinos in GeV
+    double                   fAtmoRl;            ///< atmo: radius of the sphere on where the neutrinos are generated
+    double                   fAtmoRt;            ///< atmo: radius of the transvere (perpendicular) area on the sphere where the neutrinos are generated
     std::vector<std::string> fEnvironment;       ///< environmental variables and settings used by genie
     std::string              fMixerConfig;       ///< configuration string for genie GFlavorMixerI
     double                   fMixerBaseline;     ///< baseline distance if genie flux can't calculate it

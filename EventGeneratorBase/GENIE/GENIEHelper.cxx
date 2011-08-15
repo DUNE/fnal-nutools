@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.22 2011-08-15 18:53:29 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.23 2011-08-15 20:38:07 guenette Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 
 //ROOT includes
 #include "TH1.h"
+#include "TH2.h" //used by GAtmoFlux
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TVector3.h"
@@ -32,6 +33,9 @@
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "FluxDrivers/GMonoEnergeticFlux.h"
 #include "FluxDrivers/GNuMIFlux.h"
+#include "FluxDrivers/GBartolAtmoFlux.h"  //for atmo nu generation
+#include "FluxDrivers/GFlukaAtmo3DFlux.h" //for atmo nu generation
+#include "FluxDrivers/GAtmoFlux.h"        //for atmo nu generation
 #ifndef  MISSING_GSIMPLENTPFLUX
 #include "FluxDrivers/GSimpleNtpFlux.h"
 #endif
@@ -82,40 +86,49 @@ namespace evgb {
   static const int kNuTauBar = 5;
 
   //--------------------------------------------------
-  GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset) :
-    fGeomD             (0),
-    fFluxD             (0),
-    fFluxD2GMCJD       (0),
-    fDriver            (0),
-    fFluxType          (pset.get< std::string              >("FluxType")               ),
-    fBeamName          (pset.get< std::string              >("BeamName")               ),
-    fTopVolume         (pset.get< std::string              >("TopVolume")              ),
-    fWorldVolume       ("volWorld"),						         
-    fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  ),
-    fTargetA           (pset.get< double                   >("TargetA",          12.)  ),
-    fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    ),
-    fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13)),
-    fHistEventsPerSpill(0.),
-    fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  ),
-    fPOTUsed           (0.),							         
-    fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  ),
-    fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   ),
-    fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) ),
-    fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) ),
-    fZCutOff           (pset.get< double                   >("ZCutOff",          2.5)  ),
-    fEnvironment       (pset.get< std::vector<std::string> >("Environment")            ),
-    fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none")),
-    fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   ),
-    fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
+  GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset)
+    : fGeomD             (0)
+    , fFluxD             (0)
+    , fFluxD2GMCJD       (0)
+    , fDriver            (0)
+    , fFluxType          (pset.get< std::string              >("FluxType")               )
+    , fBeamName          (pset.get< std::string              >("BeamName")               )
+    , fTopVolume         (pset.get< std::string              >("TopVolume")              )
+    , fWorldVolume       ("volWorld")						         
+    , fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  )
+    , fTargetA           (pset.get< double                   >("TargetA",          12.)  )
+    , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
+    , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13))
+    , fHistEventsPerSpill(0.)
+    , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
+    , fTotalExposure     (0.)							         
+    , fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  )
+    , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
+    , fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) )
+    , fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) )
+    , fZCutOff           (pset.get< double                   >("ZCutOff",          2.5)  )
+    , fAtmoEmin          (pset.get< double                   >("AtmoEmin",         0.1)  )
+    , fAtmoEmax          (pset.get< double                   >("AtmoEmax",         10.0) )
+    , fAtmoRl            (pset.get< double                   >("Rl",               20.0) )
+    , fAtmoRt            (pset.get< double                   >("Rt",               20.0) )
+    , fEnvironment       (pset.get< std::vector<std::string> >("Environment")            )
+    , fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none"))
+    , fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   )
+    , fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
   {
+
     std::vector<double> beamCenter   (pset.get< std::vector<double> >("BeamCenter")   );
     std::vector<double> beamDirection(pset.get< std::vector<double> >("BeamDirection"));
     fBeamCenter.SetXYZ(beamCenter[0], beamCenter[1], beamCenter[2]);
     fBeamDirection.SetXYZ(beamDirection[0], beamDirection[1], beamDirection[2]);
-
-    std::vector<int> genFlavors(pset.get< std::vector<int> >("GenFlavors"));
+    
+    std::vector<std::string> fluxFiles (pset.get< std::vector<std::string> >("FluxFiles"));
+    std::vector<int> genFlavors        (pset.get< std::vector<int> >("GenFlavors"));
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
+
+    //getting the flux files with the path
+    std::string fileName;
 
     // need to find the right alternative in FW_SEARCH_PATH to find 
     // the flux files without attempting to expand any actual wildcard
@@ -124,11 +137,21 @@ namespace evgb {
     // wildcarding in the way we want.
     /* was:
     cet::search_path sp("FW_SEARCH_PATH");
+
     sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
     */
-    FindFluxPath(pset.get<std::string>("FluxFile"));
 
     cet::search_path sp("FW_SEARCH_PATH");
+    if(fluxFiles.size() == 1 && fluxFiles[0].find("*") != std::string::npos)      
+      FindFluxPath(fluxFiles[0]);
+    else{
+
+      for(unsigned int i = 0; i < fluxFiles.size(); i++){
+	sp.find_file(fluxFiles[i], fileName);
+	fFluxFiles.insert(fileName);
+      }
+    }
+
     // set the environment, the vector should come in pairs of variable name, then value
     TString junk = "";
     junk += pset.get< int >("RandomSeed", evgb::GetRandomNumberSeed());
@@ -147,6 +170,57 @@ namespace evgb {
 				 << " to " << fEnvironment[i+1];
     }
 
+    //For Atmo flux
+    if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+      
+      if(genFlavors.size() != fFluxFiles.size()){
+	mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino (" 
+		  << genFlavors.size() << ") doesn't correspond to the number of files (" 
+		  << fFluxFiles.size() << ")!!!";
+	exit(1);
+
+      }
+
+      if(fEventsPerSpill !=1){
+	mf::LogInfo("GENIEHelper") 
+	  <<  "ERROR: For Atmosphric Neutrino generation, EventPerSpill need to be 1!!";
+	exit(1);
+      }
+
+      if (fFluxType.compare("atmo_FLUKA") == 0 ){
+	mf::LogInfo("GENIEHelper") << "The sims are from FLUKA using following flux files: (";
+      }
+      
+      else if (fFluxType.compare("atmo_BARTOL") == 0 ){
+	mf::LogInfo("GENIEHelper") << "The sims are from BARTOL using following flux files: (";
+      }
+      
+      else {
+	mf::LogInfo("GENIEHelper") << "Uknonwn flux simulation: " << fFluxType;
+	exit(1);
+      }
+      
+      int ctrfv = 0;
+      int ctrff = 0;
+      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
+	for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
+	  if(ctrfv == ctrff){
+	    mf::LogInfo("GENIEHelper") << *ffitr << ", for neutrino flavor: " << *flvitr << " )";
+	    ctrff++;
+	  } 
+	  ctrfv++;
+	}
+      } 
+
+      mf::LogInfo("GENIEHelper") << "The energy range is between:  " << fAtmoEmin << " GeV and " 
+      		<< fAtmoEmax << " GeV.";
+  
+      mf::LogInfo("GENIEHelper") << "Generation surface of: (" << fAtmoRl << "," 
+				 << fAtmoRt << ")";
+
+    }
+    
+
     // make the histograms
     if(fFluxType.compare("histogram") == 0){
       mf::LogInfo("GENIEHelper") << "setting beam direction and center at "
@@ -157,7 +231,8 @@ namespace evgb {
       TDirectory *savedir = gDirectory;
     
       fFluxHistograms.clear();
-      TFile tf(fFluxFile.c_str());
+
+      TFile tf(fileName.c_str());
       tf.ls();
 
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
@@ -179,6 +254,13 @@ namespace evgb {
 
     }//end if getting fluxes from histograms
 
+
+    if(fFluxType.compare("atmoFLUKA") != 0 || fFluxType.compare("atmoBARTOL") != 0){
+      mf::LogInfo("GENIEHelper") 
+	<< "Generating events for : " << fFluxType << " from "
+        << fileName ;
+      }
+
     std::string flvlist;
     for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
       flvlist += Form(" %d",*itr);
@@ -190,7 +272,7 @@ namespace evgb {
       mf::LogInfo("GENIEHelper") << "Generating monoenergetic (" << fMonoEnergy 
 				 << " GeV) neutrinos ";
     }
-
+    
     if(fEventsPerSpill != 0)
       mf::LogInfo("GENIEHelper") << "Generating " << fEventsPerSpill 
 				 << " events for each spill";
@@ -252,7 +334,7 @@ namespace evgb {
 
     // set the pot/event counters to zero
     fSpillTotal = 0.;
-    fPOTUsed   = 0.;
+    fTotalExposure   = 0.;
 
     return;
   }
@@ -289,7 +371,8 @@ namespace evgb {
     if(fFluxType.compare("ntuple") == 0){
 
       genie::flux::GNuMIFlux* numiFlux = new genie::flux::GNuMIFlux();
-      numiFlux->LoadBeamSimData(fFluxFile, fDetLocation);
+      std::set<string>::iterator fluxfileitrntuple = fFluxFiles.begin();
+      numiFlux->LoadBeamSimData(*fluxfileitrntuple, fDetLocation);
     
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
@@ -315,7 +398,8 @@ namespace evgb {
 #else
       genie::flux::GSimpleNtpFlux* simpleFlux = 
         new genie::flux::GSimpleNtpFlux();
-      simpleFlux->LoadBeamSimData(fFluxFile, fDetLocation);
+      std::set<string>::iterator fluxfileitrsimple = fFluxFiles.begin();
+      simpleFlux->LoadBeamSimData(*fluxfileitrsimple, fDetLocation);
 
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
@@ -359,6 +443,48 @@ namespace evgb {
       monoflux->SetRayOrigin(fBeamCenter.X(), fBeamCenter.Y(), fBeamCenter.Z());
       fFluxD = monoflux; // dynamic_cast<genie::GFluxI *>(monoflux);
     } //end if using monoenergetic beam
+
+
+    //Using the atmospheric fluxes
+    else if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+
+      // Instantiate appropriate concrete flux driver
+      genie::flux::GAtmoFlux *atmo_flux_driver = 0;
+      
+      if(fFluxType.compare("atmo_FLUKA") == 0) {
+	genie::flux::GFlukaAtmo3DFlux * fluka_flux = new genie::flux::GFlukaAtmo3DFlux;
+	atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(fluka_flux);
+      }
+      if(fFluxType.compare("atmo_BARTOL") == 0) {
+	genie::flux::GBartolAtmoFlux * bartol_flux = new genie::flux::GBartolAtmoFlux;
+	atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(bartol_flux);
+      } 
+      
+      atmo_flux_driver->ForceMinEnergy(fAtmoEmin);
+      atmo_flux_driver->ForceMaxEnergy(fAtmoEmax);
+      
+      int ctrfv = 0;
+      int ctrff = 0;
+      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
+	for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
+	  if(ctrfv == ctrff){
+	    mf::LogInfo("GENIEHelper") << "FLAVOR: " << *flvitr << "  FLUX FILE: " <<  *ffitr;
+
+	    atmo_flux_driver->SetFluxFile(*flvitr, *ffitr);
+	    ctrff++;
+	  } 
+	  ctrfv++;
+	}
+      }    
+      
+      atmo_flux_driver->LoadFluxData();
+      
+      // configure flux generation surface:
+      atmo_flux_driver->SetRadii(fAtmoRl, fAtmoRt);
+            
+      fFluxD = atmo_flux_driver;//dynamic_cast<genie::GFluxI *>(atmo_flux_driver);
+    }//end if using atmospheric fluxes
+
 
     //
     // Is the user asking to do flavor mixing?
@@ -408,7 +534,14 @@ namespace evgb {
 
     // determine if we should keep throwing neutrinos for 
     // this spill or move on
-    if(fEventsPerSpill > 0){
+
+    if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+      if((fEventsPerSpill > 0) && (fSpillTotal < fEventsPerSpill)){
+	return false;
+      }
+    }
+
+    else if(fEventsPerSpill > 0){
       if(fSpillTotal < fEventsPerSpill) 
 	return false;
     }
@@ -423,8 +556,22 @@ namespace evgb {
     }
 
     // made it to here, means need to reset the counters
-    fPOTUsed += fSpillTotal;
-    fSpillTotal = 0.;
+
+    if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+      //the exposure for atmo is in SECONDS. In order to get seconds, it needs to 
+      //be normalized by 1e4 to take into account the units discrepency between 
+      //AtmoFluxDriver(/m2) and Generate(/cm2) and it need to be normalized by 
+      //the generation surface area since it's not taken into accoutn in the flux driver
+      fTotalExposure = (1e4 * (dynamic_cast<genie::flux::GAtmoFlux *>(fFluxD)->NFluxNeutrinos())) / (TMath::Pi() * fAtmoRt*fAtmoRt);
+      
+      mf::LogDebug("GENIEHelper") << "===> Atmo EXPOSURE = " << fTotalExposure << " seconds";
+    }
+
+    else{
+      fTotalExposure += fSpillTotal;
+    }
+
+        fSpillTotal = 0.;
     fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     return true;
   }
@@ -449,7 +596,7 @@ namespace evgb {
     // pack the flux information
     if(fFluxType.compare("ntuple") == 0){
       if(fEventsPerSpill == 0.) 
-	fSpillTotal += (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fPOTUsed);
+	fSpillTotal += (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
       flux.fFluxType = simb::kNtuple;
       PackNuMIFlux(flux);
     }
@@ -461,7 +608,7 @@ namespace evgb {
 #else
       // pack the flux information
       if(fEventsPerSpill == 0.)
-	fSpillTotal += (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fPOTUsed);
+	fSpillTotal += (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
 #endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
@@ -516,6 +663,12 @@ namespace evgb {
     else if(fFluxType.compare("mono") == 0){
       fSpillTotal += 1.;    
     }
+
+    else if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+      if(fEventsPerSpill > 0) fSpillTotal += 1.;
+      flux.fFluxType = simb::kHistPlusFocus;
+    }
+
 
     // fill these after the Pack[NuMI|Simple]Flux because those
     // will Reset() the values at the start
@@ -818,6 +971,7 @@ namespace evgb {
     return;
   }
 
+  //---------------------------------------------------------
   void GENIEHelper::FindFluxPath(std::string userpattern)
   {
     // Using the the FW_SEARCH_PATH list of directories, apply the
@@ -906,9 +1060,9 @@ namespace evgb {
       }
     }
       
-    fFluxFile = pathmax;
-    mf::LogInfo("GENIEHelper") << "Generating events for " << fFluxType 
-                               << " using " << nfmax << " files at " << fFluxFile;
+    fFluxFiles.insert(pathmax);
+
+    return;
   } // FindFluxPath
 
 } // namespace evgb
