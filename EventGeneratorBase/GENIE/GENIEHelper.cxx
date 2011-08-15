@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.21 2011-08-04 22:42:25 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.22 2011-08-15 18:53:29 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -182,8 +182,8 @@ namespace evgb {
     std::string flvlist;
     for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
       flvlist += Form(" %d",*itr);
-    mf::LogInfo("GENIEHelper") 
-      << "Generating flux with the following flavors: " << flvlist;
+
+    mf::LogInfo("GENIEHelper") << "Generating flux with the following flavors: " << flvlist;
 
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
