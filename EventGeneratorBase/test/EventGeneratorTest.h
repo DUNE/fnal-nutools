@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file EventGeneratorTest.h
 //
-/// \version $Id: EventGeneratorTest.h,v 1.3 2011-08-04 15:10:15 brebel Exp $
+/// \version $Id: EventGeneratorTest.h,v 1.4 2011-08-15 20:39:55 guenette Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGEN_TEST_H
@@ -39,6 +39,7 @@ namespace evgen {
     void                 GENIEHistogramFluxTest();
     void                 GENIESimpleFluxTest();
     void                 GENIEMonoFluxTest();
+    void                 GENIEAtmoFluxTest();
     void                 GENIENtupleFluxTest();
 
     fhicl::ParameterSet  CRYParameterSet();

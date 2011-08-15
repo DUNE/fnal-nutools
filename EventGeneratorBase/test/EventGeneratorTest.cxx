@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.7 2011-08-04 15:10:15 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.8 2011-08-15 20:39:55 guenette Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -58,6 +58,9 @@ namespace evgen {
 					 << "\t simple flux...";
     this->GENIESimpleFluxTest();
     mf::LogWarning("EventGeneratorTest") << "\t \t done."
+					 << "\t atmo flux...";
+    this->GENIEAtmoFluxTest();
+    mf::LogWarning("EventGeneratorTest") << "\t \t done."
 					 << "\t mono flux...";
     this->GENIEMonoFluxTest();
     mf::LogWarning("EventGeneratorTest") << "\t \t done.\n"
@@ -81,7 +84,13 @@ namespace evgen {
     beamDir.push_back(0.); beamDir.push_back(0.); beamDir.push_back(1.);
 
     std::vector<int> flavors;
-    flavors.push_back(12); flavors.push_back(14); flavors.push_back(-12); flavors.push_back(-14);
+    if(fluxType.compare("atmo_FLUKA") == 0){
+      flavors.push_back(14);
+    }
+    else{
+      flavors.push_back(12); flavors.push_back(14); flavors.push_back(-12); flavors.push_back(-14);
+    }
+    
 
     std::vector<std::string> env;
     env.push_back("GSPLOAD");   env.push_back("gxspl-NUMI-R2.6.0.xml");
@@ -92,9 +101,17 @@ namespace evgen {
     double eventsPerSpill = 0;
     if(!usePOTPerSpill) eventsPerSpill = 1;
 
-    std::string fluxFile("samples_for_geniehelper/L010z185i_lowthr_ipndshed.root");
-    if(fluxType.compare("simple_flux") == 0) 
-      fluxFile = "samples_for_geniehelper/gsimple_NOvA-NDOS_le010z185i_20100521_RHC_lowth_s_00001.root";
+    std::vector<std::string> fluxFiles;
+    fluxFiles.push_back("samples_for_geniehelper/L010z185i_lowthr_ipndshed.root");
+    if(fluxType.compare("simple_flux") == 0){
+      fluxFiles.clear();
+      fluxFiles.push_back("samples_for_geniehelper/gsimple_NOvA-NDOS_le010z185i_20100521_RHC_lowth_s_00001.root");
+    }
+    else if(fluxType.compare("atmo_FLUKA") == 0){
+      fluxFiles.clear();
+      fluxFiles.push_back("Fluxes/battistoni/sdave_numu07.dat");
+    }
+
     else if(fluxType.compare("ntuple") == 0){
       std::cerr <<"No ntuple flux file exists, bail ungracefully";
       assert(0);
@@ -102,7 +119,7 @@ namespace evgen {
 
     fhicl::ParameterSet pset;
     pset.put("FluxType",         fluxType);
-    pset.put("FluxFile",         fluxFile);
+    pset.put("FluxFiles",        fluxFiles);
     pset.put("BeamName",         "numi");
     pset.put("TopVolume",        fTopVolume);
     pset.put("EventsPerSpill",   eventsPerSpill);
@@ -155,7 +172,7 @@ namespace evgen {
 
     // count the POT used and the number of events made
     mf::LogWarning("EventGeneratorTest") << "made " << interactionCount << " interactions with " 
-				      << help.POTUsed() << " POTs";
+				      << help.TotalExposure() << " POTs";
 
     // compare to a simple expectation
     double totalExp = 0.;
@@ -169,7 +186,7 @@ namespace evgen {
       
       // see comments in GENIEHelper::Initialize() for how this calculation was done.
       totalExp = 1.e-38*1.e-20*help.TotalHistFlux();
-      totalExp *= help.POTUsed()*help.TotalMass()/(1.67262158e-27);
+      totalExp *= help.TotalExposure()*help.TotalMass()/(1.67262158e-27);
 
       mf::LogWarning("EventGeneratorTest") << "expected " << totalExp << " interactions";
       if(fabs(interactionCount - totalExp) > 3.*TMath::Sqrt(totalExp) ){
@@ -238,6 +255,24 @@ namespace evgen {
   } 
 
   //____________________________________________________________________________
+  void EventGeneratorTest::GENIEAtmoFluxTest()
+  {
+    
+    // make the parameter set
+    fhicl::ParameterSet pset1 = this->GENIEParameterSet("atmo_FLUKA", false);
+    
+    mf::LogWarning("EventGeneratorTest") << "\t\t 1 event per spill...\n";
+    
+    this->GENIETest(pset1);
+    
+    return;
+    
+  } 
+
+
+  //____________________________________________________________________________
+
+
   fhicl::ParameterSet EventGeneratorTest::CRYParameterSet()
   {
     fhicl::ParameterSet pset;
