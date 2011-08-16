@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.12 2011-08-16 14:36:00 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.13 2011-08-16 14:38:30 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -76,12 +76,13 @@ namespace evgb{
     std::vector<TH1D *>      fFluxHistograms;    ///< histograms for each nu species
 
     double                   fTargetA;           ///< A of the target nucleus
-    double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill. If using Atmo, set to 1
+    double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill. 
+                                                 ///< If using Atmo, set to 1
     double                   fPOTPerSpill;       ///< number of pot per spill
     double                   fHistEventsPerSpill;///< number of events per spill for histogram fluxes - changes each spill
     double                   fSpillTotal;        ///< total of either pot or events for this spill
     double                   fMonoEnergy;        ///< energy of monoenergetic neutrinos
-    double                   fTotalExposure;           ///< pot used from flux ntuple
+    double                   fTotalExposure;     ///< pot used from flux ntuple
     double                   fXSecMassPOT;       ///< product of cross section, mass and POT/spill for histogram fluxes
     double                   fTotalHistFlux;     ///< total flux of neutrinos from flux histograms for used flavors
     TVector3                 fBeamDirection;     ///< direction of the beam for histogram fluxes
@@ -98,7 +99,8 @@ namespace evgb{
     double                   fAtmoEmin;          ///< atmo: Minimum energy of neutrinos in GeV
     double                   fAtmoEmax;          ///< atmo: Maximum energy of neutrinos in GeV
     double                   fAtmoRl;            ///< atmo: radius of the sphere on where the neutrinos are generated
-    double                   fAtmoRt;            ///< atmo: radius of the transvere (perpendicular) area on the sphere where the neutrinos are generated
+    double                   fAtmoRt;            ///< atmo: radius of the transvere (perpendicular) area on the sphere 
+                                                 ///< where the neutrinos are generated
     std::vector<std::string> fEnvironment;       ///< environmental variables and settings used by genie
     std::string              fMixerConfig;       ///< configuration string for genie GFlavorMixerI
     double                   fMixerBaseline;     ///< baseline distance if genie flux can't calculate it
