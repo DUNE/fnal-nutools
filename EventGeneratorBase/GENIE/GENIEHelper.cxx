@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.23 2011-08-15 20:38:07 guenette Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.24 2011-08-16 14:36:00 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -127,25 +127,22 @@ namespace evgb {
 
     for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
 
-    //getting the flux files with the path
-    std::string fileName;
-
     // need to find the right alternative in FW_SEARCH_PATH to find 
     // the flux files without attempting to expand any actual wildcard
     // that might be in the name; the cet::search_path class seemed
     // like it could help in this.  In the end, it can't deal with
     // wildcarding in the way we want.
     /* was:
-    cet::search_path sp("FW_SEARCH_PATH");
+       cet::search_path sp("FW_SEARCH_PATH");
 
-    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+       sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
     */
 
     cet::search_path sp("FW_SEARCH_PATH");
     if(fluxFiles.size() == 1 && fluxFiles[0].find("*") != std::string::npos)      
       FindFluxPath(fluxFiles[0]);
     else{
-
+      std::string fileName;
       for(unsigned int i = 0; i < fluxFiles.size(); i++){
 	sp.find_file(fluxFiles[i], fileName);
 	fFluxFiles.insert(fileName);
@@ -171,14 +168,13 @@ namespace evgb {
     }
 
     //For Atmo flux
-    if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
+    if(fFluxType.find("atmo") != std::string::npos){
       
       if(genFlavors.size() != fFluxFiles.size()){
-	mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino (" 
-		  << genFlavors.size() << ") doesn't correspond to the number of files (" 
-		  << fFluxFiles.size() << ")!!!";
+	mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino flavors (" 
+				   << genFlavors.size() << ") doesn't correspond to the number of files (" 
+				   << fFluxFiles.size() << ")!!!";
 	exit(1);
-
       }
 
       if(fEventsPerSpill !=1){
@@ -188,39 +184,25 @@ namespace evgb {
       }
 
       if (fFluxType.compare("atmo_FLUKA") == 0 ){
-	mf::LogInfo("GENIEHelper") << "The sims are from FLUKA using following flux files: (";
+	mf::LogInfo("GENIEHelper") << "The sims are from FLUKA";
       }
       
       else if (fFluxType.compare("atmo_BARTOL") == 0 ){
-	mf::LogInfo("GENIEHelper") << "The sims are from BARTOL using following flux files: (";
-      }
-      
+	mf::LogInfo("GENIEHelper") << "The sims are from BARTOL";
+      }      
       else {
 	mf::LogInfo("GENIEHelper") << "Uknonwn flux simulation: " << fFluxType;
 	exit(1);
       }
       
-      int ctrfv = 0;
-      int ctrff = 0;
-      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
-	for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
-	  if(ctrfv == ctrff){
-	    mf::LogInfo("GENIEHelper") << *ffitr << ", for neutrino flavor: " << *flvitr << " )";
-	    ctrff++;
-	  } 
-	  ctrfv++;
-	}
-      } 
-
       mf::LogInfo("GENIEHelper") << "The energy range is between:  " << fAtmoEmin << " GeV and " 
-      		<< fAtmoEmax << " GeV.";
+				 << fAtmoEmax << " GeV.";
   
       mf::LogInfo("GENIEHelper") << "Generation surface of: (" << fAtmoRl << "," 
 				 << fAtmoRt << ")";
 
-    }
+    }// end if atmospheric fluxes
     
-
     // make the histograms
     if(fFluxType.compare("histogram") == 0){
       mf::LogInfo("GENIEHelper") << "setting beam direction and center at "
@@ -232,7 +214,7 @@ namespace evgb {
     
       fFluxHistograms.clear();
 
-      TFile tf(fileName.c_str());
+      TFile tf((*fFluxFiles.begin()).c_str());
       tf.ls();
 
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
@@ -254,25 +236,24 @@ namespace evgb {
 
     }//end if getting fluxes from histograms
 
-
-    if(fFluxType.compare("atmoFLUKA") != 0 || fFluxType.compare("atmoBARTOL") != 0){
-      mf::LogInfo("GENIEHelper") 
-	<< "Generating events for : " << fFluxType << " from "
-        << fileName ;
-      }
-
     std::string flvlist;
     for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
       flvlist += Form(" %d",*itr);
 
-    mf::LogInfo("GENIEHelper") << "Generating flux with the following flavors: " << flvlist;
-
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
       mf::LogInfo("GENIEHelper") << "Generating monoenergetic (" << fMonoEnergy 
-				 << " GeV) neutrinos ";
+				 << " GeV) neutrinos with the following flavors: " 
+				 << flvlist;
     }
-    
+    else{
+      mf::LogInfo("GENIEHelper") << "Generating flux with the following flavors: " << flvlist
+				 << "\n and these files: ";
+      
+      for(std::set<std::string>::iterator itr = fFluxFiles.begin(); itr != fFluxFiles.end(); itr++)
+	mf::LogInfo("GENIEHelper") << "\t" << *itr;
+    }
+
     if(fEventsPerSpill != 0)
       mf::LogInfo("GENIEHelper") << "Generating " << fEventsPerSpill 
 				 << " events for each spill";
@@ -291,8 +272,8 @@ namespace evgb {
   double GENIEHelper::TotalHistFlux() 
   {
     if(   fFluxType.compare("ntuple")       == 0
-       || fFluxType.compare("mono")         == 0 
-       || fFluxType.compare("simple_flux" ) == 0 ) return -999.;
+	  || fFluxType.compare("mono")         == 0 
+	  || fFluxType.compare("simple_flux" ) == 0 ) return -999.;
 
     return fTotalHistFlux;
   }
@@ -491,7 +472,7 @@ namespace evgb {
     //
     fFluxD2GMCJD = fFluxD;  // default: genie's GMCJDriver uses the bare flux generator
     if( fMixerConfig.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
-        fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \n")  );
+      fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \n")  );
     std::string keyword = fMixerConfig.substr(0,fMixerConfig.find_first_of(" "));
     if ( keyword != "none" ) {
       // Wrap the true flux driver up in the adapter to allow flavor mixing
@@ -508,7 +489,7 @@ namespace evgb {
 				      << "GFluxBlender in use, but no mixer";
         
       }
-      // 
+
       genie::GFluxI* realFluxD = fFluxD;
       genie::flux::GFluxBlender* blender = new genie::flux::GFluxBlender();
       blender->SetBaselineDist(fMixerBaseline);
@@ -564,14 +545,14 @@ namespace evgb {
       //the generation surface area since it's not taken into accoutn in the flux driver
       fTotalExposure = (1e4 * (dynamic_cast<genie::flux::GAtmoFlux *>(fFluxD)->NFluxNeutrinos())) / (TMath::Pi() * fAtmoRt*fAtmoRt);
       
-      mf::LogDebug("GENIEHelper") << "===> Atmo EXPOSURE = " << fTotalExposure << " seconds";
+      LOG_DEBUG("GENIEHelper") << "===> Atmo EXPOSURE = " << fTotalExposure << " seconds";
     }
 
     else{
       fTotalExposure += fSpillTotal;
     }
 
-        fSpillTotal = 0.;
+    fSpillTotal = 0.;
     fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     return true;
   }
@@ -872,6 +853,7 @@ namespace evgb {
     return;
   }
 
+  //----------------------------------------------------------------------
   void GENIEHelper::PackSimpleFlux(simb::MCFlux &flux)
   {
 #ifdef MISSING_GSIMPLENTPFLUX
@@ -982,8 +964,8 @@ namespace evgb {
     // one FW_SEARCH_PATH alternative take the one with the most files.
 
     /* was (but only works for single files):
-    cet::search_path sp("FW_SEARCH_PATH");
-    sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
+       cet::search_path sp("FW_SEARCH_PATH");
+       sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
     */
 
     std::vector<std::string> dirs;

@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.11 2011-08-15 20:38:07 guenette Exp $
+/// \version $Id: GENIEHelper.h,v 1.12 2011-08-16 14:36:00 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -42,7 +42,7 @@ namespace evgb{
     bool                   Sample(simb::MCTruth &truth, 
 				  simb::MCFlux  &flux);
     double                 TotalHistFlux();
-    double                 TotalExposure()          const { return fTotalExposure;        }
+    double                 TotalExposure()    const { return fTotalExposure;  }
     std::string            FluxType()         const { return fFluxType;       }
     std::string            DetectorLocation() const { return fDetLocation;    }
     
