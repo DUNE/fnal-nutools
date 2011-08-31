@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.9 2011-07-12 15:53:25 messier Exp $
+/// \version $Id: EventDisplay.h,v 1.10 2011-08-31 20:19:58 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_EVENTDISPLAY_H
@@ -44,7 +44,7 @@ namespace evdb {
     void ReconfigureServices();
 
   private:
-    art::RootInput* fInputSource; ///< Input source of events
+    art::InputSource* fInputSource; ///< Input source of events
     
   public:
     unsigned int              fAutoAdvanceInterval; ///< Wait time in milliseconds

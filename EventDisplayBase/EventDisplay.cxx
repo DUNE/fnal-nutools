@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.15 2011-05-26 13:30:34 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.16 2011-08-31 20:19:58 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -28,6 +28,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 using namespace evdb;
 
@@ -94,11 +95,7 @@ EventDisplay::~EventDisplay() { }
 void EventDisplay::postBeginJobWorkers(art::InputSource* input_source,
 				       std::vector<art::Worker*> const& w) 
 {
-  fInputSource = dynamic_cast<art::RootInput*>(input_source);
-  if (fInputSource == 0) {
-    throw art::Exception(art::errors::Configuration)
-      << "EventDisplay requires a RootInput source for proper operation.\n";
-  }
+  fInputSource = input_source;
 
   std::vector<std::string> lbl;
   fWorkers.clear();
@@ -333,6 +330,15 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   this->ReconfigureDrawingOptions();
   this->ReconfigureServices();
 
+  art::RootInput* rootInput = dynamic_cast<art::RootInput*>(fInputSource);
+
+  if(!rootInput && NavState::Which() != kSEQUENTIAL_ONLY){
+    NavState::Set(kSEQUENTIAL_ONLY);
+    mf::LogWarning("EventDisplayBase")
+      << "Random access for the EventDisplay requires a RootInput source for proper operation.\n"
+      << "You do not have a RootInput source so only sequential access works.\n";
+  }
+
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {
     // Contrary to appearances, this is *not* a NOP: it ensures run and
@@ -340,24 +346,26 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
     // access. Come the revolution ...
     //
     // 2011/04/10 CG.
-    fInputSource->seekToEvent(0);
+    if(rootInput) rootInput->seekToEvent(0);
   }
   else if (NavState::Which() == kPREV_EVENT) {
-    fInputSource->seekToEvent(-2);
+    if(rootInput) rootInput->seekToEvent(-2);
   }
   else if (NavState::Which() == kRELOAD_EVENT) {
-    fInputSource->seekToEvent(evt.id());
+    if(rootInput) rootInput->seekToEvent(evt.id());
   }
   else if (NavState::Which() == kGOTO_EVENT) {
     art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
-    if (!fInputSource->seekToEvent(id)) { // Couldn't find event
-      std::cout << "Unable to find "
-                << id
-                << " -- reloading current event."
-                << std::endl;
-      // Reload current event.
-      fInputSource->seekToEvent(evt.id());
-    }
+    if(!rootInput){
+      if (!rootInput->seekToEvent(id)) { // Couldn't find event
+	std::cout << "Unable to find "
+		  << id
+		  << " -- reloading current event."
+		  << std::endl;
+	// Reload current event.
+	rootInput->seekToEvent(evt.id());
+      }
+    }// end if not a RootInput
   }
   else abort();
 }

@@ -1,7 +1,7 @@
 ///
 /// \file    NavState.h
 /// \brief   Holds information about what action to take next.
-/// \version $Id: NavState.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: NavState.h,v 1.2 2011-08-31 20:19:58 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_NAVSTATE_H
@@ -12,7 +12,8 @@ namespace evdb {
     kNEXT_EVENT,
     kPREV_EVENT,
     kRELOAD_EVENT,
-    kGOTO_EVENT
+    kGOTO_EVENT,
+    kSEQUENTIAL_ONLY
   };
   
   ///
