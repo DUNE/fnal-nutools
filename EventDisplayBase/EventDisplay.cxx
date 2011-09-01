@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.16 2011-08-31 20:19:58 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.17 2011-09-01 22:17:55 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -339,6 +339,7 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
       << "You do not have a RootInput source so only sequential access works.\n";
   }
 
+
   // Figure out where to go in the input stream from here
   if (NavState::Which() == kNEXT_EVENT) {
     // Contrary to appearances, this is *not* a NOP: it ensures run and
@@ -356,7 +357,7 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   }
   else if (NavState::Which() == kGOTO_EVENT) {
     art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
-    if(!rootInput){
+    if(rootInput){
       if (!rootInput->seekToEvent(id)) { // Couldn't find event
 	std::cout << "Unable to find "
 		  << id

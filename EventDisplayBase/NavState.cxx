@@ -1,7 +1,7 @@
 ///
 /// \file    NavState.cxx
 /// \brief   Holds information about what action to take next.
-/// \version $Id: NavState.cxx,v 1.2 2011-08-31 20:19:58 brebel Exp $
+/// \version $Id: NavState.cxx,v 1.3 2011-09-01 22:17:55 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/NavState.h"
@@ -26,9 +26,9 @@ void NavState::Set(int which)
   // if we can only do sequential access because we are using the 
   // socket input source, then we shouldn't be allowed to press the
   // other buttons
-  if(gsNavState == kSEQUENTIAL_ONLY) return;
+  if(gsNavState != kSEQUENTIAL_ONLY)
+    gsNavState = which;
 
-  gsNavState = which;
   gROOT->GetApplication()->Terminate();
 }
 
