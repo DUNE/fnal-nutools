@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.25 2011-09-11 03:36:32 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.26 2011-09-11 19:32:01 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ namespace evgb {
     fGeomD        = rgeom; // dynamic_cast<genie::GeomAnalyzerI *>(rgeom);
     InitializeFiducialSelection();
 
-    fDetLength    = geo->DetLength()*0.01;  
+    fDetLength    = geo->DetLength();  
     fDetectorMass = geo->TotalMass(fTopVolume.c_str());
 
 
@@ -481,17 +481,17 @@ namespace evgb {
     } else {
       mf::LogError("GENIEHelper")
         << "Can not create GeomVolSelectorFiduction for shape \"" << stype << "\"";
-  }
+    }
 
-  if ( master  ) {
-    fidsel->ConvertShapeMaster2Top(rgeom);
-    mf::LogInfo("GENIEHelper") << "Convert fiducial volume from master to topvol coords";
-  }
-  if ( reverse ) {
-    fidsel->SetReverseFiducial(true);
-    mf::LogInfo("GENIEHelper") << "Reverse sense of fiducial volume cut";
-  }
-  rgeom->AdoptGeomVolSelector(fidsel);
+    if ( master  ) {
+      fidsel->ConvertShapeMaster2Top(rgeom);
+      mf::LogInfo("GENIEHelper") << "Convert fiducial volume from master to topvol coords";
+    }
+    if ( reverse ) {
+      fidsel->SetReverseFiducial(true);
+      mf::LogInfo("GENIEHelper") << "Reverse sense of fiducial volume cut";
+    }
+    rgeom->AdoptGeomVolSelector(fidsel);
 
 
   }
@@ -748,8 +748,9 @@ namespace evgb {
     // if no interaction generated return false
     if(!viableInteraction) return false;
     
+    // GENIE returns values from the Vertex in m and we use cm
     TLorentzVector *vertex = record->Vertex();
-    if(vertex->Z() > fDetLength + fZCutOff) return false;
+    if(100.*vertex->Z() > fDetLength + fZCutOff) return false;
 
     // fill the MC truth information as we have a good interaction
     PackMCTruth(record,truth); 
