@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.24 2011-08-16 14:36:00 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.25 2011-09-11 03:36:32 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 #include "FluxDrivers/GSimpleNtpFlux.h"
 #endif
 #include "Geo/ROOTGeomAnalyzer.h"
+#include "Geo/GeomVolSelectorFiducial.h"
+#include "Geo/GeomVolSelectorRockBox.h"
+#include "Utils/StringUtils.h"
 #include "Interaction/InitialState.h"
 #include "Interaction/Interaction.h"
 #include "Interaction/Kinematics.h"
@@ -114,6 +117,7 @@ namespace evgb {
     , fEnvironment       (pset.get< std::vector<std::string> >("Environment")            )
     , fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none"))
     , fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   )
+    , fFiducialCut       (pset.get< std::string              >("FiducialCut",     "none"))
     , fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
   {
 
@@ -339,12 +343,158 @@ namespace evgb {
 
     //  casting to the GENIE geometry driver interface
     fGeomD        = rgeom; // dynamic_cast<genie::GeomAnalyzerI *>(rgeom);
+    InitializeFiducialSelection();
+
     fDetLength    = geo->DetLength()*0.01;  
     fDetectorMass = geo->TotalMass(fTopVolume.c_str());
+
 
     return;
   }
 
+  //--------------------------------------------------
+  void GENIEHelper::InitializeFiducialSelection()
+  {
+    genie::GeomAnalyzerI* geom_driver = fGeomD; // GENIEHelper name -> gNuMIExptEvGen name
+    std::string fidcut = fFiducialCut;   // ditto
+
+    if ( "" == fidcut || "none" == fidcut ) return;
+
+    // below is as it is in $GENIE/src/support/numi/EvGen/gNuMIExptEvGen
+    // except the change in message logger from log4cpp (GENIE) to cet's MessageLogger used by art
+
+    ///
+    /// User defined fiducial volume cut
+    ///      [0][M]<SHAPE>:val1,val2,...
+    ///   "0" means reverse the cut (i.e. exclude the volume)
+    ///   "M" means the coordinates are given in the ROOT geometry
+    ///       "master" system and need to be transformed to "top vol" system
+    ///   <SHAPE> can be any of "zcyl" "box" "zpoly" "sphere"
+    ///       [each takes different # of args]
+    ///   This must be followed by a ":" and a list of values separated by punctuation
+    ///       (allowed separators: commas , parentheses () braces {} or brackets [] )
+    ///   Value mapping:
+    ///      zcly:x0,y0,radius,zmin,zmax           - cylinder along z at (x0,y0) capped at z's
+    ///      box:xmin,ymin,zmin,xmax,ymax,zmax     - box w/ upper & lower extremes
+    ///      zpoly:nfaces,x0,y0,r_in,phi,zmin,zmax - nfaces sided polygon in x-y plane
+    //       sphere:x0,y0,z0,radius                - sphere of fixed radius at (x0,y0,z0)
+    ///   Examples:    
+    ///      1) 0mbox:0,0,0.25,1,1,8.75
+    ///         exclude (i.e. reverse) a box in master coordinates w/ corners (0,0,0.25) (1,1,8.75)
+    ///      2) mzpoly:6,(2,-1),1.75,0,{0.25,8.75}
+    ///         six sided polygon in x-y plane, centered at x,y=(2,-1) w/ inscribed radius 1.75
+    ///         no rotation (so first face is in y-z plane +r from center, i.e. hex sits on point)
+    ///         limited to the z range of {0.25,8.75} in the master ROOT geom coordinates
+    ///      3) zcly:(3,4),5.5,-2,10
+    ///         a cylinder oriented parallel to the z axis in the "top vol" coordinates
+    ///         at x,y=(3,4) with radius 5.5 and z range of {-2,10}
+    ///
+    genie::geometry::ROOTGeomAnalyzer * rgeom = 
+      dynamic_cast<genie::geometry::ROOTGeomAnalyzer *>(geom_driver);
+    if ( ! rgeom ) {
+      mf::LogWarning("GENIEHelpler")
+        << "Can not create GeomVolSelectorFiduction,"
+        << " geometry driver is not ROOTGeomAnalyzer";
+      return;
+    }
+
+    mf::LogInfo("GENIEHelper") << "fiducial cut: " << fidcut;
+
+    // for now, only fiducial no "rock box"
+    genie::geometry::GeomVolSelectorFiducial* fidsel =
+      new genie::geometry::GeomVolSelectorFiducial();
+
+    fidsel->SetRemoveEntries(true);  // drop segments that won't be considered
+
+    // convert string to lowercase
+    std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
+
+    vector<string> strtok = genie::utils::str::Split(fidcut,":");
+    if ( strtok.size() != 2 ) {
+      mf::LogWarning("GENIEHelper")
+        << "Can not create GeomVolSelectorFiduction,"
+        << " no \":\" separating type from values.  nsplit=" << strtok.size();
+      for ( unsigned int i=0; i < strtok.size(); ++i )
+        mf::LogWarning("GENIEHelper")
+          << "strtok[" << i << "] = \"" << strtok[i] << "\"";
+      return;
+    }
+
+    // parse out optional "x" and "m"
+    string stype = strtok[0];
+    bool reverse = ( stype.find("0") != string::npos );
+    bool master  = ( stype.find("m") != string::npos );  // action after values are set
+
+    // parse out values
+    vector<double> vals;
+    vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]");
+    vector<string>::const_iterator iter = valstrs.begin();
+    for ( ; iter != valstrs.end(); ++iter ) {
+      const string& valstr1 = *iter;
+      if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
+    }
+    size_t nvals = vals.size();
+    
+    //std::cout << "ivals = [";
+    //for (unsigned int i=0; i < nvals; ++i) {
+    //  if (i>0) cout << ",";
+    //  std::cout << vals[i];
+    //}
+    //std::cout << "]" << std::endl;
+    
+    // std::vector elements are required to be adjacent so we can treat address as ptr
+    
+    if        ( stype.find("zcyl")   != string::npos ) {
+      // cylinder along z direction at (x0,y0) radius zmin zmax
+      if ( nvals < 5 ) 
+        mf::LogError("GENIEHelper") << "MakeZCylinder needs 5 values, not " << nvals
+                                    << " fidcut=\"" << fidcut << "\"";
+      fidsel->MakeZCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
+
+    } else if ( stype.find("box")    != string::npos ) {
+      // box (xmin,ymin,zmin) (xmax,ymax,zmax)
+      if ( nvals < 6 ) 
+        mf::LogError("GENIEHelper") << "MakeBox needs 6 values, not " << nvals
+                                    << " fidcut=\"" << fidcut << "\"";
+      double xyzmin[3] = { vals[0], vals[1], vals[2] };
+      double xyzmax[3] = { vals[4], vals[5], vals[5] };
+      fidsel->MakeBox(xyzmin,xyzmax);
+
+    } else if ( stype.find("zpoly")  != string::npos ) {
+      // polygon along z direction nfaces at (x0,y0) radius phi zmin zmax
+      if ( nvals < 7 ) 
+        mf::LogError("GENIEHelper") << "MakeZPolygon needs 7 values, not " << nvals
+                                    << " fidcut=\"" << fidcut << "\"";
+      int nfaces = (int)vals[0];
+      if ( nfaces < 3 ) 
+        mf::LogError("GENIEHelper") << "MakeZPolygon needs nfaces>=3, not " << nfaces
+                                    << " fidcut=\"" << fidcut << "\"";
+      fidsel->MakeZPolygon(nfaces,vals[1],vals[2],vals[3],vals[4],vals[5],vals[6]);
+
+    } else if ( stype.find("sphere") != string::npos ) {
+      // sphere at (x0,y0,z0) radius 
+      if ( nvals < 4 ) 
+        mf::LogError("GENIEHelper") << "MakeZSphere needs 4 values, not " << nvals
+                                    << " fidcut=\"" << fidcut << "\"";
+      fidsel->MakeSphere(vals[0],vals[1],vals[2],vals[3]);
+
+    } else {
+      mf::LogError("GENIEHelper")
+        << "Can not create GeomVolSelectorFiduction for shape \"" << stype << "\"";
+  }
+
+  if ( master  ) {
+    fidsel->ConvertShapeMaster2Top(rgeom);
+    mf::LogInfo("GENIEHelper") << "Convert fiducial volume from master to topvol coords";
+  }
+  if ( reverse ) {
+    fidsel->SetReverseFiducial(true);
+    mf::LogInfo("GENIEHelper") << "Reverse sense of fiducial volume cut";
+  }
+  rgeom->AdoptGeomVolSelector(fidsel);
+
+
+  }
   //--------------------------------------------------
   void GENIEHelper::InitializeFluxDriver()
   {

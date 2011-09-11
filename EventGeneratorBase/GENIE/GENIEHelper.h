@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.13 2011-08-16 14:38:30 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.14 2011-09-11 03:36:32 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -55,6 +55,7 @@ namespace evgb{
   private:
 
     void InitializeGeometry();
+    void InitializeFiducialSelection();
     void InitializeFluxDriver();
     void PackNuMIFlux(simb::MCFlux &flux);
     void PackSimpleFlux(simb::MCFlux &flux);
@@ -104,6 +105,7 @@ namespace evgb{
     std::vector<std::string> fEnvironment;       ///< environmental variables and settings used by genie
     std::string              fMixerConfig;       ///< configuration string for genie GFlavorMixerI
     double                   fMixerBaseline;     ///< baseline distance if genie flux can't calculate it
+    std::string              fFiducialCut;       ///< configuration for geometry selector
     unsigned int             fDebugFlags;        ///< set bits to enable debug info
   };
 }
