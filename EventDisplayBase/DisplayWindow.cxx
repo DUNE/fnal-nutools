@@ -3,7 +3,7 @@
 /// \brief A window containing a display of the detector or one of its
 /// components
 ///
-/// \version $Id: DisplayWindow.cxx,v 1.5 2011-07-13 16:32:03 messier Exp $
+/// \version $Id: DisplayWindow.cxx,v 1.6 2011-09-14 17:24:02 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/DisplayWindow.h"
@@ -165,7 +165,7 @@ int DisplayWindow::OpenWindow(int type)
 
 DisplayWindow::DisplayWindow(int id) 
 {
-  if (gROOT->IsBatch()) assert(0);
+  assert(!gROOT->IsBatch());
   assert(gClient);
   const TGWindow* tgw = gClient->GetRoot();
   assert(tgw);
