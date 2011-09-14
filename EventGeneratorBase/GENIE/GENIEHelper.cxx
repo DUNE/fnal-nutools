@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.26 2011-09-11 19:32:01 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.27 2011-09-14 17:49:21 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -118,6 +118,7 @@ namespace evgb {
     , fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none"))
     , fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   )
     , fFiducialCut       (pset.get< std::string              >("FiducialCut",     "none"))
+    , fGeomScan          (pset.get< std::string              >("GeomScan",        "default"))
     , fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
   {
 
@@ -289,6 +290,7 @@ namespace evgb {
     // initialize the Geometry and Flux drivers
     InitializeGeometry();
     InitializeFluxDriver();
+    ConfigGeomScan();
     fDriver = new genie::GMCJDriver();
     fDriver->UseFluxDriver(fFluxD2GMCJD);
     fDriver->UseGeomAnalyzer(fGeomD);
@@ -359,6 +361,9 @@ namespace evgb {
     std::string fidcut = fFiducialCut;   // ditto
 
     if ( "" == fidcut || "none" == fidcut ) return;
+
+    if( fidcut.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
+      fidcut.erase( 0, fidcut.find_first_not_of(" \t\n")  );
 
     // below is as it is in $GENIE/src/support/numi/EvGen/gNuMIExptEvGen
     // except the change in message logger from log4cpp (GENIE) to cet's MessageLogger used by art
@@ -622,7 +627,7 @@ namespace evgb {
     //
     fFluxD2GMCJD = fFluxD;  // default: genie's GMCJDriver uses the bare flux generator
     if( fMixerConfig.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
-      fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \n")  );
+      fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \t\n")  );
     std::string keyword = fMixerConfig.substr(0,fMixerConfig.find_first_of(" "));
     if ( keyword != "none" ) {
       // Wrap the true flux driver up in the adapter to allow flavor mixing
@@ -654,6 +659,76 @@ namespace evgb {
     }
 
     return;
+  }
+
+  //--------------------------------------------------
+  void GENIEHelper::ConfigGeomScan()
+  {
+    // trim any leading whitespace
+    if( fGeomScan.find_first_not_of(" \t\n") != 0) 
+      fGeomScan.erase( 0, fGeomScan.find_first_not_of(" \t\n")  );
+
+    if ( fGeomScan.find("default") != std::string::npos ) return;
+
+    genie::geometry::ROOTGeomAnalyzer* rgeom = 
+      dynamic_cast<genie::geometry::ROOTGeomAnalyzer*>(fGeomD);
+
+    if ( ! rgeom ) {
+      mf::LogError("GENIEHelper") 
+        << "fGeomD wasn't of type genie::geometry::ROOTGeomAnalyzer*";
+      assert(rgeom);
+    }
+
+    // convert string to lowercase
+    std::transform(fGeomScan.begin(),fGeomScan.end(),fGeomScan.begin(),::tolower);
+
+    // parse out string
+    vector<string> strtok = genie::utils::str::Split(fGeomScan," ");
+    // first value is a string, others should be numbers
+    string scanmethod = strtok[0];
+    vector<double> vals;
+    for ( size_t indx=1; indx < strtok.size(); ++indx ) {
+      const string& valstr1 = strtok[indx];
+      if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
+    }
+    size_t nvals = vals.size();
+    // pad it out to at least 3 entries to avoid index issues
+    for ( size_t nadd = 0; nadd < 3-nvals; ++nadd ) vals.push_back(0);
+
+    double safetyfactor = 0;
+    if (        scanmethod.find("box") != std::string::npos ) {
+      // use box method
+      int np = (int)vals[0];
+      int nr = (int)vals[1];
+      if ( nvals >= 3 ) safetyfactor = vals[2];
+      // protect against too small values
+      if ( np <= 10 ) np = rgeom->ScannerNPoints();
+      if ( nr <= 10 ) nr = rgeom->ScannerNRays();
+      mf::LogInfo("GENIEHelper") 
+        << "ConfigGeomScan scan using box " << np << " points, "
+        << nr << " rays";
+      rgeom->SetScannerNPoints(np);
+      rgeom->SetScannerNRays(nr);
+    } else if ( scanmethod.find("flux") != std::string::npos ) {
+      // use flux method
+      int np = (int)vals[0];
+      if ( nvals >= 2 ) safetyfactor = vals[1];
+      if ( np <= 10 ) np = rgeom->ScannerNParticles();
+      mf::LogInfo("GENIEHelper") 
+        << "ConfigGeomScan scan using flux " << np << " particles ";
+      rgeom->SetScannerFlux(fFluxD);
+      rgeom->SetScannerNParticles(np);
+    } else {
+      // unknown
+      mf::LogError("GENIEHelper") 
+        << "fGeomScan unknown method: \"" << fGeomScan << "\"";
+      assert(0);
+    }
+    if ( safetyfactor > 0 ) {
+      mf::LogInfo("GENIEHelper") 
+        << "ConfigGeomScan setting safety factor to " << safetyfactor;
+      rgeom->SetMaxPlSafetyFactor(safetyfactor);
+    }
   }
 
   //--------------------------------------------------
