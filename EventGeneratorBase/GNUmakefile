@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2011-04-04 01:31:29 brebel Exp $
+# $Id: GNUmakefile,v 1.7 2011-09-15 19:48:31 rhatcher Exp $
 #
 # messier@indiana.edu
 #
@@ -36,7 +36,13 @@ ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFluxBlender.h 2> /dev/null ),)
   skiphead  = $(skipfiles:.cxx=.h)
   override LIBCXXFILES := $(filter-out $(skipfiles), $(LIBCXXFILES))
   override CPPFLAGS += -DBLENDER_IN_GENIE
-  $(warning GENIE has GFluxBlender.h, ignore local files: $(skipfiles))
+#  $(warning GENIE has GFluxBlender.h, ignore local files: $(skipfiles))
+endif
+
+# remain compatible w/ older GENIE version by using inefficient method
+ifeq ($(shell /bin/grep GetMaxPathLength \${GENIE}/src/Geo/ROOTGeomAnalyzer.h 2> /dev/null ),)
+#  $(warning GENIE/ROOTGeomAnalyzer does not have GetMaxPathLengths method)
+  override CPPFLAGS += -DGENIE_MISSING_GETMAXPL
 endif
 
 ########################################################################

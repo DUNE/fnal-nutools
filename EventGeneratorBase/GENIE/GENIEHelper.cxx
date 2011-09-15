@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.28 2011-09-15 04:52:54 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.29 2011-09-15 19:48:31 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -283,8 +283,12 @@ namespace evgb {
         << "Saving MaxPathLengths as: \"" << filename << "\"";
 
       const genie::PathLengthList& maxpath = 
-      // not yet in GENIE: rgeom->GetMaxPathLengths();
+#ifdef GENIE_MISSING_GETMAXPL
         rgeom->ComputeMaxPathLengths(); // re-compute max pathlengths
+#else
+        rgeom->GetMaxPathLengths();
+#endif
+
       maxpath.SaveAsXml(filename);
       // append extra info to file
       std::ofstream mpfile(filename.c_str(), std::ios_base::app);
