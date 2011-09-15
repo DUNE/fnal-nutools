@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.17 2011-09-01 22:17:55 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.18 2011-09-15 18:44:34 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -28,6 +28,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 using namespace evdb;
@@ -341,34 +342,47 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
 
 
   // Figure out where to go in the input stream from here
-  if (NavState::Which() == kNEXT_EVENT) {
+  switch (NavState::Which()) {
+  case kSEQUENTIAL_ONLY: break;
+  case kNEXT_EVENT: {
     // Contrary to appearances, this is *not* a NOP: it ensures run and
     // subRun are (re-)read as necessary if we've been doing random
     // access. Come the revolution ...
     //
     // 2011/04/10 CG.
     if(rootInput) rootInput->seekToEvent(0);
+    break;
   }
-  else if (NavState::Which() == kPREV_EVENT) {
+  case kPREV_EVENT: {
     if(rootInput) rootInput->seekToEvent(-2);
+    break;
   }
-  else if (NavState::Which() == kRELOAD_EVENT) {
-    if(rootInput) rootInput->seekToEvent(evt.id());
+  case kRELOAD_EVENT: {
+    if(rootInput) rootInput->seekToEvent(-1);
+    break;
   }
-  else if (NavState::Which() == kGOTO_EVENT) {
+  case kGOTO_EVENT: {
     art::EventID id(art::SubRunID::invalidSubRun(art::RunID(NavState::TargetRun())), NavState::TargetEvent());
     if(rootInput){
       if (!rootInput->seekToEvent(id)) { // Couldn't find event
-	std::cout << "Unable to find "
-		  << id
-		  << " -- reloading current event."
-		  << std::endl;
-	// Reload current event.
-	rootInput->seekToEvent(evt.id());
+        std::cout << "Unable to find "
+                  << id
+                  << " -- reloading current event."
+                  << std::endl;
+        // Reload current event.
+        rootInput->seekToEvent(evt.id());
       }
     }// end if not a RootInput
+    break;
   }
-  else abort();
+  default: {
+    throw art::Exception(art::errors::LogicError)
+      << "EvengtDisplay in unhandled state "
+      << NavState::Which()
+      << ".\n";
+  }
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////
