@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.27 2011-09-14 17:49:21 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.28 2011-09-15 04:52:54 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 #include <math.h>
 #include <map>
 #include <cassert>
+#include <fstream>
 
 //ROOT includes
 #include "TH1.h"
@@ -43,6 +44,7 @@
 #include "Geo/GeomVolSelectorFiducial.h"
 #include "Geo/GeomVolSelectorRockBox.h"
 #include "Utils/StringUtils.h"
+#include "Utils/XmlParserUtils.h"
 #include "Interaction/InitialState.h"
 #include "Interaction/Interaction.h"
 #include "Interaction/Kinematics.h"
@@ -271,6 +273,31 @@ namespace evgb {
   //--------------------------------------------------
   GENIEHelper::~GENIEHelper()
   {
+    // user request writing out the scan of the geometry
+    if ( fMaxPathOutInfo != "" ) {
+      genie::geometry::ROOTGeomAnalyzer* rgeom = 
+        dynamic_cast<genie::geometry::ROOTGeomAnalyzer*>(fGeomD);
+
+      string filename = "maxpathlength.xml";
+      mf::LogInfo("GENIEHelper") 
+        << "Saving MaxPathLengths as: \"" << filename << "\"";
+
+      const genie::PathLengthList& maxpath = 
+      // not yet in GENIE: rgeom->GetMaxPathLengths();
+        rgeom->ComputeMaxPathLengths(); // re-compute max pathlengths
+      maxpath.SaveAsXml(filename);
+      // append extra info to file
+      std::ofstream mpfile(filename.c_str(), std::ios_base::app);
+      mpfile
+        << std::endl
+        << "<!-- this file is only relevant for a setup compatible with:" 
+        << std::endl
+        << fMaxPathOutInfo 
+        << std::endl
+        << "-->" 
+        << std::endl;
+      mpfile.close();
+    }
   }
 
   //--------------------------------------------------
@@ -286,17 +313,18 @@ namespace evgb {
   //--------------------------------------------------
   void GENIEHelper::Initialize()
   {
+    fDriver = new genie::GMCJDriver(); // needs to be before ConfigGeomScan
 
     // initialize the Geometry and Flux drivers
+
     InitializeGeometry();
     InitializeFluxDriver();
-    ConfigGeomScan();
-    fDriver = new genie::GMCJDriver();
+
     fDriver->UseFluxDriver(fFluxD2GMCJD);
     fDriver->UseGeomAnalyzer(fGeomD);
 
-    // turn on following line to speed up driver initialization
-    //driver->UseMaxPathLengths(***supply some xml file name***);
+    // must come after creation of Geom, Flux and GMCJDriver
+    ConfigGeomScan();  // could trigger fDriver->UseMaxPathLengths(*xmlfile*)
 
     fDriver->Configure();
     fDriver->UseSplines();
@@ -664,6 +692,7 @@ namespace evgb {
   //--------------------------------------------------
   void GENIEHelper::ConfigGeomScan()
   {
+
     // trim any leading whitespace
     if( fGeomScan.find_first_not_of(" \t\n") != 0) 
       fGeomScan.erase( 0, fGeomScan.find_first_not_of(" \t\n")  );
@@ -684,23 +713,36 @@ namespace evgb {
 
     // parse out string
     vector<string> strtok = genie::utils::str::Split(fGeomScan," ");
-    // first value is a string, others should be numbers
+    // first value is a string, others should be numbers unless "file:"
     string scanmethod = strtok[0];
+
+    if ( scanmethod.find("file") != std::string::npos ) {
+      // xml expand path before passing in
+      string filename = strtok[1];
+      string fullname = genie::utils::xml::GetXMLFilePath(filename);
+      fDriver->UseMaxPathLengths(fullname);
+      mf::LogInfo("GENIEHelper") 
+        << "ConfigGeomScan getting MaxPathLengths from \"" << fullname << "\"";
+      return;
+    }
+
     vector<double> vals;
     for ( size_t indx=1; indx < strtok.size(); ++indx ) {
       const string& valstr1 = strtok[indx];
       if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
     }
     size_t nvals = vals.size();
-    // pad it out to at least 3 entries to avoid index issues
-    for ( size_t nadd = 0; nadd < 3-nvals; ++nadd ) vals.push_back(0);
+    // pad it out to at least 4 entries to avoid index issues
+    for ( size_t nadd = 0; nadd < 4-nvals; ++nadd ) vals.push_back(0);
 
     double safetyfactor = 0;
+    int    writeout = 0;
     if (        scanmethod.find("box") != std::string::npos ) {
       // use box method
       int np = (int)vals[0];
       int nr = (int)vals[1];
       if ( nvals >= 3 ) safetyfactor = vals[2];
+      if ( nvals >= 4 ) writeout     = vals[3];
       // protect against too small values
       if ( np <= 10 ) np = rgeom->ScannerNPoints();
       if ( nr <= 10 ) nr = rgeom->ScannerNRays();
@@ -713,6 +755,7 @@ namespace evgb {
       // use flux method
       int np = (int)vals[0];
       if ( nvals >= 2 ) safetyfactor = vals[1];
+      if ( nvals >= 3 ) writeout     = vals[2];
       if ( np <= 10 ) np = rgeom->ScannerNParticles();
       mf::LogInfo("GENIEHelper") 
         << "ConfigGeomScan scan using flux " << np << " particles ";
@@ -729,6 +772,36 @@ namespace evgb {
         << "ConfigGeomScan setting safety factor to " << safetyfactor;
       rgeom->SetMaxPlSafetyFactor(safetyfactor);
     }
+    if ( writeout != 0 ) SetMaxPathOutInfo();
+  }
+
+  //--------------------------------------------------
+  void GENIEHelper::SetMaxPathOutInfo()
+  {
+    // create an info string based on:
+    // ROOT geometry, TopVolume, FiducialCut, GeomScan, Flux
+
+    mf::LogInfo("GENIEHelper") 
+        << "about to create MaxPathOutInfo";
+
+    art::ServiceHandle<geo::Geometry> geo;
+    fMaxPathOutInfo = "\n";
+    fMaxPathOutInfo += "   FluxType:     " + fFluxType + "\n";
+    fMaxPathOutInfo += "   BeamName:     " + fBeamName + "\n";
+    fMaxPathOutInfo += "   FluxFiles:    ";
+    std::set<string>::iterator ffitr = fFluxFiles.begin();
+    for ( ; ffitr != fFluxFiles.end() ; ++ffitr )
+      fMaxPathOutInfo += "\n         " + *ffitr;
+    fMaxPathOutInfo += "\n";
+    fMaxPathOutInfo += "   DetLocation:  " + fDetLocation + "\n";
+    fMaxPathOutInfo += "   ROOTFile:     " + geo->ROOTFile() + "\n";
+    fMaxPathOutInfo += "   TopVolume:    " + fTopVolume + "\n";
+    fMaxPathOutInfo += "   FiducialCut:  " + fFiducialCut + "\n";
+    fMaxPathOutInfo += "   GeomScan:     " + fGeomScan + "\n";
+
+    mf::LogInfo("GENIEHelper") 
+        << "MaxPathOutInfo: \"" << fMaxPathOutInfo << "\"";
+
   }
 
   //--------------------------------------------------

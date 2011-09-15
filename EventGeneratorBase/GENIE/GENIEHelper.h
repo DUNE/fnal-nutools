@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.15 2011-09-14 17:49:21 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.16 2011-09-15 04:52:54 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -58,6 +58,7 @@ namespace evgb{
     void InitializeFiducialSelection();
     void InitializeFluxDriver();
     void ConfigGeomScan();
+    void SetMaxPathOutInfo();
     void PackNuMIFlux(simb::MCFlux &flux);
     void PackSimpleFlux(simb::MCFlux &flux);
     void PackMCTruth(genie::EventRecord *record, simb::MCTruth &truth);
@@ -108,6 +109,7 @@ namespace evgb{
     double                   fMixerBaseline;     ///< baseline distance if genie flux can't calculate it
     std::string              fFiducialCut;       ///< configuration for geometry selector
     std::string              fGeomScan;          ///< configuration for geometry scan to determine max pathlengths
+    std::string              fMaxPathOutInfo;    ///< output info if writing PathLengthList from GeomScan
     unsigned int             fDebugFlags;        ///< set bits to enable debug info
   };
 }
