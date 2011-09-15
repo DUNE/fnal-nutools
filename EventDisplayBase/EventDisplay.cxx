@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.18 2011-09-15 18:44:34 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.19 2011-09-15 19:08:49 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -358,7 +358,7 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
     break;
   }
   case kRELOAD_EVENT: {
-    if(rootInput) rootInput->seekToEvent(-1);
+    if(rootInput) rootInput->seekToEvent(evt.id());
     break;
   }
   case kGOTO_EVENT: {
