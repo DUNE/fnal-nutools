@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.8 2011-07-12 19:28:46 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.9 2011-09-16 22:53:43 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -237,30 +237,34 @@ namespace evdb{
 	  mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
 				       << " but no MCTruth objects found in event - "
 				       << " put garbage numbers into the file";
-	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
-	  return;
+	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
+		  << " " << -999. << " " << -999.;
 	}
 	  
 	if ( mclist[0]->at(0).Origin() != simb::kBeamNeutrino ){
 	  mf::LogWarning("ScanWindow") <<"Unknown particle source or truth information N/A"
 				       << " put garbage numbers into the file";
-	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
-	  return;
+	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
+		  << " " << -999. << " " << -999.;
 	}
 	else{	      
 	  // get the event vertex and energy information,
+	  const simb::MCNeutrino& nu = mclist[0]->at(0).GetNeutrino();
 	  
-	  const simb::MCParticle& nu = mclist[0]->at(0).GetNeutrino().Nu();
-	  
-	  outfile << nu.Vx() << " " << nu.Vy() << " " << nu.Vz() << " " << nu.E();
-	  
+	  outfile << nu.Nu().PdgCode() << " " 
+		  << nu.Nu().Vx()      << " " 
+		  << nu.Nu().Vy()      << " " 
+		  << nu.Nu().Vz()      << " " 
+		  << nu.Nu().E()       << " " 
+		  << nu.InteractionType();
 	}
       }
       catch(cet::exception &e){
 	mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
 				     << " but no MCTruth objects found in event - "
 				     << " put garbage numbers into the file";
-	outfile << -999. << " " << -999. << " " << -999. << " " << -999.;
+	outfile << -999. << " " << -999. << " " << -999. << " " << -999.
+		<< " " << -999. << " " << -999.;
       }
 
     }//end if using MC information
