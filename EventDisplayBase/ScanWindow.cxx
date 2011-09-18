@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.10 2011-09-18 18:46:26 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.11 2011-09-18 18:54:12 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -321,6 +321,10 @@ namespace evdb{
       }
       pos += opts->fFieldsPerCategory[c];
     } // end loop over categories
+
+    if(opts->fIncludeMCInfo)
+      outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z E CCNC InteractionType ";
+
     outfile << "comments" << std::endl;
 
     fF1 = new TGCompositeFrame(this, kCategoryWidth, 26, kVerticalFrame);
