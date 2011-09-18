@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.9 2011-09-16 22:53:43 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.10 2011-09-18 18:46:26 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -256,6 +256,7 @@ namespace evdb{
 		  << nu.Nu().Vy()      << " " 
 		  << nu.Nu().Vz()      << " " 
 		  << nu.Nu().E()       << " " 
+		  << nu.CCNC()         << " " 
 		  << nu.InteractionType();
 	}
       }
