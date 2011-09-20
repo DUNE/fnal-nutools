@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.11 2011-09-18 18:54:12 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.12 2011-09-20 00:49:48 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -53,8 +53,7 @@ namespace evdb{
       
       for(unsigned int p = 0; p < opts->fFieldsPerCategory[c]; ++p){
 	types.push_back(opts->fFieldTypes[pos+p]);
-	labels.push_back(opts->fFieldLabels[pos+p]);
-	
+	labels.push_back(opts->fFieldLabels[pos+p]);	
       }
       
       pos += opts->fFieldsPerCategory[c];
@@ -186,7 +185,7 @@ namespace evdb{
     
     std::ofstream outfile(outfilename.c_str(), std::ios_base::app);
 
-    outfile << evt->run() << " " << evt->id().event() << " ";
+    outfile << evt->run() << " " << evt->subRun() << " " << evt->id().event() << " ";
 
     // loop over the input fields
     unsigned int txtctr = 0;
@@ -238,14 +237,14 @@ namespace evdb{
 				       << " but no MCTruth objects found in event - "
 				       << " put garbage numbers into the file";
 	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
-		  << " " << -999. << " " << -999.;
+		  << " " << -999. << " " << -999. << " " << -999.;
 	}
 	  
 	if ( mclist[0]->at(0).Origin() != simb::kBeamNeutrino ){
 	  mf::LogWarning("ScanWindow") <<"Unknown particle source or truth information N/A"
 				       << " put garbage numbers into the file";
 	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
-		  << " " << -999. << " " << -999.;
+		  << " " << -999. << " " << -999.<< " " << -999.;
 	}
 	else{	      
 	  // get the event vertex and energy information,
@@ -257,6 +256,7 @@ namespace evdb{
 		  << nu.Nu().Vz()      << " " 
 		  << nu.Nu().E()       << " " 
 		  << nu.CCNC()         << " " 
+		  << nu.Lepton().E()   << " " 
 		  << nu.InteractionType();
 	}
       }
@@ -271,7 +271,7 @@ namespace evdb{
     }//end if using MC information
 
     // end this line for the event
-    outfile << comments << std::endl;
+    outfile << " " << comments << std::endl;
   }
 
   //......................................................................
@@ -308,7 +308,7 @@ namespace evdb{
     std::ofstream outfile(fOutFileName.c_str());
 
     //output the labels so we know what each is
-    outfile << "Run Event ";
+    outfile << "Run Subrun Event ";
 
     // figure out how many categories and maximum number of items for a category
     unsigned int ncat      = opts->fCategories.size();
@@ -323,7 +323,7 @@ namespace evdb{
     } // end loop over categories
 
     if(opts->fIncludeMCInfo)
-      outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z E CCNC InteractionType ";
+      outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z Nu_E CCNC Lepton_E InteractionType ";
 
     outfile << "comments" << std::endl;
 
@@ -411,7 +411,7 @@ namespace evdb{
   void ScanWindow::Rec()
   {
     fScan->Record(fOutFileName, fComments->GetText());
-
+    fComments->SetText("");
     evdb::NavState::Set(evdb::kNEXT_EVENT);
   }
 
