@@ -1,4 +1,4 @@
-#include "job/services.fcl"
+#include "job/Geometry.fcl"
 
 process_name: testGeo
 
@@ -14,14 +14,15 @@ services:
      { 
        type:      "file" 
        filename:  "evgentest.log" 
-       threshold: "WARNING" 
+       threshold: "INFO" 
        categories: { EventGeneratorTest: {} } 
      } 
     }
   }
+  RandomNumberGenerator: {}
   user: 
   { 
-   Geometry: @local::microboone_geo
+   Geometry: @local::geometry
   }
 }
 
@@ -43,7 +44,7 @@ physics:
   evgentest: 
   { 
    module_type: "EventGeneratorTest" 
-   TopVolume:   "volTPC"
+   TopVolume:   "TopVolume"
   }
 
  }

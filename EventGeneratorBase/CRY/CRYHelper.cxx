@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.15 2011-08-10 01:33:04 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.16 2011-09-23 00:22:28 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -30,8 +30,6 @@
 // Experiment include files
 #include "Geometry/geo.h"
 
-#include "CLHEP/Random/RandFlat.h"
-
 namespace evgb{
 
   //......................................................................
@@ -40,7 +38,8 @@ namespace evgb{
   }
 
   //......................................................................
-  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset) 
+  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset, 
+		       CLHEP::HepRandomEngine& engine)
     : fSampleTime(pset.get< double      >("SampleTime")          )
     , fToffset   (pset.get< double      >("TimeOffset")     	 )
     , fEthresh   (pset.get< double      >("EnergyThreshold")	 )
@@ -73,11 +72,11 @@ namespace evgb{
       
     // Construct the event generator object
     fSetup = new CRYSetup(config, crydatadir);
-    
-    // set the seed for the static function of CLHEP::RandFlat
-    CLHEP::RandFlat::setTheSeed(pset.get< int >("Seed", evgb::GetRandomNumberSeed()));
-    fSetup->setRandomFunction(CLHEP::RandFlat::shoot);
-  
+
+    RNGWrapper<CLHEP::HepRandomEngine>::set(&engine, &CLHEP::HepRandomEngine::flat);
+
+    fSetup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
+
     fGen = new CRYGenerator(fSetup);
     fEvt = new std::vector<CRYParticle*>;
   }  

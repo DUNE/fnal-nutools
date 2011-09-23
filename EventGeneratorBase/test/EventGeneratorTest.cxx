@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.8 2011-08-15 20:39:55 guenette Exp $
+// $Id: EventGeneratorTest.cxx,v 1.9 2011-09-23 00:22:28 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -26,6 +26,9 @@
 #include "SimulationBase/simbase.h"
 #include "EventGeneratorBase/test/EventGeneratorTest.h"
 #include "Geometry/geo.h"
+#include "EventGeneratorBase/evgenbase.h"
+
+
 
 namespace evgen {
 
@@ -36,6 +39,9 @@ namespace evgen {
     , fTotalCRYSpills        ( pset.get< double      >("TotalCRYSpills",         1000))
     , fTopVolume             ( pset.get< std::string >("TopVolume"                   ))
   {  
+    /// Create a Art Random Number engine
+    int seed = (pset.get< int >("Seed", evgb::GetRandomNumberSeed()));
+    createEngine(seed);
   }
 
   //____________________________________________________________________________
@@ -294,8 +300,12 @@ namespace evgen {
     // make the parameter set
     fhicl::ParameterSet pset = this->CRYParameterSet();
 
+    // get the random number generator service and make some CLHEP generators
+    art::ServiceHandle<art::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+
     // make the CRYHelper
-    evgb::CRYHelper help(pset);
+    evgb::CRYHelper help(pset, engine);
 
     int    nspill         = 0;
     double avPartPerSpill = 0.;

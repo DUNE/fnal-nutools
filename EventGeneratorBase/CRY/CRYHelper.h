@@ -5,13 +5,14 @@
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
 /// 
-/// \version $Id: CRYHelper.h,v 1.5 2011-07-18 17:01:33 brebel Exp $
+/// \version $Id: CRYHelper.h,v 1.6 2011-09-23 00:22:28 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
 #define EVGB_CRYHELPER_H
 #include <string>
 #include <vector>
+#include "CLHEP/Random/RandEngine.h"
 
 namespace simb { class MCTruth;  }
 namespace geo  { class Geometry; }
@@ -20,11 +21,12 @@ class CRYGenerator;
 class CRYParticle;
 
 namespace evgb {
-  /// Interface to the CRY cosmic-ray generator
+    /// Interface to the CRY cosmic-ray generator
   class CRYHelper {
   public:
     CRYHelper();
-    explicit CRYHelper(fhicl::ParameterSet const& pset);
+    explicit CRYHelper(fhicl::ParameterSet const& pset, 
+		       CLHEP::HepRandomEngine& engine);
     ~CRYHelper();
 
     void Sample(simb::MCTruth& mctruth, double* w);
@@ -47,8 +49,30 @@ namespace evgb {
     std::string                fLatitude;   ///< Latitude of detector need space after value
     std::string                fAltitude;   ///< Altitude of detector need space after value
     std::string                fSubBoxL;    ///< Length of subbox (m) need space after value
-    double                     fBoxDelta;   ///< Adjustment to the size of the world box in each dimension to avoid G4 rounding errors
+    double                     fBoxDelta;   ///< Adjustment to the size of the world box in 
+                                            ///< each dimension to avoid G4 rounding errors
   };
+
+  // The following stuff is for the random number gererator
+  template<class T> class RNGWrapper {
+  public:
+    static void set(T* object, double (T::*func)(void));
+    static double rng(void);
+  private:
+    static T* m_obj;
+    static double (T::*m_func)(void);
+  };// end of RNGWrapper class
+  
+  template<class T> T* RNGWrapper<T>::m_obj;
+  
+  template<class T> double (T::*RNGWrapper<T>::m_func)(void);
+  
+  template<class T> void RNGWrapper<T>::set(T* object, double (T::*func)(void)) {
+    m_obj = object; m_func = func;
+  }
+  
+  template<class T> double RNGWrapper<T>::rng(void) { return (m_obj->*m_func)(); }
+
 }
 #endif // EVGB_CRYHELPER_H
 ////////////////////////////////////////////////////////////////////////
