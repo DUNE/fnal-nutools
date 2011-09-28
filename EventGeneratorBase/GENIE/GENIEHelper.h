@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.16 2011-09-15 04:52:54 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.17 2011-09-28 15:53:57 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -56,6 +56,7 @@ namespace evgb{
 
     void InitializeGeometry();
     void InitializeFiducialSelection();
+    void InitializeRockBoxSelection();
     void InitializeFluxDriver();
     void ConfigGeomScan();
     void SetMaxPathOutInfo();
@@ -78,6 +79,7 @@ namespace evgb{
     std::string              fDetLocation;       ///< name of flux window location
     std::vector<TH1D *>      fFluxHistograms;    ///< histograms for each nu species
 
+    double                   fFluxUpstreamZ;     ///< z where flux starts from (if non-default, simple/ntuple only)
     double                   fTargetA;           ///< A of the target nucleus
     double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill. 
                                                  ///< If using Atmo, set to 1

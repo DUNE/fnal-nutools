@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.29 2011-09-15 19:48:31 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.30 2011-09-28 15:53:57 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -101,6 +101,7 @@ namespace evgb {
     , fTopVolume         (pset.get< std::string              >("TopVolume")              )
     , fWorldVolume       ("volWorld")						         
     , fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  )
+    , fFluxUpstreamZ     (pset.get< double                   >("FluxUpstreamZ",   -2.e30))
     , fTargetA           (pset.get< double                   >("TargetA",          12.)  )
     , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
     , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13))
@@ -382,7 +383,6 @@ namespace evgb {
     fDetLength    = geo->DetLength();  
     fDetectorMass = geo->TotalMass(fTopVolume.c_str());
 
-
     return;
   }
 
@@ -392,10 +392,19 @@ namespace evgb {
     genie::GeomAnalyzerI* geom_driver = fGeomD; // GENIEHelper name -> gNuMIExptEvGen name
     std::string fidcut = fFiducialCut;   // ditto
 
-    if ( "" == fidcut || "none" == fidcut ) return;
-
     if( fidcut.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
       fidcut.erase( 0, fidcut.find_first_not_of(" \t\n")  );
+
+    // convert string to lowercase
+    std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
+
+    if ( "" == fidcut || "none" == fidcut ) return;
+
+    if ( fidcut.find("rock") != string::npos ) {
+      // deal with RockBox separately than basic shapes
+      InitializeRockBoxSelection();
+      return;
+    }
 
     // below is as it is in $GENIE/src/support/numi/EvGen/gNuMIExptEvGen
     // except the change in message logger from log4cpp (GENIE) to cet's MessageLogger used by art
@@ -443,9 +452,6 @@ namespace evgb {
 
     fidsel->SetRemoveEntries(true);  // drop segments that won't be considered
 
-    // convert string to lowercase
-    std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
-
     vector<string> strtok = genie::utils::str::Split(fidcut,":");
     if ( strtok.size() != 2 ) {
       mf::LogWarning("GENIEHelper")
@@ -471,6 +477,8 @@ namespace evgb {
       if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
     }
     size_t nvals = vals.size();
+    // pad it out to at least 7 entries to avoid index issues if used
+    for ( size_t nadd = 0; nadd < 7-nvals; ++nadd ) vals.push_back(0);
     
     //std::cout << "ivals = [";
     //for (unsigned int i=0; i < nvals; ++i) {
@@ -528,10 +536,99 @@ namespace evgb {
       fidsel->SetReverseFiducial(true);
       mf::LogInfo("GENIEHelper") << "Reverse sense of fiducial volume cut";
     }
+    
     rgeom->AdoptGeomVolSelector(fidsel);
 
-
   }
+
+  //--------------------------------------------------
+  void GENIEHelper::InitializeRockBoxSelection()
+  {
+    genie::GeomAnalyzerI* geom_driver = fGeomD; // GENIEHelper name -> gNuMIExptEvGen name
+    std::string fidcut = fFiducialCut;   // ditto
+
+    if( fidcut.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
+      fidcut.erase( 0, fidcut.find_first_not_of(" \t\n")  );
+
+    // convert string to lowercase
+    std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
+
+    genie::geometry::ROOTGeomAnalyzer * rgeom = 
+      dynamic_cast<genie::geometry::ROOTGeomAnalyzer *>(geom_driver);
+    if ( ! rgeom ) {
+      mf::LogWarning("GENIEHelpler")
+        << "Can not create GeomVolSelectorRockBox,"
+        << " geometry driver is not ROOTGeomAnalyzer";
+      return;
+    }
+
+    mf::LogInfo("GENIEHelper") << "fiducial (rock) cut: " << fidcut;
+
+    // for now, only fiducial no "rock box"
+    genie::geometry::GeomVolSelectorRockBox* rocksel =
+      new genie::geometry::GeomVolSelectorRockBox();
+
+    vector<string> strtok = genie::utils::str::Split(fidcut,":");
+    if ( strtok.size() != 2 ) {
+      mf::LogWarning("GENIEHelper")
+        << "Can not create GeomVolSelectorRockBox,"
+        << " no \":\" separating type from values.  nsplit=" << strtok.size();
+      for ( unsigned int i=0; i < strtok.size(); ++i )
+        mf::LogWarning("GENIEHelper")
+          << "strtok[" << i << "] = \"" << strtok[i] << "\"";
+      return;
+    }
+
+    string stype = strtok[0];
+
+    // parse out values
+    vector<double> vals;
+    vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]");
+    vector<string>::const_iterator iter = valstrs.begin();
+    for ( ; iter != valstrs.end(); ++iter ) {
+      const string& valstr1 = *iter;
+      if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
+    }
+    size_t nvals = vals.size();
+
+    rocksel->SetRemoveEntries(true);  // drop segments that won't be considered
+
+    // assume coordinates are in the *master* (not "top volume") system
+    // need to set fTopVolume to fWorldVolume as Sample() will keep setting it
+    fTopVolume = fWorldVolume;
+    rgeom->SetTopVolName(fTopVolume.c_str());
+
+    if ( nvals < 6 ) {
+      mf::LogError("GENIEHelper") << "rockbox needs at least 6 values, found " 
+                                  << nvals << "in \"" << strtok[1] << "\"";
+      assert( nvals >= 6 );
+    }
+    double xyzmin[3] = { vals[0], vals[1], vals[2] };
+    double xyzmax[3] = { vals[3], vals[4], vals[5] };
+
+    bool   rockonly  = true;
+    double wallmin   = 800.;   // geometry in cm, ( 8 meter buffer)
+    double dedx      = 2.5 * 1.7e-3; // GeV/cm, rho=2.5, 1.7e-3 ~ rock like loss
+    double fudge     = 1.05;
+
+    if ( nvals >=  7 ) rockonly = vals[6];
+    if ( nvals >=  8 ) wallmin  = vals[7];
+    if ( nvals >=  9 ) dedx     = vals[8];
+    if ( nvals >= 10 ) fudge    = vals[9];
+
+    rocksel->SetRockBoxMinimal(xyzmin,xyzmax);
+    rocksel->SetMinimumWall(wallmin);
+    rocksel->SetDeDx(dedx/fudge);
+
+    // if not rock-only then make a tiny exclusion bubble
+    // call to MakeBox shouldn't be necessary
+    //  should be done by SetRockBoxMinimal but for some GENIE versions isn't
+    if ( ! rockonly ) rocksel->MakeSphere(0,0,0,1.0e-10);
+    else              rocksel->MakeBox(xyzmin,xyzmax); 
+
+    rgeom->AdoptGeomVolSelector(rocksel);
+  }
+
   //--------------------------------------------------
   void GENIEHelper::InitializeFluxDriver()
   {
@@ -547,6 +644,8 @@ namespace evgb {
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++)
         probes.push_back(*flvitr);
       numiFlux->SetFluxParticles(probes);
+
+      if ( TMath::Abs(fFluxUpstreamZ) < 1.0e30 ) numiFlux->SetUpstreamZ(fFluxUpstreamZ);
 
       // set the number of cycles to run
       // +++++++++this is stupid - to really set it i have to get a 
@@ -574,6 +673,8 @@ namespace evgb {
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++)
         probes.push_back(*flvitr);
       simpleFlux->SetFluxParticles(probes);
+
+      if ( TMath::Abs(fFluxUpstreamZ) < 1.0e30 ) simpleFlux->SetUpstreamZ(fFluxUpstreamZ);
 
       fFluxD = simpleFlux; // dynamic_cast<genie::GFluxI *>(simpleFlux);
 #endif    
@@ -799,6 +900,7 @@ namespace evgb {
     fMaxPathOutInfo += "\n";
     fMaxPathOutInfo += "   DetLocation:  " + fDetLocation + "\n";
     fMaxPathOutInfo += "   ROOTFile:     " + geo->ROOTFile() + "\n";
+    fMaxPathOutInfo += "   WorldVolume:  " + fWorldVolume + "\n";
     fMaxPathOutInfo += "   TopVolume:    " + fTopVolume + "\n";
     fMaxPathOutInfo += "   FiducialCut:  " + fFiducialCut + "\n";
     fMaxPathOutInfo += "   GeomScan:     " + fGeomScan + "\n";
@@ -860,8 +962,7 @@ namespace evgb {
   }
 
   //--------------------------------------------------
-  bool GENIEHelper::Sample(simb::MCTruth &truth,
-			   simb::MCFlux  &flux)
+  bool GENIEHelper::Sample(simb::MCTruth &truth, simb::MCFlux  &flux)
   {
     // set the top volume for the geometry
     art::ServiceHandle<geo::Geometry> geo;
@@ -972,12 +1073,12 @@ namespace evgb {
     }
 
     if ( fDebugFlags & 0x04 ) {
-      LOG_DEBUG("GENIEHelper") << "vertex loc " << vertex->X() << "," 
-			       << vertex->Y() << "," << vertex->Z() << std::endl 
-			       << "flux ray start " << nuray_pos.X() << ","
-			       << nuray_pos.Y() << "," << nuray_pos.Z() << std::endl
-			       << " ray2vtx = " << flux.fgen2vtx
-			       << " dk2ray = " << flux.fdk2gen;
+      mf::LogInfo("GENIEHelper") << "vertex loc " << vertex->X() << "," 
+                                 << vertex->Y() << "," << vertex->Z() << std::endl 
+                                 << " flux ray start " << nuray_pos.X() << ","
+                                 << nuray_pos.Y() << "," << nuray_pos.Z() << std::endl
+                                 << " ray2vtx = " << flux.fgen2vtx
+                                 << " dk2ray = " << flux.fdk2gen;
     }
 
     // set the top volume of the geometry back to the world volume
@@ -1330,8 +1431,14 @@ namespace evgb {
 
     // no null path allowed for at least these
     if ( fFluxType.compare("ntuple")      == 0 ||
-         fFluxType.compare("simple_flux") == 0    )
-      assert( pathmax != "" && nftot > 0 );  
+         fFluxType.compare("simple_flux") == 0    ) {
+      if ( pathmax == "" || nftot == 0 ) {
+        mf::LogError("GENIEHelper") 
+          << "For \"ntuple\" or \"simple_flux\" specification must resolve to at least one file" 
+          << "\n none were found for \"" << userpattern << "\" using FW_SERARCH_PATH of \"" << cet::getenv("FW_SEARCH_PATH");
+        assert( pathmax != "" && nftot > 0 );  
+      }
+    }
 
     // print something out about what we found
     size_t npath = path2n.size();
