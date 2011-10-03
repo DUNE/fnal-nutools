@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.17 2011-09-28 15:53:57 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.18 2011-10-03 20:10:49 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -50,7 +50,6 @@ namespace evgb{
     // do not use these in your code!!!!!
     std::vector<TH1D*>     FluxHistograms()   const { return fFluxHistograms; }   
     double                 TotalMass()        const { return fDetectorMass+fSurroundingMass; }
-    double                 TargetA()          const { return fTargetA;        }
 
   private:
 
@@ -80,7 +79,6 @@ namespace evgb{
     std::vector<TH1D *>      fFluxHistograms;    ///< histograms for each nu species
 
     double                   fFluxUpstreamZ;     ///< z where flux starts from (if non-default, simple/ntuple only)
-    double                   fTargetA;           ///< A of the target nucleus
     double                   fEventsPerSpill;    ///< number of events to generate in each spill if not using POT/spill. 
                                                  ///< If using Atmo, set to 1
     double                   fPOTPerSpill;       ///< number of pot per spill

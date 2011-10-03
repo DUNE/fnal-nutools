@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.30 2011-09-28 15:53:57 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.31 2011-10-03 20:10:49 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,6 @@ namespace evgb {
     , fWorldVolume       ("volWorld")						         
     , fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  )
     , fFluxUpstreamZ     (pset.get< double                   >("FluxUpstreamZ",   -2.e30))
-    , fTargetA           (pset.get< double                   >("TargetA",          12.)  )
     , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
     , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13))
     , fHistEventsPerSpill(0.)
