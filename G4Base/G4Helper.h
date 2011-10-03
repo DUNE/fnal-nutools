@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.3 2011-01-29 19:19:43 p-nusoftart Exp $
+/// \version $Id: G4Helper.h,v 1.4 2011-10-03 21:42:18 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ namespace g4b {
 
     /// Standard constructor and destructor for an FMWK module.
     G4Helper();
-    G4Helper(std::string g4macropath);
+    G4Helper(std::string g4macropath, std::string g4physicslist = "QGSP_BERT");
     virtual ~G4Helper();
 
     /// Initialization for the Geant4 Monte Carlo, called before the
@@ -65,6 +65,7 @@ namespace g4b {
 
 
     std::string          fG4MacroPath;    ///> Full directory path for Geant4 macro file to be executed before main MC processing.
+    std::string          fG4PhysListName; ///> Name of physics list to use
 
     G4RunManager*        fRunManager;     ///> Geant4's run manager.
     G4UImanager*         fUIManager;      ///> Geant4's user-interface manager.
