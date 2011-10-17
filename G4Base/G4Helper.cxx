@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.4 2011-10-03 21:42:18 rhatcher Exp $
+/// \version $Id: G4Helper.cxx,v 1.5 2011-10-17 17:16:07 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -22,8 +22,15 @@
 #include <G4UserTrackingAction.hh>
 #include <G4UserSteppingAction.hh>
 #include <G4VisExecutive.hh>
-#include <G4PhysListFactory.hh>
+
+
 #include <QGSP_BERT.hh>
+#define TRY_NEW_PL_FACTORY
+#ifdef TRY_NEW_PL_FACTORY
+#include "G4Base/G4PhysListFactory.hh"
+#else
+#include <G4PhysListFactory.hh>
+#endif
 
 #include <Rtypes.h>
 
@@ -70,31 +77,53 @@ G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) :
   /// have to write a new physics list class that derives from 
   /// G4VUserPhysicsList that does what we want.
 
-
   G4VUserPhysicsList* physics = 0;
   std::string bywhom = "User";
+  std::string factoryname = "G4PhysListFactory";
 
-  // G4PhysListFactory _isn't_ a modern factory;  it can only generate items
-  // that have pre-programmed blueprints already known to it and is not user
-  // extensible (i.e. you can't send it blueprints and have it make them for
-  // you).  If we have our own list then we need to select on and construct
-  // it ourselves before looking to the factory.
-
-  // Put if/then/else statement here for user defined physics lists
-  // Example:
-  /*
-  //         string name                                    actual class ctor
-  if      ( "MY_SPECIAL_PL" == fG4PhysListName ) {physics=new My_Special_PL();}
-  else if ( "MY_OTHER_PL"   == fG4PhysListName ) {physics=new My_Other_PL();}
-  */
-
-  // not a special user name?  look to the G4 factory
   if ( ! physics ) {
-    G4PhysListFactory factory;
-    if ( factory.IsReferencePhysList(fG4PhysListName) ) {
-      bywhom  = "G4PhysListFactory";
-      physics = factory.GetReferencePhysList(fG4PhysListName);
-    }
+#ifdef TRY_NEW_PL_FACTORY
+    // user extensible physics list factory
+    alt::G4PhysListFactory factory;
+    factoryname = "alt::G4PhysListFactory";
+#else
+    // Official Geant4 G4PhysListFactory _isn't_ a modern factory;  it can 
+    // only generate items that have pre-programmed blueprints already 
+    // known to it (via if/else-if calls to various ctors) and is not user
+    // extensible (i.e. you can't send it blueprints and have it make them
+    // for you).  If we have our own list then we need to select on and 
+    // construct it ourselves before looking to the factory.
+
+    // Put if/then/else statement here for user defined physics lists
+    // when using old stodgy offical G4 factory.
+    // Example:
+    /*
+    //         string name                                actual class ctor
+    if      ( "MY_COOL_PL"  == fG4PhysListName ) {physics = new My_Cool_PL();}
+    else if ( "MY_OTHER_PL" == fG4PhysListName ) {physics = new My_Other_PL();}
+    */
+
+    G4PhysListFactory factory;   // official G4 factory
+#endif
+
+    if ( ! physics ) {
+      if ( factory.IsReferencePhysList(fG4PhysListName) ) {
+        bywhom  = factoryname;
+        physics = factory.GetReferencePhysList(fG4PhysListName);
+      } else {
+        // in the case of non-default name
+        if ( fG4PhysListName != "" ) {
+          std::vector<G4String> list = factory.AvailablePhysLists();
+          std::cout << "For reference: PhysicsLists in G4PhysListFactory are: " 
+                    << std::endl;
+          for (size_t indx=0; indx < list.size(); ++indx ) {
+            std::cout << " [" << std::setw(2) << indx << "] " 
+                      << "\"" << list[indx] << "\"" << std::endl;
+          }
+        }
+      } // query factory
+    }  // no predetermined user list
+
   }
 
   if ( ! physics ) {
@@ -102,11 +131,13 @@ G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) :
               << fG4PhysListName << "\", fall back to using QGSP_BERT"
               << std::endl;
     physics = new QGSP_BERT;
+
   } else {
     std::cout << bywhom << " constructed G4VUserPhysicsList \""
               << fG4PhysListName << "\""
               << std::endl;
   }
+
 
   fRunManager->SetUserInitialization(physics);
 

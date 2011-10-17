@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2011-03-04 19:43:18 brebel Exp $
+# $Id: GNUmakefile,v 1.4 2011-10-17 17:16:07 rhatcher Exp $
 #
 # messier@indiana.edu
 #
@@ -12,6 +12,8 @@ PACKAGE     := G4Base
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
+# alternative G4 code uses .cc/.hh extensions
+LIBCCFILES  := $(wildcard *.cc)
 
 CPPFLAGS     += -I$(G4INSTALL)/include
 
