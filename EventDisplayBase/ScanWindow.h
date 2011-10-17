@@ -3,7 +3,7 @@
 /// \file    ScanWindow.h
 /// \brief   A window containing dialog boxes for handscans
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.h,v 1.3 2011-07-12 17:09:48 brebel Exp $
+/// \version $Id: ScanWindow.h,v 1.4 2011-10-17 16:18:32 brebel Exp $
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -52,9 +52,10 @@ namespace evdb{
     void SetCanvas(TGCanvas *canvas) { fCanvas = canvas; }
     void HandleMouseWheel(Event_t *event);
     void RadioButton();
+    void ClearFields();
     void Record(std::string outfilename, 
 		const char* comments);
-
+    
     int  GetHeight() const;
     int  GetWidth() const;
 

@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.12 2011-09-20 00:49:48 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.13 2011-10-17 16:18:32 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -172,6 +172,46 @@ namespace evdb{
       Int_t newpos = fCanvas->GetVsbPosition() + page;
       fCanvas->SetVsbPosition(newpos);
     }
+  }
+
+  //......................................................................
+  void ScanFrame::ClearFields()
+  {
+    art::ServiceHandle<evdb::ScanOptions> scanopt;
+
+    unsigned int txtctr = 0;
+    unsigned int numctr = 0;
+    unsigned int radctr = 0;
+    unsigned int chkctr = 0;
+    for(unsigned int t = 0; t < scanopt->fFieldTypes.size(); ++t){
+  
+      if(scanopt->fFieldTypes[t] == "Text"){
+	if(txtctr < fTextBoxes.size()   ){
+	  fTextBoxes[txtctr]->Clear();
+	}
+	++txtctr;
+      }
+      else if(scanopt->fFieldTypes[t] == "Number"){
+	if(numctr < fNumberBoxes.size() ){
+	  fNumberBoxes[numctr]->SetNumber(0);
+	}
+	++numctr;
+      }
+      else if(scanopt->fFieldTypes[t] == "RadioButton"){
+	if(radctr < fRadioButtons.size()     ){
+	  fRadioButtons[radctr]->SetState(kButtonUp);
+	}
+	++radctr;
+      }
+      else if(scanopt->fFieldTypes[t] == "CheckButton"){
+	if(chkctr < fCheckButtons.size()     ){
+	  fCheckButtons[chkctr]->SetState(kButtonUp);
+	}
+	++chkctr;
+      }
+		
+    }// end loop over input field types
+
   }
 
   //......................................................................
@@ -398,12 +438,14 @@ namespace evdb{
   //......................................................................
   void ScanWindow::Prev() 
   {
+    fScan->ClearFields();
     evdb::NavState::Set(kPREV_EVENT);
   }
   
   //......................................................................  
   void ScanWindow::Next() 
   {
+    fScan->ClearFields();
     evdb::NavState::Set(kNEXT_EVENT);
   }
 
