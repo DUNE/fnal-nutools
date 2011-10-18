@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.31 2011-10-03 20:10:49 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.32 2011-10-18 21:45:59 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -105,8 +105,10 @@ namespace evgb {
     , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
     , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13))
     , fHistEventsPerSpill(0.)
-    , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
+    , fSpillEvents       (0)
+    , fSpillExposure     (0.)
     , fTotalExposure     (0.)							         
+    , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
     , fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  )
     , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
     , fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) )
@@ -352,8 +354,9 @@ namespace evgb {
     }
 
     // set the pot/event counters to zero
-    fSpillTotal = 0.;
-    fTotalExposure   = 0.;
+    fSpillEvents   = 0;
+    fSpillExposure = 0.;
+    fTotalExposure = 0.;
 
     return;
   }
@@ -913,29 +916,30 @@ namespace evgb {
   bool GENIEHelper::Stop()
   {
     //   std::cout << "in GENIEHelper::Stop(), fEventsPerSpill = " << fEventsPerSpill
-    // 	    << " fPOTPerSpill = " << fPOTPerSpill << " fSpillTotal = " << fSpillTotal 
+    // 	    << " fPOTPerSpill = " << fPOTPerSpill << " fSpillExposure = " << fSpillExposure 
+    //      << " fSpillEvents = " << fSpillEvents
     // 	    << " fHistEventsPerSpill = " << fHistEventsPerSpill << std::endl;
 
     // determine if we should keep throwing neutrinos for 
     // this spill or move on
 
     if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
-      if((fEventsPerSpill > 0) && (fSpillTotal < fEventsPerSpill)){
+      if((fEventsPerSpill > 0) && (fSpillEvents < fEventsPerSpill)){
 	return false;
       }
     }
 
     else if(fEventsPerSpill > 0){
-      if(fSpillTotal < fEventsPerSpill) 
+      if(fSpillEvents < fEventsPerSpill) 
 	return false;
     }
     else{
       if( ( fFluxType.compare("ntuple")      == 0 || 
             fFluxType.compare("simple_flux") == 0    ) && 
-          fSpillTotal < fPOTPerSpill) return false;
+          fSpillExposure < fPOTPerSpill) return false;
       else if(fFluxType.compare("histogram") == 0){
-	if(fSpillTotal < fHistEventsPerSpill) return false;
-	else fSpillTotal = fPOTPerSpill;
+	if(fSpillEvents < fHistEventsPerSpill) return false;
+	else fSpillExposure = fPOTPerSpill;
       }
     }
 
@@ -952,10 +956,11 @@ namespace evgb {
     }
 
     else{
-      fTotalExposure += fSpillTotal;
+      fTotalExposure += fSpillExposure;
     }
 
-    fSpillTotal = 0.;
+    fSpillEvents   = 0;
+    fSpillExposure = 0.;
     fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     return true;
   }
@@ -978,8 +983,7 @@ namespace evgb {
 
     // pack the flux information
     if(fFluxType.compare("ntuple") == 0){
-      if(fEventsPerSpill == 0.) 
-	fSpillTotal += (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
+      fSpillExposure += (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
       flux.fFluxType = simb::kNtuple;
       PackNuMIFlux(flux);
     }
@@ -990,8 +994,7 @@ namespace evgb {
       assert(0);
 #else
       // pack the flux information
-      if(fEventsPerSpill == 0.)
-	fSpillTotal += (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
+      fSpillExposure += (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
 #endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
@@ -1010,9 +1013,9 @@ namespace evgb {
     // check to see if we are using flux ntuples but want to 
     // make n events per spill
     if(fEventsPerSpill > 0 &&
-       (fFluxType.compare("ntuple") == 0
-	|| fFluxType.compare("simple_flux") == 0)
-       ) fSpillTotal += 1.;
+       (fFluxType.compare("ntuple") == 0 ||
+	fFluxType.compare("simple_flux") == 0)
+       ) ++fSpillEvents;
 
     // now check if using either histogram or mono fluxes, using
     // either n events per spill or basing events on POT per spill for the
@@ -1042,14 +1045,14 @@ namespace evgb {
 		      fluxes[kNuMu],  fluxes[kNuMuBar],
 		      fluxes[kNuTau], fluxes[kNuTauBar]);
     
-      fSpillTotal += 1.;
+      ++fSpillEvents;
     }
     else if(fFluxType.compare("mono") == 0){
-      fSpillTotal += 1.;    
+      ++fSpillEvents;
     }
 
     else if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
-      if(fEventsPerSpill > 0) fSpillTotal += 1.;
+      if(fEventsPerSpill > 0) ++fSpillEvents;
       flux.fFluxType = simb::kHistPlusFocus;
     }
 

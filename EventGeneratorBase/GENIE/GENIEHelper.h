@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.18 2011-10-03 20:10:49 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.19 2011-10-18 21:45:59 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -83,9 +83,10 @@ namespace evgb{
                                                  ///< If using Atmo, set to 1
     double                   fPOTPerSpill;       ///< number of pot per spill
     double                   fHistEventsPerSpill;///< number of events per spill for histogram fluxes - changes each spill
-    double                   fSpillTotal;        ///< total of either pot or events for this spill
-    double                   fMonoEnergy;        ///< energy of monoenergetic neutrinos
+    int                      fSpillEvents;       ///< total events for this spill
+    double                   fSpillExposure;     ///< total exposure (i.e. pot) for this spill
     double                   fTotalExposure;     ///< pot used from flux ntuple
+    double                   fMonoEnergy;        ///< energy of monoenergetic neutrinos
     double                   fXSecMassPOT;       ///< product of cross section, mass and POT/spill for histogram fluxes
     double                   fTotalHistFlux;     ///< total flux of neutrinos from flux histograms for used flavors
     TVector3                 fBeamDirection;     ///< direction of the beam for histogram fluxes
