@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.9 2011-09-23 00:22:28 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.10 2011-10-18 21:44:29 rhatcher Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -115,7 +115,8 @@ namespace evgen {
     }
     else if(fluxType.compare("atmo_FLUKA") == 0){
       fluxFiles.clear();
-      fluxFiles.push_back("Fluxes/battistoni/sdave_numu07.dat");
+      // at FNAL this is installed relative to in /nusoft/data/flux
+      fluxFiles.push_back("atmospheric/battistoni/sdave_numu07.dat");
     }
 
     else if(fluxType.compare("ntuple") == 0){
