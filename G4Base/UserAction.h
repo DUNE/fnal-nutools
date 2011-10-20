@@ -2,7 +2,7 @@
 /// \file  UserAction.h
 /// \brief see below
 ///
-/// \version $Id: UserAction.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: UserAction.h,v 1.2 2011-10-20 17:10:56 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// G4Base::UserAction.h
@@ -61,13 +61,13 @@ namespace g4b {
     /// little tricky to implement in Geant4.  Let's see if we have a
     /// need for it first.
 
-    virtual void BeginOfRunAction(const G4Run*)     {};
-    virtual void EndOfRunAction(const G4Run*)       {};
+    virtual void BeginOfRunAction  (const G4Run*  ) {};
+    virtual void EndOfRunAction    (const G4Run*  ) {};
     virtual void BeginOfEventAction(const G4Event*) {};
-    virtual void EndOfEventAction(const G4Event*)   {};
-    virtual void PreTrackingAction(const G4Track*)  {};
+    virtual void EndOfEventAction  (const G4Event*) {};
+    virtual void PreTrackingAction (const G4Track*) {};
     virtual void PostTrackingAction(const G4Track*) {};
-    virtual void SteppingAction(const G4Step*)      {};
+    virtual void SteppingAction    (const G4Step* ) {};
   };
 
 } // namespace g4b

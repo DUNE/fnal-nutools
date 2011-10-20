@@ -64,17 +64,17 @@ namespace g4b {
     // Delete all the UserAction classes we manage.
     void Close();
 
-    G4int GetSize()                             const { return m_userActions.size(); }
-    UserAction* GetAction(G4int i)              const { return m_userActions[i];     }
-    static void AddAndAdoptAction(UserAction* a)      { m_userActions.push_back(a);  }
+    G4int GetSize()                             const { return fuserActions.size(); }
+    UserAction* GetAction(G4int i)              const { return fuserActions[i];     }
+    static void AddAndAdoptAction(UserAction* a)      { fuserActions.push_back(a);  }
 
-    virtual void BeginOfRunAction(const G4Run*);
-    virtual void EndOfRunAction(const G4Run*);
-    virtual void BeginOfEventAction(const G4Event*);
-    virtual void EndOfEventAction(const G4Event*);
-    virtual void PreUserTrackingAction(const G4Track*);
+    virtual void BeginOfRunAction      (const G4Run*  );
+    virtual void EndOfRunAction        (const G4Run*  );
+    virtual void BeginOfEventAction    (const G4Event*);
+    virtual void EndOfEventAction      (const G4Event*);
+    virtual void PreUserTrackingAction (const G4Track*);
     virtual void PostUserTrackingAction(const G4Track*);
-    virtual void UserSteppingAction(const G4Step*);
+    virtual void UserSteppingAction    (const G4Step* );
 
     // "Mysterious accessors": Where do the pointers to these managers
     // come from?  They are all defined in the G4User*Action classes.
@@ -82,14 +82,14 @@ namespace g4b {
     // SteppingManager is probably not available in a TrackingAction
     // method.  Keep the heirarchy in mind: Run > Event > Track >
     // Step.
-    G4EventManager* GetEventManager()       const { return fpEventManager; }
+    G4EventManager* GetEventManager()       const { return fpEventManager;    }
     G4TrackingManager* GetTrackingManager() const { return fpTrackingManager; }
     G4SteppingManager* GetSteppingManager() const { return fpSteppingManager; }
 
   private:
-    typedef std::vector<UserAction*>        m_userActions_t;
-    typedef m_userActions_t::const_iterator m_userActions_ptr_t;
-    static  m_userActions_t                 m_userActions; 
+    typedef std::vector<UserAction*>       fuserActions_t;
+    typedef fuserActions_t::const_iterator fuserActions_ptr_t;
+    static  fuserActions_t                 fuserActions; 
 
   protected:
     // The constructor is protected according to the standard

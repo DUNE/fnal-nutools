@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.3 2011-10-20 17:10:56 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -54,12 +54,13 @@ namespace g4b {
     PrimaryParticleInformation();    
     virtual ~PrimaryParticleInformation();
 
-/*     inline void* operator new(size_t); */
-/*     inline void operator delete(void*); */
+    inline void* operator new(size_t);
+    inline void operator delete(void*);
     
     // Accessors:
-    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return m_MCTruth; }
-    void SetMCTruth( art::Ptr<simb::MCTruth> m ) { m_MCTruth = m; }
+    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return fMCTruth; }
+    void SetMCTruth(art::Ptr<simb::MCTruth> m,
+		    unsigned int            index)    { fMCTruth = m; fMCTruthIndex = index; }
 
     // Required by Geant4:
     void Print() const;
@@ -71,26 +72,27 @@ namespace g4b {
     // particle (although in that case it's more likely that a
     // G4Base::PrimaryParticleInformation object would not have been
     // created in the first place.)
-    art::Ptr<simb::MCTruth> m_MCTruth;
+    art::Ptr<simb::MCTruth> fMCTruth;
+    unsigned int            fMCTruthIndex; ///< which MCTruth object in the event is this one?
   };
 
-/*   // It's not likely, but there could be memory issues with these */
-/*   // PrimaryParticleInformation objects.  To make things work more smoothly */
-/*   // and quickly, use Geant4's memory allocation mechanism. */
+  // It's not likely, but there could be memory issues with these
+  // PrimaryParticleInformation objects.  To make things work more smoothly
+  // and quickly, use Geant4's memory allocation mechanism.
   
-/*   extern G4Allocator<PrimaryParticleInformation> PrimaryParticleInformationAllocator; */
+  extern G4Allocator<PrimaryParticleInformation> PrimaryParticleInformationAllocator;
   
-/*   inline void* PrimaryParticleInformation::operator new(size_t) */
-/*   { */
-/*     void *aPrimaryParticleInformation; */
-/*     aPrimaryParticleInformation = (void *) PrimaryParticleInformationAllocator.MallocSingle(); */
-/*     return aPrimaryParticleInformation; */
-/*   } */
+  inline void* PrimaryParticleInformation::operator new(size_t)
+  {
+    void *aPrimaryParticleInformation;
+    aPrimaryParticleInformation = (void *) PrimaryParticleInformationAllocator.MallocSingle();
+    return aPrimaryParticleInformation;
+  }
   
-/*   inline void PrimaryParticleInformation::operator delete(void *aPrimaryParticleInformation) */
-/*   { */
-/*     PrimaryParticleInformationAllocator.FreeSingle((PrimaryParticleInformation*) aPrimaryParticleInformation); */
-/*   } */
+  inline void PrimaryParticleInformation::operator delete(void *aPrimaryParticleInformation)
+  {
+    PrimaryParticleInformationAllocator.FreeSingle((PrimaryParticleInformation*) aPrimaryParticleInformation);
+  }
 
 }
 
