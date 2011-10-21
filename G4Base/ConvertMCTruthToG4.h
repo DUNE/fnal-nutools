@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.h
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.h,v 1.2 2011-01-19 16:45:41 p-nusoftart Exp $
+/// \version $Id: ConvertMCTruthToG4.h,v 1.3 2011-10-21 03:37:07 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 ///
@@ -54,9 +54,9 @@ namespace g4b {
     virtual void GeneratePrimaries( G4Event* );
 
   private:
-    static G4ParticleTable*           fParticleTable; ///> Geant4's table of particle definitions.
-    art::PtrVector<simb::MCTruth>     fConvertList;   ///> List of MCTruth objects to convert for this spill
-    std::map<G4int, G4int>            fUnknownPDG;    ///> map of unknown PDG codes to instances
+    static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
+    art::PtrVector<simb::MCTruth>     fConvertList;   ///< List of MCTruth objects to convert for this spill
+    std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
   };
 
 } // namespace g4b

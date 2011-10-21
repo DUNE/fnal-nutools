@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.6 2011-10-21 02:10:19 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.7 2011-10-21 03:37:07 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +28,7 @@
 #include "art/Persistency/Common/PtrVector.h"
 
 #include <G4RunManager.hh>
+#include <G4VUserParallelWorld.hh>
 
 // Forward declarations
 class G4UImanager;
@@ -51,6 +52,10 @@ namespace g4b {
     G4Helper(std::string g4macropath, std::string g4physicslist = "QGSP_BERT");
     virtual ~G4Helper();
 
+    // have to call this before InitMC if you want to load in 
+    // parallel worlds.  G4Helper takes over ownership
+    void SetParallelWorlds(std::vector<G4VUserParallelWorld*> pworlds);
+
     // Initialization for the Geant4 Monte Carlo, called before the
     // first event is simulated.
     void InitMC();
@@ -70,13 +75,15 @@ namespace g4b {
     // routines from this one.
 
 
-    std::string          fG4MacroPath;    ///> Full directory path for Geant4 macro file to be executed before main MC processing.
-    std::string          fG4PhysListName; ///> Name of physics list to use
+    std::string          fG4MacroPath;    ///< Full directory path for Geant4 macro file to be executed before main MC processing.
+    std::string          fG4PhysListName; ///< Name of physics list to use
 
-    G4RunManager*        fRunManager;     ///> Geant4's run manager.
-    G4UImanager*         fUIManager;      ///> Geant4's user-interface manager.
+    G4RunManager*        fRunManager;     ///< Geant4's run manager.
+    G4UImanager*         fUIManager;      ///< Geant4's user-interface manager.
 
-    ConvertMCTruthToG4*  fConvertMCTruth; ///> Converts MCTruth objects; Geant4 event generator.
+    ConvertMCTruthToG4*  fConvertMCTruth; ///< Converts MCTruth objects; Geant4 event generator.
+
+    std::vector<G4VUserParallelWorld*> fParallelWorlds; ///< list of parallel worlds
   };
 
 } // namespace g4b
