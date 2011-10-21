@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.6 2011-10-21 02:10:19 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.7 2011-10-21 02:41:37 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +55,9 @@ namespace g4b{
     /// Geant4 run manager.  Nothing happens in Geant4 until this object
     /// is created.
     fRunManager = new G4RunManager;
+
+    // define the physics list to use
+    this->SetPhysicsList(fG4PhysListName);
 
   }
 
@@ -119,6 +122,7 @@ namespace g4b{
     /// have to write a new physics list class that derives from 
     /// G4VUserPhysicsList that does what we want.
 
+    G4VUserPhysicsList* physics = 0;
     std::string bywhom = "User";
     std::string factoryname = "G4PhysListFactory";
 
@@ -186,9 +190,6 @@ namespace g4b{
   /// Initialization for the Geant4 Monte Carlo.
   void G4Helper::InitMC() 
   {
-    // define the physics list to use
-    this->SetPhysicsList(fG4PhysListName);
-
     // Build the Geant4 detector description.
     DetectorConstruction* detector = new DetectorConstruction();
 
