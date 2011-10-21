@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.3 2011-10-20 17:10:56 brebel Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.4 2011-10-21 02:10:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -58,7 +58,8 @@ namespace g4b {
     inline void operator delete(void*);
     
     // Accessors:
-    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return fMCTruth; }
+    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return fMCTruth;      }
+    const unsigned int GetMCTruthIndex()        const { return fMCTruthIndex; }
     void SetMCTruth(art::Ptr<simb::MCTruth> m,
 		    unsigned int            index)    { fMCTruth = m; fMCTruthIndex = index; }
 
