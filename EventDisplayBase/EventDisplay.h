@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.10 2011-08-31 20:19:58 brebel Exp $
+/// \version $Id: EventDisplay.h,v 1.11 2011-10-31 14:41:40 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_EVENTDISPLAY_H
@@ -16,6 +16,7 @@
 namespace art{ 
   class RootInput;
   class Worker; 
+  class EventID;
 }
 
 namespace evdb {
@@ -36,7 +37,7 @@ namespace evdb {
     void postBeginJob();
     void postBeginJobWorkers(art::InputSource* inputs,
 			     std::vector<art::Worker*> const& workers);
-    void preProcessEvent(art::EventID const&, art::Timestamp const&);
+    void preProcessEvent(art::Event const&);
     void postProcessEvent(art::Event const&);
 
     void ReconfigureWorkers();

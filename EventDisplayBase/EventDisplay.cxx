@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.19 2011-09-15 19:08:49 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.20 2011-10-31 14:41:40 greenc Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -26,8 +26,9 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "art/Framework/IO/Root/RootInput.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Persistency/Provenance/EventID.h"
 #include "art/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -210,10 +211,9 @@ void EventDisplay::EditServiceParameterSet(int i)
 
 //......................................................................
 
-void EventDisplay::preProcessEvent(art::EventID const& evtid,
-				   art::Timestamp const&) 
+void EventDisplay::preProcessEvent(art::Event const & evt) 
 {
-  evdb::DisplayWindow::SetRunEventAll(evtid.run(), evtid.event());
+  evdb::DisplayWindow::SetRunEventAll(evt.id().run(), evt.id().event());
 }
 
 //......................................................................

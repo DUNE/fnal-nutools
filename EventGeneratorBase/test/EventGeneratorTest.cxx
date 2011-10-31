@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.10 2011-10-18 21:44:29 rhatcher Exp $
+// $Id: EventGeneratorTest.cxx,v 1.11 2011-10-31 14:41:40 greenc Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -15,12 +15,12 @@
 #include <unistd.h>
 
 // Framework includes
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Core/TFileDirectory.h"
+#include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "SimulationBase/simbase.h"

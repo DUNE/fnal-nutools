@@ -2,13 +2,13 @@
 /// \file    EventHolder.h
 /// \brief   Singleton to hold the current art::Event for the event display
 /// \author  brebel@fnal.gov
-/// \version $Id: EventHolder.h,v 1.2 2011-01-19 16:44:59 p-nusoftart Exp $
+/// \version $Id: EventHolder.h,v 1.3 2011-10-31 14:41:40 greenc Exp $
 ///
 #ifndef EVDB_EVENTHOLDER_H
 #define EVDB_EVENTHOLDER_H
 #ifndef __CINT__
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 
 namespace evdb {
   

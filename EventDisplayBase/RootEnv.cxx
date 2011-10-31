@@ -2,7 +2,7 @@
 /// \file  RootEnv.cxx
 /// \brief Configure the ROOT environment
 ///
-/// \version $Id: RootEnv.cxx,v 1.6 2011-05-12 15:22:06 brebel Exp $
+/// \version $Id: RootEnv.cxx,v 1.7 2011-10-31 14:41:40 greenc Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/RootEnv.h"
@@ -23,18 +23,14 @@
 #include "TInterpreter.h"
 using namespace evdb;
 
-// The top level ROOT object
-static TROOT root("TROOT","TROOT"); 
-
 RootEnv::RootEnv(int /*argc*/, char** argv) 
 {
 //======================================================================
 // Setup the root environment for a program started with command line
 // options argc and argv
 //======================================================================
-  assert(gROOT);
-
-  TApplication* app = gROOT->GetApplication();
+  TApplication* app = ROOT::GetROOT()->GetApplication();
+  assert(gROOT); // ROOT::GetROOT() should initialize gROOT.
   if (app == 0) {
     int    largc = 0;
     char** largv = 0;
@@ -74,7 +70,7 @@ int RootEnv::Run()
 //======================================================================
 // Turn control of the application over to ROOT's event loop
 //======================================================================
-  TApplication* app = gROOT->GetApplication();
+  TApplication* app = ROOT::GetROOT()->GetApplication();
   if (app) {
     app->Run(kFALSE); // kTRUE == "Return from run" request...
     return 1;

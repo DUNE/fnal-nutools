@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2011-05-26 13:30:34 brebel Exp $
+# $Id: GNUmakefile,v 1.10 2011-10-31 14:41:40 greenc Exp $
 #
 # messier@indiana.edu
 #
@@ -11,12 +11,12 @@ LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
 JOBFILES    := $(wildcard *.fcl)
 
-ROOTLIBS  = $(shell root-config --libs) -lEG -lTreePlayer -lGeom -lFFTW -lReflex -lEGPythia6 -lGui
+ROOTLIBS  = $(shell root-config --evelibs)
 
 override CPPFLAGS += $(shell root-config --cflags) 
-override LDFLAGS += $(shell root-config --libs) 
+override LDFLAGS += $(shell root-config --evelibs) 
 
-override LOADLIBES += -L$(ART_LIB) -lart_Framework_IO_Root_RootInput_source $(ROOTLIBS) $(ROOTGLIBS)
+override LOADLIBES += -L$(ART_LIB) -lart_Framework_IO_Root_RootInput_source $(ROOTLIBS)
 
 LIBLINK     := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)
 

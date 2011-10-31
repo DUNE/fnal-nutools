@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.13 2011-10-17 16:18:32 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.14 2011-10-31 14:41:40 greenc Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -21,8 +21,9 @@
 #include "EventDisplayBase/EventHolder.h"
 #include "SimulationBase/simbase.h"
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 static int kInputID = 0;
 static int kCategoryWidth = 150;

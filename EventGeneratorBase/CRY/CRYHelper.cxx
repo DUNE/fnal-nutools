@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.16 2011-09-23 00:22:28 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.17 2011-10-31 14:41:40 greenc Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -22,6 +22,7 @@
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // NuTools include files
 #include "EventGeneratorBase/evgenbase.h"
