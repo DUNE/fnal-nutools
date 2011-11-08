@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.cc,v 1.1 2011-10-17 17:16:07 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.cc,v 1.2 2011-11-08 19:11:14 rhatcher Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -164,10 +164,12 @@ G4PhysListFactorySingleton::AvailablePhysLists() const
 }
 
 G4bool G4PhysListFactorySingleton::RegisterCreator(G4String name, 
-                                                   PhysListCtorFuncPtr_t foo )
+                                                   PhysListCtorFuncPtr_t foo,
+                                                   G4bool* boolptr)
 {
   // record new functions for creating lists
   fFunctionMap[name] = foo;
+  fBoolPtrMap[name]  = boolptr;
   return true;
 }
 

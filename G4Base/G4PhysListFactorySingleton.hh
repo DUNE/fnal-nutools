@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.hh,v 1.1 2011-10-17 17:16:07 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.hh,v 1.2 2011-11-08 19:11:14 rhatcher Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -76,7 +76,7 @@ public:
   const std::vector<G4String>& AvailablePhysLists() const;
   // return a list of available PhysLists
 
-  G4bool RegisterCreator(G4String name, PhysListCtorFuncPtr_t );
+  G4bool RegisterCreator(G4String name, PhysListCtorFuncPtr_t ctorptr, G4bool* ptr);
   // register a new PhysList type by passing pointer to creator function
 
   void SetDefaultName(const G4String& defname) { defName = defname; }
@@ -88,6 +88,8 @@ private:
 
   std::map<G4String, PhysListCtorFuncPtr_t> fFunctionMap;
   // mapping between known class names and a registered ctor function
+
+  std::map<G4String, G4bool*> fBoolPtrMap;
 
   G4String defName;
   // name of default in case of unset PHYSLIST
@@ -147,15 +149,19 @@ private:
 //     static G4bool myPhysList_creator_registered = 
 //       G4PhysListFactorySingleton::Instance().RegisterCreator("myspace::myAltPhysList",
 //                                                 & myspace::myAltPhysList_ctor_function ); }
+
 #define PHYSLISTREG( _name ) \
   G4VModularPhysicsList* _name ## _ctor_function () { return new _name; } \
   static G4bool _name ## _creator_registered =                            \
     G4PhysListFactorySingleton::Instance().RegisterCreator(# _name,       \
-                                             & _name ## _ctor_function );
+                                        & _name ## _ctor_function,        \
+                                        & _name ## _creator_registered ); 
+
 #define PHYSLISTREG3( _ns, _name, _fqname ) \
 namespace _ns { \
   G4VModularPhysicsList* _name ## _ctor_function () { return new _fqname; }   \
   static G4bool _name ## _creator_registered =                                \
     G4PhysListFactorySingleton::Instance().RegisterCreator(# _fqname,         \
-                                             & _fqname ## _ctor_function ); } 
+                                        & _fqname ## _ctor_function,          \
+                                        & _fqname ## _creator_registered );}
 #endif
