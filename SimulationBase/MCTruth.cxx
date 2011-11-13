@@ -2,7 +2,7 @@
 /// \file  MCTruth.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCTruth.cxx,v 1.3 2011-04-17 15:07:12 brebel Exp $
+/// \version $Id: MCTruth.cxx,v 1.4 2011-11-13 16:10:55 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -67,40 +67,22 @@ namespace simb{
   }
 
   //......................................................................
-  void MCTruth::Print() const
+  std::ostream& operator<< (std::ostream& o, simb::MCTruth const& a)
   {
-    if(fOrigin == kCosmicRay) 
-      std::cout << "This is a cosmic ray event" << std::endl;
-    else if(fOrigin == kBeamNeutrino){
-      std::cout << "This is a beam neutrino event" << std::endl;
-      std::cout << fMCNeutrino;
+    if(a.Origin() == kCosmicRay) 
+      o << "This is a cosmic ray event" << std::endl;
+    else if(a.Origin() == kBeamNeutrino){
+      o << "This is a beam neutrino event" << std::endl;
+      o << a.GetNeutrino();
     }
-    else if(fOrigin == kSuperNovaNeutrino){ 
-      std::cout << "This is a supernova neutrino event" << std::endl;
-      std::cout << fMCNeutrino;
+    else if(a.Origin() == kSuperNovaNeutrino){ 
+      o << "This is a supernova neutrino event" << std::endl;
+      o << a.GetNeutrino();
     }  
 
-    const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
-    for (unsigned int i=0; i<fPartList.size(); ++i) {
-      const TParticlePDG* p = databasePDG->GetParticle(fPartList[i].PdgCode());
-      std::string name = p ? p->GetName() : "(unknown)";
-      std::cout << i << ") " 
-		<< name << "\t"   
-		<< fPartList[i].PdgCode() << "\t"
-		<< fPartList[i].Process() << "\t"
-		<< "["
-		<< fPartList[i].Vx() << ","
-		<< fPartList[i].Vy() << ","
-		<< fPartList[i].Vz() << ","
-		<< fPartList[i].T() 
-		<<  "] ["
-		<< fPartList[i].Px() << ","
-		<< fPartList[i].Py() << ","
-		<< fPartList[i].Pz() 
-		<< "] \t"
-		<< fPartList[i].E()
-		<< std::endl;
-    }
+    for (int i = 0; i < a.NParticles(); ++i)
+      o << a.GetParticle(i) << std::endl;
+
   }
 }
 ////////////////////////////////////////////////////////////////////////

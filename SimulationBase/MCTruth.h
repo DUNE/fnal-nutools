@@ -2,7 +2,7 @@
 /// \file  MCTruth.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCTruth.h,v 1.3 2011-03-29 19:31:22 brebel Exp $
+/// \version $Id: MCTruth.h,v 1.4 2011-11-13 16:10:55 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCTRUTH_H
@@ -52,9 +52,9 @@ namespace simb {
 				 double x, 
 				 double y, 
 				 double qsqr);                      
-    bool             NeutrinoSet()                      const { return fNeutrinoSet; } 
-    void             Print()                            const;
-    void             operator<<(simb::MCTruth& mctruth) const { mctruth.Print();     }
+    bool             NeutrinoSet()                      const { return fNeutrinoSet; }
+ 
+    friend std::ostream&  operator<< (std::ostream& o, simb::MCTruth const& a);
 
   private:
 
