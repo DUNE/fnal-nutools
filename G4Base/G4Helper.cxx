@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.8 2011-10-21 03:37:07 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.9 2011-11-14 23:17:13 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -289,6 +289,24 @@ namespace g4b{
 
     return true;
   
+  }
+
+  //------------------------------------------------
+  bool G4Helper::G4Run(art::Ptr<simb::MCTruth>& primary) 
+  {
+    // Get the event converter ready.
+    fConvertMCTruth->Reset();
+
+    // Pass the MCTruth to our event generator.
+    fConvertMCTruth->Append( primary );
+    
+    // Start the simulation for this event.  Note: The following
+    // statement increments the G4RunManager's run number.  Because of
+    // this, it's important for events to use the run/event number
+    // from the EventDataModel Header, not G4's internal numbers.
+    fUIManager->ApplyCommand("/run/beamOn 1");
+
+    return true;
   }
 
 } // namespace

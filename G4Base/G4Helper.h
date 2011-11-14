@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.7 2011-10-21 03:37:07 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.8 2011-11-14 23:17:13 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +63,9 @@ namespace g4b {
     // This is the method that actually passes the MCTruth objects to 
     // G4 and gets back a list of particles
     bool G4Run(art::PtrVector<simb::MCTruth> &primaries);
+
+    // Pass a single MCTruth object to G4
+    bool G4Run(art::Ptr<simb::MCTruth>& primary);
 
     G4RunManager* GetRunManager() { return fRunManager; }
 
