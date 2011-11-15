@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.4 2011-10-21 02:10:19 brebel Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.5 2011-11-15 22:53:56 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -59,9 +59,7 @@ namespace g4b {
     
     // Accessors:
     const art::Ptr<simb::MCTruth>& GetMCTruth() const { return fMCTruth;      }
-    const unsigned int GetMCTruthIndex()        const { return fMCTruthIndex; }
-    void SetMCTruth(art::Ptr<simb::MCTruth> m,
-		    unsigned int            index)    { fMCTruth = m; fMCTruthIndex = index; }
+    void SetMCTruth(art::Ptr<simb::MCTruth> m)        { fMCTruth = m;         }
 
     // Required by Geant4:
     void Print() const;
@@ -74,7 +72,6 @@ namespace g4b {
     // G4Base::PrimaryParticleInformation object would not have been
     // created in the first place.)
     art::Ptr<simb::MCTruth> fMCTruth;
-    unsigned int            fMCTruthIndex; ///< which MCTruth object in the event is this one?
   };
 
   // It's not likely, but there could be memory issues with these

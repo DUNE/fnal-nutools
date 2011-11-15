@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.cxx
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.cxx,v 1.3 2011-10-20 17:10:56 brebel Exp $
+/// \version $Id: ConvertMCTruthToG4.cxx,v 1.4 2011-11-15 22:53:56 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +192,7 @@ namespace g4b{
 	// ParticleActionList class to access MCTruth
 	// information during Geant4's tracking.
 	PrimaryParticleInformation* primaryParticleInfo = new PrimaryParticleInformation;
-	primaryParticleInfo->SetMCTruth( mct, index );
+	primaryParticleInfo->SetMCTruth( mct );
 	  
 	// Save the PrimaryParticleInformation in the
 	// G4PrimaryParticle for access during tracking.
