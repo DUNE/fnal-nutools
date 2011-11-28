@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2011-09-15 19:48:31 rhatcher Exp $
+# $Id: GNUmakefile,v 1.8 2011-11-28 20:33:38 rhatcher Exp $
 #
 # messier@indiana.edu
 #
@@ -50,3 +50,6 @@ include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
 override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
+
+override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
+
