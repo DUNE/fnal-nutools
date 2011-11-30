@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.17 2011-10-31 14:41:40 greenc Exp $
+/// \version $Id: CRYHelper.cxx,v 1.18 2011-11-30 19:31:22 bckhouse Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -79,13 +79,11 @@ namespace evgb{
     fSetup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
 
     fGen = new CRYGenerator(fSetup);
-    fEvt = new std::vector<CRYParticle*>;
   }  
 
   //......................................................................
   CRYHelper::~CRYHelper() 
   {
-    delete fEvt;
     delete fGen;
     delete fSetup;
   }
@@ -96,11 +94,12 @@ namespace evgb{
     // Generator time at start of sample
     double tstart = fGen->timeSimulated();
     while (1) {
-      fEvt->clear();
-      fGen->genEvent(fEvt);
+      std::vector<CRYParticle*> parts;
+      fGen->genEvent(&parts);
     
-      for (unsigned int i=0; i<fEvt->size(); ++i) {
-	CRYParticle* cryp = (*fEvt)[i];
+      for (unsigned int i=0; i<parts.size(); ++i) {
+	// Take ownership of the particle from the vector
+	std::auto_ptr<CRYParticle> cryp(parts[i]);
       
 	// Pull out the PDG code
 	int pdg = cryp->PDGid();

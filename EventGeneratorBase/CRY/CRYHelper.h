@@ -5,7 +5,7 @@
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
 /// 
-/// \version $Id: CRYHelper.h,v 1.6 2011-09-23 00:22:28 brebel Exp $
+/// \version $Id: CRYHelper.h,v 1.7 2011-11-30 19:32:38 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -42,7 +42,6 @@ namespace evgb {
 
     CRYSetup*                  fSetup;      ///< CRY configuration
     CRYGenerator*              fGen;        ///< The CRY generator
-    std::vector<CRYParticle*>* fEvt;        ///< List of particles
     double                     fSampleTime; ///< Amount of time to sample (seconds)
     double                     fToffset;    ///< Shift in time of particles (s)
     double                     fEthresh;    ///< Cut on kinetic energy (GeV)
