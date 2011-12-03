@@ -41,6 +41,20 @@ namespace simb {
     return (*i).second;
   }
 
+  double MCTrajectory::TotalLength() const
+  {
+    const int N = size();
+    if(N < 2) return 0;
+
+    // We take the sum of the straight lines between the trajectory points
+    double dist = 0;
+    for(int n = 0; n < N-1; ++n){
+      dist += (Position(n+1)-Position(n)).Vect().Mag();
+    }
+
+    return dist;
+  }
+
   std::ostream& operator<< ( std::ostream& output, const MCTrajectory& list )
   {
     // Determine a field width for the voxel number.

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCTrajectory.h
-/// \version $Id: MCTrajectory.h,v 1.2 2011-05-23 03:08:08 brebel Exp $
+/// \version $Id: MCTrajectory.h,v 1.3 2011-12-03 03:22:43 bckhouse Exp $
 /// \brief Trajectory class
 ///
 /// \author  seligman@nevis.columbia.edu
@@ -89,6 +89,8 @@ namespace simb {
     double Py( const size_type i ) const { return Momentum(i).Py(); }
     double Pz( const size_type i ) const { return Momentum(i).Pz(); }
     double  E( const size_type i ) const { return Momentum(i).E();  }
+
+    double TotalLength() const;
 
     friend std::ostream& operator<< ( std::ostream& output, const MCTrajectory& );
 
