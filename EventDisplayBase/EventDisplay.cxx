@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.20 2011-10-31 14:41:40 greenc Exp $
+/// \version $Id: EventDisplay.cxx,v 1.21 2011-12-11 23:53:53 bckhouse Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -77,7 +77,10 @@ public:
 
 EventDisplay::EventDisplay(fhicl::ParameterSet const& pset,
 			   art::ActivityRegistry& reg) :
-  fAutoAdvanceInterval(pset.get<unsigned int>("AutoAdvanceInterval"))
+  fAutoAdvanceInterval(pset.get<unsigned int>("AutoAdvanceInterval")),
+  fAutoPrintCount(0),
+  fAutoPrintMax(pset.get<int>("AutoPrintMax", 0)),
+  fAutoPrintPattern(pset.get<std::string>("AutoPrintPattern", ""))
 {
 //   evdb::DisplayWindow::Register("Test1","Test display #1",600,900,mk_canvas1);
 //   evdb::DisplayWindow::OpenWindow(0);
@@ -321,15 +324,31 @@ void EventDisplay::postProcessEvent(art::Event const& evt )
   holder->SetEvent(&evt);
 
   evdb::DisplayWindow::DrawAll();
-  
-  TApplication* app = gROOT->GetApplication();
 
-  // Hold here for user input from the GUI...
-  app->Run(kTRUE);
+  if(fAutoPrintMax == 0){
+    TApplication* app = gROOT->GetApplication();
+
+    // Hold here for user input from the GUI...
+    app->Run(kTRUE);
+  }
 
   this->ReconfigureWorkers();
   this->ReconfigureDrawingOptions();
   this->ReconfigureServices();
+
+  if(fAutoPrintMax > 0){
+    ++fAutoPrintCount;
+    std::map<std::string, Printable*>& ps = Printable::GetPrintables();
+    for(std::map<std::string,Printable*>::iterator it = ps.begin(); it != ps.end(); ++it){
+      Printable* p = it->second;
+      // Ensure the format string is well-formed
+      assert(fAutoPrintPattern.find("%s") != std::string::npos);
+      assert(fAutoPrintPattern.find("%d") != std::string::npos);
+      // png doesn't seem to work for some reason
+      p->Print(TString::Format(fAutoPrintPattern.c_str(), p->PrintTag(), evt.event()));
+    }
+    if(fAutoPrintCount >= fAutoPrintMax) exit(0);
+  }
 
   art::RootInput* rootInput = dynamic_cast<art::RootInput*>(fInputSource);
 

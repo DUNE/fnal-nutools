@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.11 2011-10-31 14:41:40 greenc Exp $
+/// \version $Id: EventDisplay.h,v 1.12 2011-12-11 23:53:53 bckhouse Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_EVENTDISPLAY_H
@@ -49,6 +49,9 @@ namespace evdb {
     
   public:
     unsigned int              fAutoAdvanceInterval; ///< Wait time in milliseconds
+    int                       fAutoPrintCount;      ///< Number of events printed so far
+    int                       fAutoPrintMax;        ///< How many events to print (zero = disable printing). Must contain "%s" and "%d", in that order.
+    std::string               fAutoPrintPattern;    ///< Pattern for printing output filenames
     std::vector<art::Worker*> fWorkers;             ///< needed for reconfiguration
     std::vector<std::string>  fParamSets;           ///< Reconfigure parameters
     std::vector<std::string>  fDrawingOptions;      ///< The drawing option services in use
