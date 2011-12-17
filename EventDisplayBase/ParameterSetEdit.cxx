@@ -2,7 +2,7 @@
 /// \file  ParameterSetEdit.cxx
 /// \brief Popup to edit configuration data
 ///
-/// \version $Id: ParameterSetEdit.cxx,v 1.2 2011-03-17 22:45:47 brebel Exp $
+/// \version $Id: ParameterSetEdit.cxx,v 1.3 2011-12-17 05:57:18 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/ParameterSetEdit.h"
@@ -72,13 +72,13 @@ ParamFrame::ParamFrame(const TGWindow* p,
 
   fML = new TGMatrixLayout(fFrame, 0, 2, 2);
   fFrame->SetLayoutManager(fML);
-  int h=0;
+  int h=26;
   
   for (unsigned int i=0; i<name.size(); ++i) {
     // skip if the name is module_label, module_type or service_type
-    if(name[i].compare("module_label")    == 0
-       || name[i].compare("module_type")  == 0
-       || name[i].compare("service_type") == 0) continue;
+    if((name[i].compare("module_label") == 0) ||
+       (name[i].compare("module_type")  == 0) ||
+       (name[i].compare("service_type") == 0)) continue;
 
     // Build the parameter label
     TGTextButton*
