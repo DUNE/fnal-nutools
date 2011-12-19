@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.32 2011-10-18 21:45:59 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.33 2011-12-19 22:58:33 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -304,6 +304,29 @@ namespace evgb {
         << std::endl;
       mpfile.close();
     }
+
+    double probscale = fDriver->GlobProbScale();
+    double rawpots   = 0;
+    if      ( fFluxType.compare("ntuple")==0 ) {
+      genie::flux::GNuMIFlux* numiFlux = dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD);
+      rawpots = numiFlux->UsedPOTs();
+      numiFlux->PrintConfig();
+    }
+#ifndef MISSING_GSIMPLENTPFLUX
+    else if ( fFluxType.compare("simple_flux")==0 ) {
+      genie::flux::GSimpleNtpFlux* simpleFlux = dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
+      rawpots = simpleFlux->UsedPOTs();
+      simpleFlux->PrintConfig();
+    }
+#endif
+    mf::LogInfo("GENIEHelper") 
+      << " Total Exposure " << fTotalExposure
+      << " GMCJDriver GlobProbScale " << probscale 
+      << " FluxDriver base pots " << rawpots
+      << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-10);
+
+    // clean up owned genie object (other genie obj are ref ptrs)
+    delete fDriver;
   }
 
   //--------------------------------------------------
