@@ -2,7 +2,7 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.h,v 1.3 2011-09-12 21:11:35 brebel Exp $
+/// \version $Id: MCNeutrino.h,v 1.4 2012-01-03 20:13:18 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCNEUTRINO_H
@@ -28,10 +28,10 @@ namespace simb {
     kCCQE                      = kNuanceOffset + 1,   ///< charged current quasi-elastic	      	
     kNCQE                      = kNuanceOffset + 2,   ///< neutral current quasi-elastic	      	
     kResCCNuProtonPiPlus       = kNuanceOffset + 3,   ///< resonant charged current, nu p -> l- p pi+
-    kResCCNuNeutronPi0         = kNuanceOffset + 4,   ///< resonant charged current, nu n -> l- p pi0
-    kResCCNuNeutronPiPlus      = kNuanceOffset + 5,   ///< resonant charged current, nu n -> l- p pi+
+    kResCCNuNeutronPi0         = kNuanceOffset + 4,   ///< resonant charged current, nu n -> l- n pi0
+    kResCCNuNeutronPiPlus      = kNuanceOffset + 5,   ///< resonant charged current, nu n -> l- n pi+
     kResNCNuProtonPi0          = kNuanceOffset + 6,   ///< resonant neutral current, nu p -> nu p pi0
-    kResNCNuProtonPiPlus       = kNuanceOffset + 7,   ///< resonant neutral current, nu p -> nu n pi+
+    kResNCNuProtonPiPlus       = kNuanceOffset + 7,   ///< resonant neutral current, nu p -> nu p pi+
     kResNCNuNeutronPi0         = kNuanceOffset + 8,   ///< resonant neutral current, nu n -> nu n pi0
     kResNCNuNeutronPiMinus     = kNuanceOffset + 9,   ///< resonant neutral current, nu n -> nu p pi-
     kResCCNuBarNeutronPiMinus  = kNuanceOffset + 10,  ///< resonant charged current, nubar n -> l+ n pi-
