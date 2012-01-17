@@ -3,7 +3,7 @@
 /// \brief A window containing a display of the detector or one of its
 /// components
 ///
-/// \version $Id: DisplayWindow.cxx,v 1.6 2011-09-14 17:24:02 bckhouse Exp $
+/// \version $Id: DisplayWindow.cxx,v 1.7 2012-01-17 20:53:56 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/DisplayWindow.h"
@@ -154,6 +154,12 @@ int DisplayWindow::OpenWindow(int type)
     w = gsWindows[id] = new DisplayWindow(id);
   }
   if (w==0) return 0;
+
+  // Update run and event number in newly opened window.
+  const art::Event* evt = evdb::EventHolder::Instance()->GetEvent();
+  if(evt)
+    w->SetRunEvent(evt->id().run(), evt->id().event());
+
   w->Raise();
   w->Draw();
   
