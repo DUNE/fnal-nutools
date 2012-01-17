@@ -95,7 +95,11 @@ TPolyMarker3D& View3D::AddPolyMarker3D(int n, int c, int st, double sz)
   }
   else {
     // Reuse the polymarker at the current position
+    // the first call to SetPolyMarker3D with the 0
+    // deletes the current set of points before trying
+    // to make a new set
     pm = *fNextPolyMarker3D;
+    pm->SetPolyMarker(0,(double*)0,1,"");
     pm->SetPolyMarker(n,(double*)0,1,"");
     pm->SetMarkerColor(c);
     pm->SetMarkerStyle(st);
@@ -123,7 +127,11 @@ TPolyLine3D& View3D::AddPolyLine3D(int n, int c, int w, int s)
   }
   else {
     // Reuse the polyline at the current position
+    // the first call to SetPolyMarker3D with the 0
+    // deletes the current set of points before trying
+    // to make a new set
     pl = *fNextPolyLine3D;
+    pl->SetPolyLine(0,(double*)0,"");
     pl->SetPolyLine(n,(double*)0,"");
     pl->SetLineColor(c);
     pl->SetLineWidth(w);

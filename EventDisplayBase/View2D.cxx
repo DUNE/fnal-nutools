@@ -2,7 +2,7 @@
 /// \file  View2D.cxx
 /// \brief A collection of drawable 2-D objects
 ///
-/// \version $Id: View2D.cxx,v 1.2 2011-07-11 21:34:39 bckhouse Exp $
+/// \version $Id: View2D.cxx,v 1.3 2012-01-17 20:23:14 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <algorithm>
@@ -125,8 +125,12 @@ TPolyMarker& View2D::AddPolyMarker(int n, int c, int st, double sz)
   }
   else {
     // Reuse the polymarker at the current position
+    // the first call to SetPolyMarker with the 0
+    // deletes the current set of points before trying
+    // to make a new set
     pm = *fNextPolyMarker;
-    pm->SetPolyMarker(n); // reset elements in PolyMarket
+    pm->SetPolyMarker(0);
+    pm->SetPolyMarker(n); // reset elements in PolyMarker
     pm->SetMarkerColor(c);
     pm->SetMarkerSize(sz);
     pm->SetMarkerStyle(st);
@@ -178,7 +182,11 @@ TPolyLine& View2D::AddPolyLine(int n, int c, int w, int s)
   }
   else {
     // Reuse the polyline at the current position
+    // the first call to SetPolyLine with the 0
+    // deletes the current set of points before trying
+    // to make a new set
     pl = *fNextPolyLine;
+    pl->SetPolyLine(0);
     pl->SetPolyLine(n); // reset elements in PolyLine
     pl->SetOption("");
     pl->SetLineColor(c);
