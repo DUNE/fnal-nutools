@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.9 2011-11-14 23:17:13 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.10 2012-02-09 21:28:38 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -22,6 +22,7 @@
 #include <G4UserSteppingAction.hh>
 #include <G4VisExecutive.hh>
 
+#include <boost/algorithm/string.hpp>
 
 #include <QGSP_BERT.hh>
 #define TRY_NEW_PL_FACTORY
@@ -30,6 +31,9 @@
 #else
 #include <G4PhysListFactory.hh>
 #endif
+// 
+#include "G4Base/G4PhysicsProcessFactorySingleton.hh"
+#include "G4VModularPhysicsList.hh"
 
 #include <Rtypes.h>
 
@@ -55,6 +59,9 @@ namespace g4b{
     /// Geant4 run manager.  Nothing happens in Geant4 until this object
     /// is created.
     fRunManager = new G4RunManager;
+
+    // Get the pointer to the User Interface manager   
+    fUIManager = G4UImanager::GetUIpointer();  
 
     // define the physics list to use
     this->SetPhysicsList(fG4PhysListName);
@@ -107,7 +114,7 @@ namespace g4b{
   }
 
   //------------------------------------------------
-  void G4Helper::SetPhysicsList(std::string physicsList)
+  void G4Helper::SetPhysicsList(std::string physicsString)
   {
     /// Set up the physics list for Geant4, and pass it to Geant4's
     /// run manager.
@@ -131,6 +138,25 @@ namespace g4b{
     G4VUserPhysicsList* physics = 0;
     std::string bywhom = "User";
     std::string factoryname = "G4PhysListFactory";
+    bool list_known_procs = true;
+
+    // physics list name is the first part, anything afterwards is
+    // extra physics processes to be added to the base list
+    // ie. "QGSP_BERT ; myspace::MonopolePhysics ; MyOtherSpecialPhysics "
+    std::vector< std::string > pstrings;
+    // don't use ":" as a separator because it's used in namespaces
+    boost::algorithm::split( pstrings, physicsString, boost::is_any_of(";"),
+                             boost::token_compress_on );
+    // trim lead/trail space
+    for (unsigned int j=0; j < pstrings.size(); ++j )
+      boost::algorithm::trim(pstrings[j]);
+
+    if ( pstrings.size() < 1 ) pstrings.push_back("");  // non-empty
+    std::string phListName = pstrings[0];
+
+    //for (unsigned int j=0; j < pstrings.size(); ++j )
+    //  std::cout << "G4Helper pstrings[" << j << "] = \"" 
+    //            << pstrings[j] << "\"" << std::endl;
 
     if ( ! physics ) {
 #ifdef TRY_NEW_PL_FACTORY
@@ -138,32 +164,33 @@ namespace g4b{
       alt::G4PhysListFactory factory;
       factoryname = "alt::G4PhysListFactory";
 #else
-      // Official Geant4 G4PhysListFactory _isn't_ a modern factory;  it can 
-      // only generate items that have pre-programmed blueprints already 
-      // known to it (via if/else-if calls to various ctors) and is not user
-      // extensible (i.e. you can't send it blueprints and have it make them
-      // for you).  If we have our own list then we need to select on and 
-      // construct it ourselves before looking to the factory.
+      // The official Geant4 G4PhysListFactory _isn't_ a modern factory;
+      // it can only generate items that have pre-programmed blueprints
+      // already known to it (via if/else-if calls to various ctors) and
+      // is not user extensible (i.e. you can't send it blueprints and 
+      // have it make them for you).  If we have our own physics list 
+      // then we need to select on and construct it ourselves before 
+      // looking to the factory.
 
       // Put if/then/else statement here for user defined physics lists
       // when using old stodgy offical G4 factory.
       // Example:
       /*
       //         string name                                actual class ctor
-      if      ( "MY_COOL_PL"  == fG4PhysListName ) {physics = new My_Cool_PL();}
-      else if ( "MY_OTHER_PL" == fG4PhysListName ) {physics = new My_Other_PL();}
+      if      ( "MY_COOL_PL"  == phListName ) {physics = new My_Cool_PL();}
+      else if ( "MY_OTHER_PL" == phListName ) {physics = new My_Other_PL();}
       */
 
       G4PhysListFactory factory;   // official G4 factory
 #endif
 
       if ( ! physics ) {
-	if ( factory.IsReferencePhysList(fG4PhysListName) ) {
+	if ( factory.IsReferencePhysList(phListName) ) {
 	  bywhom  = factoryname;
-	  physics = factory.GetReferencePhysList(fG4PhysListName);
+	  physics = factory.GetReferencePhysList(phListName);
 	} else {
 	  // in the case of non-default name
-	  if ( fG4PhysListName != "" ) {
+	  if ( phListName != "" ) {
 	    std::vector<G4String> list = factory.AvailablePhysLists();
 	    std::cout << "For reference: PhysicsLists in G4PhysListFactory are: " 
 		      << std::endl;
@@ -177,18 +204,87 @@ namespace g4b{
 
       if ( ! physics ) {
 	std::cerr << "G4PhysListFactory could not construct \""
-		  << fG4PhysListName << "\", fall back to using QGSP_BERT"
+		  << phListName << "\", fall back to using QGSP_BERT"
 		  << std::endl;
 	physics = new QGSP_BERT;
+        phListName = "QGSP_BERT";
       
       } else {
 	std::cout << bywhom << " constructed G4VUserPhysicsList \""
-		  << fG4PhysListName << "\""
+		  << phListName << "\""
 		  << std::endl;
       }
 
     }
 
+    // Extend the physics list with additional physics processes
+    // Already used pstrings[0] entry for physics list name.
+    // The rest should be semi-colon separated list of:
+    //    physicsProcessName ( optional UI command , more UI commands )
+    for (unsigned int k=1; k < pstrings.size(); ++k ) {
+      std::string physProcAddition = pstrings[k];
+
+      // break off UI commands from process name
+      std::vector< std::string > physProcParts;
+      boost::algorithm::split( physProcParts, physProcAddition, 
+                               boost::is_any_of("(,)"), 
+                               boost::token_compress_on );
+      // trim lead/trail spaces
+      for (unsigned int j=0; j < physProcParts.size(); ++j )
+        boost::algorithm::trim(physProcParts[j]);
+
+      // element 0 is the physic process name
+      std::string physProcName = physProcParts[0];
+      G4PhysicsProcessFactorySingleton& procFactory = 
+        G4PhysicsProcessFactorySingleton::Instance();
+
+      if ( ! procFactory.IsKnownPhysicsProcess(physProcName) ) {
+        std::cout << "G4PhysicsProcessFactorySingleton could not "
+                  << "construct a \"" << physProcName << "\"" << std::endl;
+        if ( ! list_known_procs ) continue;
+        list_known_procs = false;
+        std::vector<G4String> list = procFactory.AvailablePhysicsProcesses();
+        std::cout << "For reference: PhysicsProcesses in "
+                  << "G4PhysicsProcessFactorySingleton are: " 
+                  << std::endl;
+        if ( list.empty() ) std::cout << " ... no registered processes" << std::endl;
+        else {
+          for (size_t indx=0; indx < list.size(); ++indx ) {
+            std::cout << " [" << std::setw(2) << indx << "] " 
+                      << "\"" << list[indx] << "\"" << std::endl;
+          }
+        }
+        continue;
+      }
+
+      std::cout << "Adding \"" << physProcName 
+                << "\" physics process to \"" << phListName << "\"" 
+                << std::endl;
+
+      // construct physics process, add it to the base physics list
+      G4VPhysicsConstructor* pctor = procFactory.GetPhysicsProcess(physProcName);
+
+
+      G4VModularPhysicsList* mpl = dynamic_cast<G4VModularPhysicsList*>(physics);
+      if      ( ! pctor ) std::cout << " ... failed with null pointer" << std::endl;
+      else if ( ! mpl )   std::cout << " ... failed, physics list wasn't a G4VModularPhysicsList" << std::endl;
+      else mpl->RegisterPhysics(pctor);
+
+      // Handle associated UI commands
+      // One must do it here for cases where values need to be set *before*
+      // one calls SetUserInitialization(physics)
+      for ( unsigned int i=1; i < physProcParts.size(); ++i ) {
+        if ( physProcParts[i] == "" ) continue;
+        std::cout // << " apply UI command: " 
+                  << physProcParts[i] << std::endl;
+        fUIManager->ApplyCommand(physProcParts[i]);
+      }
+
+    }
+
+    // pass off (possibly augmented) physics list to run manager
+    // which calls G4RunManagerKernel->SetPhysics() on it 
+    //   which itself call ConstructParticle() for the list
     fRunManager->SetUserInitialization(physics);
   }
 
@@ -245,9 +341,6 @@ namespace g4b{
     fRunManager->SetUserAction( trackingAction );
     fRunManager->SetUserAction( steppingAction );
   
-    // Get the pointer to the User Interface manager   
-    fUIManager = G4UImanager::GetUIpointer();  
-
     // Tell the manager to execute the contents of the Geant4 macro
     // file.
     if ( ! fG4MacroPath.empty() ) {
