@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.hh,v 1.2 2011-11-08 19:11:14 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.hh,v 1.3 2012-02-09 21:17:19 rhatcher Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -140,12 +140,12 @@ private:
 //     p = factory.GetReferencePhysList("myspace::myAltPhysList");
 //
 // The expanded code looks like:
-//   G4VModulearPhysicsList* myPhysList_ctor_function () { return new myPhysList; }
+//   G4VModularPhysicsList* myPhysList_ctor_function () { return new myPhysList; }
 //   static G4bool myPhysList_creator_registered = 
 //     G4PhysListFactorySingleton::Instance().RegisterCreator("myPhysList",
 //                                               & myPhysList_ctor_function );
 //   namespace myspace {
-//     G4VModulearPhysicsList* myAltPhysList_ctor_function () { return new myspace::myAltPhysList; }
+//     G4VModularPhysicsList* myAltPhysList_ctor_function () { return new myspace::myAltPhysList; }
 //     static G4bool myPhysList_creator_registered = 
 //       G4PhysListFactorySingleton::Instance().RegisterCreator("myspace::myAltPhysList",
 //                                                 & myspace::myAltPhysList_ctor_function ); }

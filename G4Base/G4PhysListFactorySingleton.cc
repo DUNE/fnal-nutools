@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.cc,v 1.2 2011-11-08 19:11:14 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.cc,v 1.3 2012-02-09 21:17:19 rhatcher Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ G4PhysListFactorySingleton::~G4PhysListFactorySingleton()
 
 G4PhysListFactorySingleton& G4PhysListFactorySingleton::Instance()
 {
-  // Clean dtor calls G4PhysListFactorySingleton dtor at job end
+  // Cleaner dtor calls G4PhysListFactorySingleton dtor at job end
   static Cleaner cleaner;
 
   if ( ! fgTheInstance ) {
