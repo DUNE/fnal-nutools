@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.18 2011-11-30 19:31:22 bckhouse Exp $
+/// \version $Id: CRYHelper.cxx,v 1.19 2012-02-20 22:45:27 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -67,7 +67,7 @@ namespace evgb{
     const char* datapath = getenv("CRYDATAPATH");
     if( datapath != 0) crydatadir = datapath;
     else{
-      std::cerr << "no variable CRYDATAPATH set for cry data location, bail" << std::endl;
+      mf::LogError("CRYHelper") << "no variable CRYDATAPATH set for cry data location, bail";
       exit(0);
     }
       
@@ -142,9 +142,12 @@ namespace evgb{
 	double xyz[3]  = { vx,  vy,  vz};
 	double xyzo[3];
 	double dxyz[3] = {-px, -py, -pz};
-	double x1, x2;
-	double y1, y2;
-	double z1, z2;
+	double x1 = 0.;
+	double x2 = 0.;
+	double y1 = 0.;
+	double y2 = 0.;
+	double z1 = 0.;
+	double z2 = 0.;
 	geo->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
 	
 	LOG_DEBUG("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
@@ -185,8 +188,7 @@ namespace evgb{
 
     mctruth.SetOrigin(simb::kCosmicRay);
 
-    // Check if this time slice passes selection criteria
-    // TODO
+    // \todo Check if this time slice passes selection criteria
     if (w) *w = 1.0;
   }
 
