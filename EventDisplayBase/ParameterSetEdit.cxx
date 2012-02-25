@@ -2,7 +2,7 @@
 /// \file  ParameterSetEdit.cxx
 /// \brief Popup to edit configuration data
 ///
-/// \version $Id: ParameterSetEdit.cxx,v 1.3 2011-12-17 05:57:18 messier Exp $
+/// \version $Id: ParameterSetEdit.cxx,v 1.4 2012-02-25 00:45:02 bckhouse Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/ParameterSetEdit.h"
@@ -204,6 +204,14 @@ ParameterSetEdit::ParameterSetEdit(TGMainFrame* mf,
   fCanvas->SetContainer(fParam->GetFrame());
   fParam->GetFrame()->SetCleanup(kDeepCleanup);
 
+  for(unsigned int n = 0; n < fT2.size(); ++n){
+    // Pressing enter in a field applies the changes
+    fT2[n]->Connect("ReturnPressed()", "evdb::ParameterSetEdit", this,
+                    "Apply()");
+    fT2[n]->Connect("TabPressed()", "evdb::ParameterSetEdit", this,
+                    "HandleTab()");
+  }
+
   h = fParam->GetHeight();
   if (h>800) h = 800;
   fCanvas->Resize(w,h);
@@ -232,6 +240,12 @@ ParameterSetEdit::ParameterSetEdit(TGMainFrame* mf,
   this->Resize(w+8,h);
   this->MapSubwindows();
   this->MapWindow();
+
+  if(!fT2.empty()){
+    // TRy to focus the first text field
+    fT2[0]->SetFocus();
+    fT2[0]->End();
+  }
 
   (*fResult) = "";
 }
@@ -300,5 +314,26 @@ void ParameterSetEdit::Apply()
   this->Edit(); 
   NavState::Set(kRELOAD_EVENT);
 }
+
+//......................................................................
+
+void ParameterSetEdit::HandleTab()
+{
+  // Work out which text field has focus
+  Window_t focusId = gVirtualX->GetInputFocus();
+  int focusIdx = -1;
+  for(unsigned int n = 0; n < fT2.size(); ++n){
+    if(fT2[n]->GetId() == focusId) focusIdx = n;
+  }
+  // We don't know. Bail out
+  if(focusIdx == -1) return;
+
+  // Move focus to the next field cyclically
+  ++focusIdx;
+  focusIdx %= fT2.size();
+  fT2[focusIdx]->SetFocus();
+  fT2[focusIdx]->End();
+}
+
 
 ////////////////////////////////////////////////////////////////////////
