@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.21 2011-12-11 23:53:53 bckhouse Exp $
+/// \version $Id: EventDisplay.cxx,v 1.22 2012-03-03 06:48:11 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -89,6 +89,15 @@ EventDisplay::EventDisplay(fhicl::ParameterSet const& pset,
   reg.watchPostBeginJobWorkers(this, &EventDisplay::postBeginJobWorkers);
   reg.watchPreProcessEvent    (this, &EventDisplay::preProcessEvent);
   reg.watchPostProcessEvent   (this, &EventDisplay::postProcessEvent);
+}
+
+//......................................................................
+
+void EventDisplay::reconfigure(fhicl::ParameterSet const& pset) 
+{
+  fAutoAdvanceInterval = pset.get<unsigned int>("AutoAdvanceInterval");
+  fAutoPrintMax        = pset.get<int>("AutoPrintMax");
+  fAutoPrintPattern    = pset.get<std::string>("AutoPrintPattern");
 }
 
 //......................................................................

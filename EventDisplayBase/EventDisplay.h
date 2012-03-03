@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.12 2011-12-11 23:53:53 bckhouse Exp $
+/// \version $Id: EventDisplay.h,v 1.13 2012-03-03 06:48:11 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_EVENTDISPLAY_H
@@ -26,6 +26,7 @@ namespace evdb {
   public:
 
     EventDisplay(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
+    void reconfigure(fhicl::ParameterSet const& pset);
     ~EventDisplay();
     
     void EditWorkerParameterSet(int i);

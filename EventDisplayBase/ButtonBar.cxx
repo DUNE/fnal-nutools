@@ -1,7 +1,7 @@
 ///
 /// \file    ButtonBar.cxx
 /// \brief   The button bar at the top of every display window
-/// \version $Id: ButtonBar.cxx,v 1.5 2011-07-12 15:53:25 messier Exp $
+/// \version $Id: ButtonBar.cxx,v 1.6 2012-03-03 06:48:11 messier Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/ButtonBar.h"
@@ -18,6 +18,7 @@
 #include "TGPicture.h"
 #include "TGMsgBox.h"
 // Local includes
+#include "EventDisplayBase/EventDisplay.h"
 #include "EventDisplayBase/evdb.h"
 #include "EventDisplayBase/NavState.h"
 
@@ -160,6 +161,9 @@ Bool_t ButtonBar::HandleTimer(TTimer* t)
 {
   this->NextEvt();
 
+  art::ServiceHandle<evdb::EventDisplay> evd;
+  t->SetTime(evd->fAutoAdvanceInterval);
+
   return kTRUE;
 }
 
@@ -174,7 +178,9 @@ void ButtonBar::AutoAdvance()
     fAutoAdvance->SetText("X");
     fTimer = new TTimer;
     fTimer->SetObject(this);
-    fTimer->Start(2000);
+    
+    art::ServiceHandle<evdb::EventDisplay> evd;
+    fTimer->Start(evd->fAutoAdvanceInterval);
   }
   else {
     //
