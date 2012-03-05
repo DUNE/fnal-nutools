@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.23 2012-03-05 03:10:17 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.24 2012-03-05 17:50:08 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -93,7 +93,7 @@ namespace evdb{
   void EventDisplay::reconfigure(fhicl::ParameterSet const& pset) 
   {
     fAutoAdvanceInterval = pset.get<unsigned int>("AutoAdvanceInterval");
-    fAutoPrintMax        = pset.get<int         >("AutoPrintMax"       );
+    fAutoPrintMax        = pset.get<int         >("AutoPrintMax",     0);
     fAutoPrintPattern    = pset.get<std::string >("AutoPrintPattern"   );
   }
 
