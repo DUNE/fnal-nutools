@@ -2,7 +2,7 @@
 /// \file  EventDisplay.h
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.h,v 1.13 2012-03-03 06:48:11 messier Exp $
+/// \version $Id: EventDisplay.h,v 1.14 2012-03-05 03:10:17 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #ifndef EVDB_EVENTDISPLAY_H
@@ -29,6 +29,8 @@ namespace evdb {
     void reconfigure(fhicl::ParameterSet const& pset);
     ~EventDisplay();
     
+    void reconfigure(fhicl::ParameterSet const& pset);
+
     void EditWorkerParameterSet(int i);
     void EditDrawingOptionParameterSet(int i);
     void EditServiceParameterSet(int i);
