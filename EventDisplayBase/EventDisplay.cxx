@@ -2,7 +2,7 @@
 /// \file  EventDisplay.cxx
 /// \brief The interactive event display
 ///
-/// \version $Id: EventDisplay.cxx,v 1.24 2012-03-05 17:50:08 brebel Exp $
+/// \version $Id: EventDisplay.cxx,v 1.25 2012-03-05 20:37:14 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/EventDisplay.h"
@@ -81,20 +81,21 @@ namespace evdb{
     //   evdb::DisplayWindow::Register("Test1","Test display #1",600,900,mk_canvas1);
     //   evdb::DisplayWindow::OpenWindow(0);
 
+    this->reconfigure(pset);
+
     reg.watchPostBeginJob       (this, &EventDisplay::postBeginJob);
     reg.watchPostBeginJobWorkers(this, &EventDisplay::postBeginJobWorkers);
     reg.watchPreProcessEvent    (this, &EventDisplay::preProcessEvent);
     reg.watchPostProcessEvent   (this, &EventDisplay::postProcessEvent);
 
-    this->reconfigure(pset);
   }
 
   //......................................................................
   void EventDisplay::reconfigure(fhicl::ParameterSet const& pset) 
   {
-    fAutoAdvanceInterval = pset.get<unsigned int>("AutoAdvanceInterval");
-    fAutoPrintMax        = pset.get<int         >("AutoPrintMax",     0);
-    fAutoPrintPattern    = pset.get<std::string >("AutoPrintPattern"   );
+    fAutoAdvanceInterval = pset.get<unsigned int>("AutoAdvanceInterval" );
+    fAutoPrintMax        = pset.get<int         >("AutoPrintMax",     0 );
+    fAutoPrintPattern    = pset.get<std::string >("AutoPrintPattern", "");
   }
 
   //......................................................................
