@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.19 2012-02-20 22:45:27 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.20 2012-03-07 18:57:55 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -188,7 +188,7 @@ namespace evgb{
 
     mctruth.SetOrigin(simb::kCosmicRay);
 
-    // \todo Check if this time slice passes selection criteria
+    /// \todo Check if this time slice passes selection criteria
     if (w) *w = 1.0;
   }
 

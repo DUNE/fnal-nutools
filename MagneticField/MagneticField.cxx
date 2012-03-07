@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 /// \file MagneticField.cxx
 ///
-/// \version $Id: MagneticField.cxx,v 1.1.1.1 2011-10-20 17:21:50 brebel Exp $
+/// \version $Id: MagneticField.cxx,v 1.2 2012-03-07 19:01:44 brebel Exp $
 /// \author dmckee@phys.ksu.edu
 //////////////////////////////////////////////////////////////////////////
 /// \class MagneticField MagneticField.h 
@@ -52,8 +52,8 @@ namespace mag {
   //------------------------------------------------------------
   G4ThreeVector MagneticField::FieldAtPoint(G4ThreeVector p) const
   {
-    // \todo This does not do what it says. Must test to see if the
-    // point is in the master volume
+    /// \todo This does not do what it says. Must test to see if the
+    /// \todo point is in the master volume
     //
     // But it is enough to let me code the DetectorConstruction bit
 

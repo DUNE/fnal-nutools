@@ -2,7 +2,7 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.5 2011-10-20 17:10:56 brebel Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.6 2012-03-07 18:59:57 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -65,9 +65,9 @@ namespace g4b{
 
       // Attach this to the magnetized volume only
       //
-      // \todo This isn't the Right (tm) thing to do, but it will do
-      // for now.
-      // Get pointer to the logical volume store 
+      /// \todo This isn't the Right (tm) thing to do, but it will do
+      /// \todo for now.
+      /// \todo Get pointer to the logical volume store 
       G4LogicalVolumeStore *lvs  = G4LogicalVolumeStore::GetInstance();
       G4LogicalVolume      *bvol = lvs->GetVolume(bField->MagnetizedVolume());
 

@@ -1,7 +1,7 @@
 /// \file MagField.h
 /// \brief Describe the magnetic field structure of a detector
 /// 
-/// \version $Id: MagneticField.h,v 1.1.1.1 2011-10-20 17:21:50 brebel Exp $
+/// \version $Id: MagneticField.h,v 1.2 2012-03-07 19:01:44 brebel Exp $
 /// \author dmckee@phys.ksu.edu
 //////////////////////////////////////////////////////////////////////////
 /// \namespace mag
@@ -48,7 +48,7 @@ namespace mag {
     G4ThreeVector fField; ///< the three vector of the field
     G4String fVolume;     ///< the volume of the field
 
-    //\todo Need to add ability to read in a field from a database
+    ///\todo Need to add ability to read in a field from a database
   };
 
 }
