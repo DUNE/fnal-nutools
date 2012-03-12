@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.33 2011-12-19 22:58:33 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.34 2012-03-12 20:58:08 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,8 @@ namespace evgb {
 
   //--------------------------------------------------
   GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset)
-    : fGeomD             (0)
+    : fGenieEventRecord  (0)
+    , fGeomD             (0)
     , fFluxD             (0)
     , fFluxD2GMCJD       (0)
     , fDriver            (0)
@@ -326,6 +327,7 @@ namespace evgb {
       << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-10);
 
     // clean up owned genie object (other genie obj are ref ptrs)
+    delete fGenieEventRecord;
     delete fDriver;
   }
 
@@ -995,11 +997,12 @@ namespace evgb {
     art::ServiceHandle<geo::Geometry> geo;
     geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fTopVolume.c_str()));
     
-    genie::EventRecord* record = fDriver->GenerateEvent();
+    if ( fGenieEventRecord ) delete fGenieEventRecord;
+    fGenieEventRecord = fDriver->GenerateEvent();
 
     // now check if we produced a viable event record
     bool viableInteraction = true;
-    if ( !record ) viableInteraction = false;
+    if ( ! fGenieEventRecord ) viableInteraction = false;
 
     // update the spill total information, then check to see 
     // if we got an event record that was valid
@@ -1027,11 +1030,11 @@ namespace evgb {
     if(!viableInteraction) return false;
     
     // GENIE returns values from the Vertex in m and we use cm
-    TLorentzVector *vertex = record->Vertex();
+    TLorentzVector *vertex = fGenieEventRecord->Vertex();
     if(100.*vertex->Z() > fDetLength + fZCutOff) return false;
 
     // fill the MC truth information as we have a good interaction
-    PackMCTruth(record,truth); 
+    PackMCTruth(fGenieEventRecord,truth); 
     
     // check to see if we are using flux ntuples but want to 
     // make n events per spill

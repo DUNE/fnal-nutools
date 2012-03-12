@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.19 2011-10-18 21:45:59 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.20 2012-03-12 20:58:08 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -51,6 +51,8 @@ namespace evgb{
     std::vector<TH1D*>     FluxHistograms()   const { return fFluxHistograms; }   
     double                 TotalMass()        const { return fDetectorMass+fSurroundingMass; }
 
+    genie::EventRecord *  GetGenieEventRecord() { return fGenieEventRecord; } ///< pointer to last generated event
+
   private:
 
     void InitializeGeometry();
@@ -65,6 +67,7 @@ namespace evgb{
 
     void FindFluxPath(std::string userpattern);
 
+    genie::EventRecord*      fGenieEventRecord;  ///< last generated event
     genie::GeomAnalyzerI*    fGeomD;       
     genie::GFluxI*           fFluxD;             ///< real flux driver
     genie::GFluxI*           fFluxD2GMCJD;       ///< flux driver passed to genie GMCJDriver, might be GFluxBlender
