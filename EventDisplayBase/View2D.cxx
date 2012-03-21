@@ -2,7 +2,7 @@
 /// \file  View2D.cxx
 /// \brief A collection of drawable 2-D objects
 ///
-/// \version $Id: View2D.cxx,v 1.4 2012-03-10 06:40:29 bckhouse Exp $
+/// \version $Id: View2D.cxx,v 1.5 2012-03-21 23:13:48 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <algorithm>
@@ -244,6 +244,8 @@ TText& View2D::AddText(double x, double y, const char* text)
     fgTextL.pop_back();
 
     itxt->SetText(x,y,text);
+    itxt->SetTextAngle(0);
+    itxt->SetTextAlign(11);
   }
 
   fTextL.push_back(itxt);
@@ -264,6 +266,8 @@ TLatex& View2D::AddLatex(double x, double y, const char* text)
     fgLatexL.pop_back();
 
     itxt->SetText(x,y,text);
+    itxt->SetTextAngle(0);
+    itxt->SetTextAlign(11);
   }
 
   fLatexL.push_back(itxt);
