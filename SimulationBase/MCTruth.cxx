@@ -2,7 +2,7 @@
 /// \file  MCTruth.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCTruth.cxx,v 1.5 2011-11-14 18:48:53 bckhouse Exp $
+/// \version $Id: MCTruth.cxx,v 1.6 2012-04-27 19:01:19 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -81,7 +81,7 @@ namespace simb{
     }  
 
     for (int i = 0; i < a.NParticles(); ++i)
-      o << a.GetParticle(i) << std::endl;
+      o << i << " " << a.GetParticle(i) << std::endl;
 
     return o;
   }
