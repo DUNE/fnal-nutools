@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.34 2012-03-12 20:58:08 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.35 2012-05-08 18:05:16 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -149,13 +149,20 @@ namespace evgb {
     */
 
     cet::search_path sp("FW_SEARCH_PATH");
-    if(fluxFiles.size() == 1 && fluxFiles[0].find("*") != std::string::npos)      
+    if ( fluxFiles.size() == 1 && 
+         fluxFiles[0].find_first_of("*?") != std::string::npos )
       FindFluxPath(fluxFiles[0]);
     else{
       std::string fileName;
       for(unsigned int i = 0; i < fluxFiles.size(); i++){
 	sp.find_file(fluxFiles[i], fileName);
-	fFluxFiles.insert(fileName);
+        if ( fileName != "" ) {
+          fFluxFiles.insert(fileName);
+        } else if ( fluxFiles[i][0] == '/' ) {
+          // cet::search_path doesn't return files that start out as
+          // absolute paths
+          fFluxFiles.insert(fluxFiles[i]);
+        }
       }
     }
 
@@ -324,7 +331,7 @@ namespace evgb {
       << " Total Exposure " << fTotalExposure
       << " GMCJDriver GlobProbScale " << probscale 
       << " FluxDriver base pots " << rawpots
-      << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-10);
+      << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-100);
 
     // clean up owned genie object (other genie obj are ref ptrs)
     delete fGenieEventRecord;
