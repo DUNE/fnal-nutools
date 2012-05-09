@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.8 2011-11-14 23:17:13 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.9 2012-05-09 18:26:22 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +42,7 @@ namespace g4b {
   // Forward declarations within namespace.
   class ParticleListAction;
   class ConvertPrimaryToGeant4;
+  class DetectorConstruction;
 
   class G4Helper {
 
@@ -55,6 +56,13 @@ namespace g4b {
     // have to call this before InitMC if you want to load in 
     // parallel worlds.  G4Helper takes over ownership
     void SetParallelWorlds(std::vector<G4VUserParallelWorld*> pworlds);
+
+    // have to call this before InitMC if you want to control
+    // when the detector is constructed, useful if you need to 
+    // muck with G4LogicalVolumes
+    // if the fDetector pointer is null when InitMC is called
+    // it will just construct the fDetector
+    void ConstructDetector();
 
     // Initialization for the Geant4 Monte Carlo, called before the
     // first event is simulated.
@@ -76,16 +84,15 @@ namespace g4b {
     // These variables are "protected" rather than private, because I
     // can forsee that it may be desirable to derive other simulation
     // routines from this one.
-
-
-    std::string          fG4MacroPath;    ///< Full directory path for Geant4 macro file to be executed before main MC processing.
-    std::string          fG4PhysListName; ///< Name of physics list to use
-
-    G4RunManager*        fRunManager;     ///< Geant4's run manager.
-    G4UImanager*         fUIManager;      ///< Geant4's user-interface manager.
-
-    ConvertMCTruthToG4*  fConvertMCTruth; ///< Converts MCTruth objects; Geant4 event generator.
-
+    std::string                        fG4MacroPath;    ///< Full directory path for Geant4 macro file 	 
+                          	                        ///< to be executed before main MC processing.	 
+    std::string           	       fG4PhysListName; ///< Name of physics list to use			 
+				                                                                              
+    G4RunManager*         	       fRunManager;     ///< Geant4's run manager.				 
+    G4UImanager*          	       fUIManager;      ///< Geant4's user-interface manager.		 
+				                                                                              
+    ConvertMCTruthToG4*   	       fConvertMCTruth; ///< Converts MCTruth objects; Geant4 event generator.
+    DetectorConstruction* 	       fDetector;       ///< DetectorConstruction object                      
     std::vector<G4VUserParallelWorld*> fParallelWorlds; ///< list of parallel worlds
   };
 

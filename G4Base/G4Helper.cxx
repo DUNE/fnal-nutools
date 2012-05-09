@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.10 2012-02-09 21:28:38 rhatcher Exp $
+/// \version $Id: G4Helper.cxx,v 1.11 2012-05-09 18:26:22 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -52,9 +52,11 @@ namespace g4b{
 
   //------------------------------------------------
   // Constructor
-  G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) :
-    fG4MacroPath(g4macropath),
-    fG4PhysListName(g4physicslist)
+  G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) 
+    : fG4MacroPath(g4macropath)
+    , fG4PhysListName(g4physicslist)
+    , fConvertMCTruth(0)
+    , fDetector(0)
   {
     /// Geant4 run manager.  Nothing happens in Geant4 until this object
     /// is created.
@@ -62,9 +64,6 @@ namespace g4b{
 
     // Get the pointer to the User Interface manager   
     fUIManager = G4UImanager::GetUIpointer();  
-
-    // define the physics list to use
-    this->SetPhysicsList(fG4PhysListName);
 
     fParallelWorlds.clear();
   }
@@ -292,25 +291,38 @@ namespace g4b{
   void G4Helper::SetParallelWorlds(std::vector<G4VUserParallelWorld*> pworlds)
   {
     for(size_t i = 0; i < pworlds.size(); ++i) fParallelWorlds.push_back(pworlds[i]);
+
+    return;
+  }
+
+  //------------------------------------------------
+  void G4Helper::ConstructDetector()
+  {
+    // Build the Geant4 detector description.
+    fDetector = new DetectorConstruction();
+
+    return;
   }
 
   //------------------------------------------------
   /// Initialization for the Geant4 Monte Carlo.
   void G4Helper::InitMC() 
   {
-    // Build the Geant4 detector description.
-    DetectorConstruction* detector = new DetectorConstruction();
+    if(!fDetector) fDetector = new DetectorConstruction();
 
     for(size_t i = 0; i < fParallelWorlds.size(); ++i)
-      detector->RegisterParallelWorld( fParallelWorlds[i] );
+      fDetector->RegisterParallelWorld( fParallelWorlds[i] );
+
+    // define the physics list to use
+    this->SetPhysicsList(fG4PhysListName);
 
     // Pass the detector geometry on to Geant4.
-    fRunManager->SetUserInitialization(detector);
+    fRunManager->SetUserInitialization(fDetector);
   
     // Tell the Geant4 run manager how to generate events.  The
     // ConvertMCTruthToG4 class will "generate" events by
     // converting MCTruth objects from the input into G4Events.
-    fConvertMCTruth= new ConvertMCTruthToG4;
+    fConvertMCTruth = new ConvertMCTruthToG4;
     fRunManager->SetUserAction(fConvertMCTruth);
 
     // Geant4 comes with "user hooks" that allows users to perform
