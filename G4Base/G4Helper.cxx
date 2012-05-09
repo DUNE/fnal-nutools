@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.11 2012-05-09 18:26:22 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.12 2012-05-09 18:26:55 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +308,7 @@ namespace g4b{
   /// Initialization for the Geant4 Monte Carlo.
   void G4Helper::InitMC() 
   {
-    if(!fDetector) fDetector = new DetectorConstruction();
+    if(!fDetector) this->ConstructDetector();
 
     for(size_t i = 0; i < fParallelWorlds.size(); ++i)
       fDetector->RegisterParallelWorld( fParallelWorlds[i] );
