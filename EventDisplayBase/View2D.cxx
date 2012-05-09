@@ -2,7 +2,7 @@
 /// \file  View2D.cxx
 /// \brief A collection of drawable 2-D objects
 ///
-/// \version $Id: View2D.cxx,v 1.5 2012-03-21 23:13:48 bckhouse Exp $
+/// \version $Id: View2D.cxx,v 1.6 2012-05-09 22:23:39 bckhouse Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <algorithm>
@@ -10,7 +10,43 @@
 #include "EventDisplayBase/Functors.h"
 using namespace evdb;
 
+#include "TGraph.h"
+#include "TPad.h"
+
 //......................................................................
+class TBoxClipped: public TBox
+{
+public:
+  TBoxClipped(double a, double b, double c, double d) : TBox(a, b, c, d){}
+  virtual void Paint(Option_t* option)
+  {
+    const double ux1 = gPad->GetUxmin(), uy1 = gPad->GetUymin();
+    const double ux2 = gPad->GetUxmax(), uy2 = gPad->GetUymax();
+    // Completely outside frame
+    if(fX1 < ux1 && fX2 < ux1) return;
+    if(fX1 > ux2 && fX2 > ux2) return;
+    if(fY1 < uy1 && fY2 < uy1) return;
+    if(fY1 > uy2 && fY2 > uy2) return;
+
+    // Store the parameters for restoration later
+    const double x1 = fX1, y1 = fY1, x2 = fX2, y2 = fY2;
+
+    // Clip corners to avoid painting outside of the frame (TBox doesn't do
+    // this by default)
+    if(fX1 < ux1) fX1 = ux1;
+    if(fY1 < uy1) fY1 = uy1;
+    if(fX2 > ux2) fX2 = ux2;
+    if(fY2 > uy2) fY2 = uy2;
+
+    TBox::Paint(option);
+
+    // Put the real parameters back
+    fX1 = x1; fX2 = x2; fY1 = y1; fY2 = y2;
+
+    // NB: clipped boxes overdraw axis lines, caller might want to call
+    // Draw("axis same") on their containing histogram.
+  }
+};
 
 // All of these static lists are "leaked" when the application ends. But that's
 // OK: they were serving a useful purpose right up until that moment, and ROOT
@@ -43,6 +79,12 @@ View2D::~View2D()
 
 void View2D::Draw()
 {
+  // Want to clip all of our objects inside the axis frame. Note, TBox doesn't
+  // obey this flag, have to use TBoxClipped to do it by hand.  Unfortunately
+  // we have to change global state, and we can't just put it back at the end
+  // of the function, because this has to be set at Paint() time.
+  gPad->SetBit(TGraph::kClipFrame, true);
+
   for_each(fArcL.begin(),       fArcL.end(),       draw_tobject());
   for_each(fBoxL.begin(),       fBoxL.end(),       draw_tobject());
   for_each(fPolyLineL.begin(),  fPolyLineL.end(),  draw_tobject());
@@ -213,7 +255,7 @@ TBox& View2D::AddBox(double x1, double y1, double x2, double y2)
 {
   TBox* b = 0;
   if(fgBoxL.empty()){
-    b = new TBox(x1,y1,x2,y2);
+    b = new TBoxClipped(x1,y1,x2,y2);
     b->SetBit(kCanDelete,kFALSE);
   }
   else {
