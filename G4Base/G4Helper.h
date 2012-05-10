@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.9 2012-05-09 18:26:22 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.10 2012-05-10 19:09:32 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -86,13 +86,12 @@ namespace g4b {
     // routines from this one.
     std::string                        fG4MacroPath;    ///< Full directory path for Geant4 macro file 	 
                           	                        ///< to be executed before main MC processing.	 
-    std::string           	       fG4PhysListName; ///< Name of physics list to use			 
-				                                                                              
-    G4RunManager*         	       fRunManager;     ///< Geant4's run manager.				 
-    G4UImanager*          	       fUIManager;      ///< Geant4's user-interface manager.		 
-				                                                                              
-    ConvertMCTruthToG4*   	       fConvertMCTruth; ///< Converts MCTruth objects; Geant4 event generator.
-    DetectorConstruction* 	       fDetector;       ///< DetectorConstruction object                      
+    std::string           	       fG4PhysListName; ///< Name of physics list to use	
+    G4RunManager*         	       fRunManager;     ///< Geant4's run manager.		        
+    G4UImanager*          	       fUIManager;      ///< Geant4's user-interface manager.		
+    ConvertMCTruthToG4*   	       fConvertMCTruth; ///< Converts MCTruth objects; 
+                                                        ///< Geant4 event generator.
+    DetectorConstruction* 	       fDetector;       ///< DetectorConstruction object   
     std::vector<G4VUserParallelWorld*> fParallelWorlds; ///< list of parallel worlds
   };
 

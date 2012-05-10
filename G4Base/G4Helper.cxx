@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.12 2012-05-09 18:26:55 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.13 2012-05-10 19:09:32 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +55,7 @@ namespace g4b{
   G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) 
     : fG4MacroPath(g4macropath)
     , fG4PhysListName(g4physicslist)
+    , fUIManager(0)
     , fConvertMCTruth(0)
     , fDetector(0)
   {
@@ -272,6 +273,7 @@ namespace g4b{
       // Handle associated UI commands
       // One must do it here for cases where values need to be set *before*
       // one calls SetUserInitialization(physics)
+
       for ( unsigned int i=1; i < physProcParts.size(); ++i ) {
         if ( physProcParts[i] == "" ) continue;
         std::cout // << " apply UI command: " 
@@ -330,13 +332,6 @@ namespace g4b{
     // steps.  By using the UserActionManager, we've separated each
     // set of user tasks into their own class; e.g., there can be one
     // class for processing particles, one class for histograms, etc.
-
-    // UserAction derived classes are assumed to have been 
-    // adopted by the UserActionManager::Instance before this
-    // method is called - that allows experiments to define their
-    // own user actions without making this class experiment dependent
-    // Use the instance of the UserActionManager in the class that
-    // calls this one to pass the actions into the UAM
 
     // Use the UserActionManager to handle all the Geant4 user hooks.
     UserActionManager* uaManager = UserActionManager::Instance();
