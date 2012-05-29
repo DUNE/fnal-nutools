@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.35 2012-05-08 18:05:16 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.36 2012-05-29 17:01:00 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -150,28 +150,77 @@ namespace evgb {
 
     cet::search_path sp("FW_SEARCH_PATH");
     if ( fluxFiles.size() == 1 && 
-         fluxFiles[0].find_first_of("*?") != std::string::npos )
+         fluxFiles[0].find_first_of("*?") != std::string::npos ) {
+      mf::LogDebug("GENIEHelper") << "ctor() FindFluxPath" << fluxFiles[0];
       FindFluxPath(fluxFiles[0]);
+    }
     else{
       std::string fileName;
       for(unsigned int i = 0; i < fluxFiles.size(); i++){
 	sp.find_file(fluxFiles[i], fileName);
         if ( fileName != "" ) {
+          mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
+                                      << fluxFiles[i] << " found as " << fileName;
           fFluxFiles.insert(fileName);
         } else if ( fluxFiles[i][0] == '/' ) {
           // cet::search_path doesn't return files that start out as
           // absolute paths
+          mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
+                                      << fluxFiles[i] << " has /";
           fFluxFiles.insert(fluxFiles[i]);
         }
       }
     }
 
-    // set the environment, the vector should come in pairs of variable name, then value
+    // set the environment, the vector should come in pairs 
+    // of variable name, then value
+
+    // special processing of GSEED (GENIE's random seed)... priority:
+    //    if set in .fcl file RandomSeed variable, use that
+    //    else if already set in environment use that
+    //    else use evgb::GetRandomNumberSeed()
+    int dfltseed;
+    const char* gseedstr = std::getenv("GSEED");
+    if ( gseedstr ) {
+      //dfltseed = atoi(gseedstr);
+      dfltseed = strtol(gseedstr,NULL,0);
+    } else {
+      dfltseed = evgb::GetRandomNumberSeed();
+    }
     TString junk = "";
-    junk += pset.get< int >("RandomSeed", evgb::GetRandomNumberSeed());
+    junk += pset.get< int >("RandomSeed", dfltseed);
     std::string seed(junk);
     fEnvironment.push_back("GSEED");
     fEnvironment.push_back(seed);
+
+    // GXMLPATH is where GENIE will look for alternative configurations
+    // (fcl file paths):(existing user environment):(FW_SEARCH_PATH)
+    std::string gxmlpathadd = "";
+    const char* gxmlpath_env = std::getenv("GXMLPATH");
+    if ( gxmlpath_env ) {
+      gxmlpathadd += gxmlpath_env;
+    }
+    const char* fwpath_env = std::getenv("FW_SEARCH_PATH");
+    if ( fwpath_env ) {
+      if ( gxmlpathadd != "" ) gxmlpathadd += ":";
+      gxmlpathadd += fwpath_env;
+    }
+    int indxGXMLPATH = -1;
+    for (unsigned int i = 0; i < fEnvironment.size(); i += 2) {
+      if ( fEnvironment[i].compare("GXMLPATH") == 0 ) {
+        indxGXMLPATH = i;
+        break;
+      }
+    }
+    if ( indxGXMLPATH < 0 ) {
+      // nothing in fcl parameters
+      fEnvironment.push_back("GXMLPATH");
+      fEnvironment.push_back(gxmlpathadd);
+    } else {
+      // append additonal paths to env value
+      fEnvironment[indxGXMLPATH+1] += ":";
+      fEnvironment[indxGXMLPATH+1] += gxmlpathadd;
+    }
 
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
       if(fEnvironment[i].compare("GSPLOAD") == 0){
@@ -180,8 +229,9 @@ namespace evgb {
 	fEnvironment[i+1] = fullpath;
       }
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
-      mf::LogInfo("GENIEHelper") << "setting GENIE environment " << fEnvironment[i]
-				 << " to " << fEnvironment[i+1];
+      mf::LogInfo("GENIEHelper") << "setting GENIE environment " 
+                                 << fEnvironment[i] << " to \"" 
+                                 << fEnvironment[i+1] <<"\"";
     }
 
     //For Atmo flux
@@ -354,7 +404,6 @@ namespace evgb {
     fDriver = new genie::GMCJDriver(); // needs to be before ConfigGeomScan
 
     // initialize the Geometry and Flux drivers
-
     InitializeGeometry();
     InitializeFluxDriver();
 
@@ -364,7 +413,7 @@ namespace evgb {
     // must come after creation of Geom, Flux and GMCJDriver
     ConfigGeomScan();  // could trigger fDriver->UseMaxPathLengths(*xmlfile*)
 
-    fDriver->Configure();
+    fDriver->Configure();  // trigger GeomDriver::ComputeMaxPathLengths() 
     fDriver->UseSplines();
     fDriver->ForceSingleProbScale();
 
@@ -389,6 +438,10 @@ namespace evgb {
     fSpillEvents   = 0;
     fSpillExposure = 0.;
     fTotalExposure = 0.;
+
+    // if the flux driver knows how to keep track of exposure (time,pots)
+    // reset it now as some might have been used in determining
+    // the geometry maxpathlength or internally scanning for weights
 
     return;
   }
