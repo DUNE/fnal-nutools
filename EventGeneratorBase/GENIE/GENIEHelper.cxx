@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.36 2012-05-29 17:01:00 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.37 2012-06-06 17:54:31 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ namespace evgb {
     , fFluxType          (pset.get< std::string              >("FluxType")               )
     , fBeamName          (pset.get< std::string              >("BeamName")               )
     , fTopVolume         (pset.get< std::string              >("TopVolume")              )
-    , fWorldVolume       ("volWorld")						         
+    , fWorldVolume       ("volWorld")         
     , fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  )
     , fFluxUpstreamZ     (pset.get< double                   >("FluxUpstreamZ",   -2.e30))
     , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
@@ -108,7 +108,7 @@ namespace evgb {
     , fHistEventsPerSpill(0.)
     , fSpillEvents       (0)
     , fSpillExposure     (0.)
-    , fTotalExposure     (0.)							         
+    , fTotalExposure     (0.)
     , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
     , fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  )
     , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
@@ -157,7 +157,7 @@ namespace evgb {
     else{
       std::string fileName;
       for(unsigned int i = 0; i < fluxFiles.size(); i++){
-	sp.find_file(fluxFiles[i], fileName);
+        sp.find_file(fluxFiles[i], fileName);
         if ( fileName != "" ) {
           mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
                                       << fluxFiles[i] << " found as " << fileName;
@@ -214,6 +214,7 @@ namespace evgb {
     }
     if ( indxGXMLPATH < 0 ) {
       // nothing in fcl parameters
+      indxGXMLPATH=fEnvironment.size();
       fEnvironment.push_back("GXMLPATH");
       fEnvironment.push_back(gxmlpathadd);
     } else {
@@ -221,12 +222,17 @@ namespace evgb {
       fEnvironment[indxGXMLPATH+1] += ":";
       fEnvironment[indxGXMLPATH+1] += gxmlpathadd;
     }
+    // For some file path searches don't use only the $FW_SEARCH_PATH,
+    // but the search path GENIE will use for XML files
+    // (inc. x-section splines) which includes $FW_SEARCH_PATH
+    cet::search_path spGXML(fEnvironment[indxGXMLPATH+1]);
 
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
       if(fEnvironment[i].compare("GSPLOAD") == 0){
-	std::string fullpath;
-	sp.find_file(fEnvironment[i+1], fullpath);
-	fEnvironment[i+1] = fullpath;
+        std::string fullpath;
+        mf::LogDebug("GENIEHelper") << "GSPLOAD as set: " << fEnvironment[i+1]; 
+        spGXML.find_file(fEnvironment[i+1], fullpath);
+        fEnvironment[i+1] = fullpath;
       }
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
       mf::LogInfo("GENIEHelper") << "setting GENIE environment " 
@@ -238,44 +244,44 @@ namespace evgb {
     if(fFluxType.find("atmo") != std::string::npos){
       
       if(genFlavors.size() != fFluxFiles.size()){
-	mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino flavors (" 
-				   << genFlavors.size() << ") doesn't correspond to the number of files (" 
-				   << fFluxFiles.size() << ")!!!";
-	exit(1);
+        mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino flavors (" 
+                                   << genFlavors.size() << ") doesn't correspond to the number of files (" 
+                                   << fFluxFiles.size() << ")!!!";
+        exit(1);
       }
 
       if(fEventsPerSpill !=1){
-	mf::LogInfo("GENIEHelper") 
-	  <<  "ERROR: For Atmosphric Neutrino generation, EventPerSpill need to be 1!!";
-	exit(1);
+        mf::LogInfo("GENIEHelper") 
+          <<  "ERROR: For Atmosphric Neutrino generation, EventPerSpill need to be 1!!";
+        exit(1);
       }
 
       if (fFluxType.compare("atmo_FLUKA") == 0 ){
-	mf::LogInfo("GENIEHelper") << "The sims are from FLUKA";
+        mf::LogInfo("GENIEHelper") << "The sims are from FLUKA";
       }
       
       else if (fFluxType.compare("atmo_BARTOL") == 0 ){
-	mf::LogInfo("GENIEHelper") << "The sims are from BARTOL";
+        mf::LogInfo("GENIEHelper") << "The sims are from BARTOL";
       }      
       else {
-	mf::LogInfo("GENIEHelper") << "Uknonwn flux simulation: " << fFluxType;
-	exit(1);
+        mf::LogInfo("GENIEHelper") << "Uknonwn flux simulation: " << fFluxType;
+        exit(1);
       }
       
       mf::LogInfo("GENIEHelper") << "The energy range is between:  " << fAtmoEmin << " GeV and " 
-				 << fAtmoEmax << " GeV.";
+                                 << fAtmoEmax << " GeV.";
   
       mf::LogInfo("GENIEHelper") << "Generation surface of: (" << fAtmoRl << "," 
-				 << fAtmoRt << ")";
+                                 << fAtmoRt << ")";
 
     }// end if atmospheric fluxes
     
     // make the histograms
     if(fFluxType.compare("histogram") == 0){
       mf::LogInfo("GENIEHelper") << "setting beam direction and center at "
-				 << fBeamDirection.X() << " " << fBeamDirection.Y() << " " << fBeamDirection.Z()
-				 << " (" << fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z()
-				 << ") with radius " << fBeamRadius;
+                                 << fBeamDirection.X() << " " << fBeamDirection.Y() << " " << fBeamDirection.Z()
+                                 << " (" << fBeamCenter.X() << "," << fBeamCenter.Y() << "," << fBeamCenter.Z()
+                                 << ") with radius " << fBeamRadius;
 
       TDirectory *savedir = gDirectory;
     
@@ -285,21 +291,21 @@ namespace evgb {
       tf.ls();
 
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
-	if(*flvitr ==  12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nue")));
-	if(*flvitr == -12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nuebar")));
-	if(*flvitr ==  14) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("numu")));
-	if(*flvitr == -14) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("numubar")));
-	if(*flvitr ==  16) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nutau")));
-	if(*flvitr == -16) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nutaubar")));
+        if(*flvitr ==  12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nue")));
+        if(*flvitr == -12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nuebar")));
+        if(*flvitr ==  14) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("numu")));
+        if(*flvitr == -14) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("numubar")));
+        if(*flvitr ==  16) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nutau")));
+        if(*flvitr == -16) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nutaubar")));
       }
 
       for(unsigned int i = 0; i < fFluxHistograms.size(); ++i){
-	fFluxHistograms[i]->SetDirectory(savedir);
-	fTotalHistFlux += fFluxHistograms[i]->Integral();
+        fFluxHistograms[i]->SetDirectory(savedir);
+        fTotalHistFlux += fFluxHistograms[i]->Integral();
       }
 
       mf::LogInfo("GENIEHelper") << "total histogram flux over desired flavors = " 
-				 << fTotalHistFlux;
+                                 << fTotalHistFlux;
 
     }//end if getting fluxes from histograms
 
@@ -310,20 +316,20 @@ namespace evgb {
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
       mf::LogInfo("GENIEHelper") << "Generating monoenergetic (" << fMonoEnergy 
-				 << " GeV) neutrinos with the following flavors: " 
-				 << flvlist;
+                                 << " GeV) neutrinos with the following flavors: " 
+                                 << flvlist;
     }
     else{
       mf::LogInfo("GENIEHelper") << "Generating flux with the following flavors: " << flvlist
-				 << "\n and these files: ";
+                                 << "\n and these files: ";
       
       for(std::set<std::string>::iterator itr = fFluxFiles.begin(); itr != fFluxFiles.end(); itr++)
-	mf::LogInfo("GENIEHelper") << "\t" << *itr;
+        mf::LogInfo("GENIEHelper") << "\t" << *itr;
     }
 
     if(fEventsPerSpill != 0)
       mf::LogInfo("GENIEHelper") << "Generating " << fEventsPerSpill 
-				 << " events for each spill";
+                                 << " events for each spill";
     else
       mf::LogInfo("GENIEHelper") << "Using " << fPOTPerSpill << " pot for each spill";
 
@@ -392,8 +398,8 @@ namespace evgb {
   double GENIEHelper::TotalHistFlux() 
   {
     if(   fFluxType.compare("ntuple")       == 0
-	  || fFluxType.compare("mono")         == 0 
-	  || fFluxType.compare("simple_flux" ) == 0 ) return -999.;
+          || fFluxType.compare("mono")         == 0 
+          || fFluxType.compare("simple_flux" ) == 0 ) return -999.;
 
     return fTotalHistFlux;
   }
@@ -417,7 +423,7 @@ namespace evgb {
     fDriver->UseSplines();
     fDriver->ForceSingleProbScale();
 
-    if(fFluxType.compare("histogram") == 0 && fEventsPerSpill < 0.01){
+    if ( fFluxType.compare("histogram") == 0 && fEventsPerSpill < 0.01 ) {
       // fluxes are assumed to be given in units of neutrinos/cm^2/1e20POT/energy 
       // integral over all fluxes removes energy dependence
       // histograms should have bin width that reflects the value of the /energy bit
@@ -429,7 +435,7 @@ namespace evgb {
       fXSecMassPOT *= fPOTPerSpill*(fDetectorMass+fSurroundingMass)/(1.67262158e-27); 
 
       mf::LogInfo("GENIEHelper") << "Number of events per spill will be based on poisson mean of "
-				 << fXSecMassPOT*fTotalHistFlux;
+                                 << fXSecMassPOT*fTotalHistFlux;
 
       fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     }
@@ -775,8 +781,8 @@ namespace evgb {
       // order that the flavors appear in fGenFlavors
       int ctr = 0;
       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
-	histFlux->AddEnergySpectrum(*i, fFluxHistograms[ctr]);
-	++ctr;
+        histFlux->AddEnergySpectrum(*i, fFluxHistograms[ctr]);
+        ++ctr;
       } //end loop to add flux histograms to driver
 
       histFlux->SetNuDirection(fBeamDirection);
@@ -792,7 +798,7 @@ namespace evgb {
       //make a map of pdg to weight codes
       std::map<int, double> pdgwmap;
       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++)
-	pdgwmap[*i] = weight;
+        pdgwmap[*i] = weight;
 
       genie::flux::GMonoEnergeticFlux *monoflux = new genie::flux::GMonoEnergeticFlux(fMonoEnergy, pdgwmap);
       monoflux->SetDirectionCos(fBeamDirection.X(), fBeamDirection.Y(), fBeamDirection.Z());
@@ -808,12 +814,12 @@ namespace evgb {
       genie::flux::GAtmoFlux *atmo_flux_driver = 0;
       
       if(fFluxType.compare("atmo_FLUKA") == 0) {
-	genie::flux::GFlukaAtmo3DFlux * fluka_flux = new genie::flux::GFlukaAtmo3DFlux;
-	atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(fluka_flux);
+        genie::flux::GFlukaAtmo3DFlux * fluka_flux = new genie::flux::GFlukaAtmo3DFlux;
+        atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(fluka_flux);
       }
       if(fFluxType.compare("atmo_BARTOL") == 0) {
-	genie::flux::GBartolAtmoFlux * bartol_flux = new genie::flux::GBartolAtmoFlux;
-	atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(bartol_flux);
+        genie::flux::GBartolAtmoFlux * bartol_flux = new genie::flux::GBartolAtmoFlux;
+        atmo_flux_driver = dynamic_cast<genie::flux::GAtmoFlux *>(bartol_flux);
       } 
       
       atmo_flux_driver->ForceMinEnergy(fAtmoEmin);
@@ -822,15 +828,15 @@ namespace evgb {
       int ctrfv = 0;
       int ctrff = 0;
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
-	for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
-	  if(ctrfv == ctrff){
-	    mf::LogInfo("GENIEHelper") << "FLAVOR: " << *flvitr << "  FLUX FILE: " <<  *ffitr;
+        for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
+          if(ctrfv == ctrff){
+            mf::LogInfo("GENIEHelper") << "FLAVOR: " << *flvitr << "  FLUX FILE: " <<  *ffitr;
 
-	    atmo_flux_driver->SetFluxFile(*flvitr, *ffitr);
-	    ctrff++;
-	  } 
-	  ctrfv++;
-	}
+            atmo_flux_driver->SetFluxFile(*flvitr, *ffitr);
+            ctrff++;
+          } 
+          ctrfv++;
+        }
       }    
       
       atmo_flux_driver->LoadFluxData();
@@ -859,10 +865,9 @@ namespace evgb {
       // configure the mixer
       if ( mixer ) mixer->Config(fMixerConfig);
       else {
-	mf::LogWarning("GENIEHelper") << "GENIEHelper MixerConfig keyword was \"" << keyword
-				      << "\" but that did not map to a class" << std::endl
-				      << "GFluxBlender in use, but no mixer";
-        
+        mf::LogWarning("GENIEHelper") << "GENIEHelper MixerConfig keyword was \"" << keyword
+                                      << "\" but that did not map to a class" << std::endl
+                                      << "GFluxBlender in use, but no mixer";
       }
 
       genie::GFluxI* realFluxD = fFluxD;
@@ -1001,30 +1006,30 @@ namespace evgb {
   bool GENIEHelper::Stop()
   {
     //   std::cout << "in GENIEHelper::Stop(), fEventsPerSpill = " << fEventsPerSpill
-    // 	    << " fPOTPerSpill = " << fPOTPerSpill << " fSpillExposure = " << fSpillExposure 
+    //      << " fPOTPerSpill = " << fPOTPerSpill << " fSpillExposure = " << fSpillExposure 
     //      << " fSpillEvents = " << fSpillEvents
-    // 	    << " fHistEventsPerSpill = " << fHistEventsPerSpill << std::endl;
+    //      << " fHistEventsPerSpill = " << fHistEventsPerSpill << std::endl;
 
     // determine if we should keep throwing neutrinos for 
     // this spill or move on
 
     if(fFluxType.compare("atmo_FLUKA") == 0 || fFluxType.compare("atmo_BARTOL") == 0){
       if((fEventsPerSpill > 0) && (fSpillEvents < fEventsPerSpill)){
-	return false;
+        return false;
       }
     }
 
     else if(fEventsPerSpill > 0){
       if(fSpillEvents < fEventsPerSpill) 
-	return false;
+        return false;
     }
     else{
       if( ( fFluxType.compare("ntuple")      == 0 || 
             fFluxType.compare("simple_flux") == 0    ) && 
           fSpillExposure < fPOTPerSpill) return false;
       else if(fFluxType.compare("histogram") == 0){
-	if(fSpillEvents < fHistEventsPerSpill) return false;
-	else fSpillExposure = fPOTPerSpill;
+        if(fSpillEvents < fHistEventsPerSpill) return false;
+        else fSpillExposure = fPOTPerSpill;
       }
     }
 
@@ -1100,7 +1105,7 @@ namespace evgb {
     // make n events per spill
     if(fEventsPerSpill > 0 &&
        (fFluxType.compare("ntuple") == 0 ||
-	fFluxType.compare("simple_flux") == 0)
+        fFluxType.compare("simple_flux") == 0)
        ) ++fSpillEvents;
 
     // now check if using either histogram or mono fluxes, using
@@ -1117,19 +1122,19 @@ namespace evgb {
       int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
       std::vector<double> fluxes(6, 0.);
       for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
-	if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
-	if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
-	++ctr;
+        if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
+        if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
+        if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
+        if(*i == -14) fluxes[kNuMuBar]  = fFluxHistograms[ctr]->GetBinContent(bin);
+        if(*i ==  16) fluxes[kNuTau]    = fFluxHistograms[ctr]->GetBinContent(bin);
+        if(*i == -16) fluxes[kNuTauBar] = fFluxHistograms[ctr]->GetBinContent(bin);
+        ++ctr;
       }
 
       // get the flux for each neutrino flavor of this energy
       flux.SetFluxGen(fluxes[kNue],   fluxes[kNueBar],
-		      fluxes[kNuMu],  fluxes[kNuMuBar],
-		      fluxes[kNuTau], fluxes[kNuTauBar]);
+                      fluxes[kNuMu],  fluxes[kNuMuBar],
+                      fluxes[kNuTau], fluxes[kNuTauBar]);
     
       ++fSpillEvents;
     }
@@ -1171,7 +1176,7 @@ namespace evgb {
 
     // set the top volume of the geometry back to the world volume
     geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fWorldVolume.c_str()));
-					
+
     return true;
   }
 
@@ -1189,7 +1194,7 @@ namespace evgb {
     //  nflux.units:  0=original GEANT cm, 1=meters
     if(nflux.pcodes != 1 && nflux.units != 0)
       mf::LogWarning("GENIEHelper") << "either wrong particle codes or units "
-				    << "from flux object - beware!!";
+                                    << "from flux object - beware!!";
 
     // maintained variable names from gnumi ntuples
     // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
@@ -1264,7 +1269,7 @@ namespace evgb {
 
   //--------------------------------------------------
   void GENIEHelper::PackMCTruth(genie::EventRecord *record,
-				simb::MCTruth &truth)
+                                simb::MCTruth &truth)
   {
 
     TLorentzVector *vertex = record->Vertex();
@@ -1296,21 +1301,21 @@ namespace evgb {
     while( (part = dynamic_cast<genie::GHepParticle *>(partitr.Next())) ){
       --trackid;
       simb::MCParticle tpart(trackid, 
-			     part->Pdg(), 
-			     primary, 
-			     part->FirstMother(), 
-			     part->Mass(), 
-			     part->Status());
+                             part->Pdg(), 
+                             primary, 
+                             part->FirstMother(), 
+                             part->Mass(), 
+                             part->Status());
 
       double vtx[4] = {part->Vx(), part->Vy(), part->Vz(), part->Vt()};
       
       // set the vertex location for the neutrino, nucleus and everything
       // that is to be tracked.  vertex returns values in meters.
       if(part->Status() == 0 || part->Status() == 1){
-	vtx[0] = 100.*(part->Vx()*1.e-15 + vertex->X());
-	vtx[1] = 100.*(part->Vy()*1.e-15 + vertex->Y());
-	vtx[2] = 100.*(part->Vz()*1.e-15 + vertex->Z());
-	vtx[3] = part->Vt() + spillTime;
+        vtx[0] = 100.*(part->Vx()*1.e-15 + vertex->X());
+        vtx[1] = 100.*(part->Vy()*1.e-15 + vertex->Y());
+        vtx[2] = 100.*(part->Vz()*1.e-15 + vertex->Z());
+        vtx[3] = part->Vt() + spillTime;
       }
 
       TLorentzVector pos(vtx[0], vtx[1], vtx[2], vtx[3]);
@@ -1336,10 +1341,10 @@ namespace evgb {
     // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
     truth.SetNeutrino(CCNC, mode, itype,
-		      initState.Tgt().Pdg(), 
-		      initState.Tgt().HitNucPdg(), 
-		      initState.Tgt().HitQrkPdg(),
-		      kine.W(true), kine.x(true), kine.y(true), kine.Q2(true));
+                      initState.Tgt().Pdg(), 
+                      initState.Tgt().HitNucPdg(), 
+                      initState.Tgt().HitQrkPdg(),
+                      kine.W(true), kine.x(true), kine.y(true), kine.Q2(true));
 
 
     return;
