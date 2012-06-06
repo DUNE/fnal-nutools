@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.37 2012-06-06 17:54:31 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.38 2012-06-06 18:43:05 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -222,18 +222,30 @@ namespace evgb {
       fEnvironment[indxGXMLPATH+1] += ":";
       fEnvironment[indxGXMLPATH+1] += gxmlpathadd;
     }
-    // For some file path searches don't use only the $FW_SEARCH_PATH,
-    // but the search path GENIE will use for XML files
-    // (inc. x-section splines) which includes $FW_SEARCH_PATH
-    cet::search_path spGXML(fEnvironment[indxGXMLPATH+1]);
 
     for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
+
       if(fEnvironment[i].compare("GSPLOAD") == 0){
+        // currently GENIE doesn't internally use GXMLPATH when looking for
+        // spline files, but instead wants a fully expanded path.
+        // Do the expansion here using the extended GXMLPATH list
+        // of locations (which included $FW_SEARCH_PATH)
+        cet::search_path spGXML(fEnvironment[indxGXMLPATH+1]);
         std::string fullpath;
-        mf::LogDebug("GENIEHelper") << "GSPLOAD as set: " << fEnvironment[i+1]; 
+        mf::LogDebug("GENIEHelper") << "GSPLOAD as originally set: " 
+                                    << fEnvironment[i+1]; 
         spGXML.find_file(fEnvironment[i+1], fullpath);
+        if ( fullpath == "" ) {
+          mf::LogError("GENIEHelper") 
+            << "could not resolve fulll path for spline file GSPLOAD " 
+            << "\"" << fEnvironment[i+1] << "\" using: " 
+            << fEnvironment[indxGXMLPATH+1];
+          throw cet::exception("UnresolvedGSPLOAD")
+            << "can't find GSPLOAD file";
+        }
         fEnvironment[i+1] = fullpath;
       }
+      
       gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
       mf::LogInfo("GENIEHelper") << "setting GENIE environment " 
                                  << fEnvironment[i] << " to \"" 
