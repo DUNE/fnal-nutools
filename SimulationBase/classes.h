@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.3 2011-01-21 22:22:34 p-nusoftart Exp $
-// $Author: p-nusoftart $
-// $Date: 2011-01-21 22:22:34 $
+// $Id: classes.h,v 1.4 2012-06-19 23:03:07 bckhouse Exp $
+// $Author: bckhouse $
+// $Date: 2012-06-19 23:03:07 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -17,6 +17,7 @@
 //    by putting the string inside another object.
 
 #include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Common/Assns.h" 
 
 // nutools includes
 #include "SimulationBase/simbase.h"
@@ -36,3 +37,5 @@ template class art::Wrapper< std::vector<simb::MCTrajectory> >;
 template class art::Wrapper< std::vector<simb::MCParticle> >;
 template class art::Wrapper< std::vector<simb::MCTruth> >;
 template class art::Wrapper< std::vector<simb::MCFlux> >;
+template class art::Wrapper< art::Assns<simb::MCTruth, simb::MCFlux, void> >;
+template class art::Wrapper< art::Assns<simb::MCFlux, simb::MCTruth, void> >;

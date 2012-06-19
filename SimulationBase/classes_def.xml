@@ -1,7 +1,7 @@
 <!--                                                                                  -->
-<!--  $Id: classes_def.xml,v 1.8 2011-05-23 03:08:08 brebel Exp $                     -->
-<!--  $Author: brebel $                                                               -->
-<!--  $Date: 2011-05-23 03:08:08 $                                                    -->
+<!--  $Id: classes_def.xml,v 1.9 2012-06-19 23:03:07 bckhouse Exp $                     -->
+<!--  $Author: bckhouse $                                                               -->
+<!--  $Date: 2012-06-19 23:03:07 $                                                    -->
 <!--                                                                                  -->
 <!--  Include art::Wrapper lines for objects that we would like to put into the event -->
 <!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
@@ -27,4 +27,6 @@
  <class name="art::Wrapper< std::vector<simb::MCNeutrino>   >"        />
  <class name="art::Wrapper< std::vector<simb::MCTruth>      >"        />
  <class name="art::Wrapper< std::vector<simb::MCFlux>       >"        />
+ <class name="art::Wrapper< art::Assns<simb::MCTruth, simb::MCFlux, void> >" />
+ <class name="art::Wrapper< art::Assns<simb::MCFlux, simb::MCTruth, void> >" />
 </lcgdict>
