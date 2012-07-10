@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.20 2012-03-12 20:58:08 rhatcher Exp $
+/// \version $Id: GENIEHelper.h,v 1.21 2012-07-10 21:23:52 nsmayer Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -39,8 +39,10 @@ namespace evgb{
 
     void                   Initialize();
     bool                   Stop();
-    bool                   Sample(simb::MCTruth &truth, 
-				  simb::MCFlux  &flux);
+     bool                   Sample(simb::MCTruth &truth, 
+				   simb::MCFlux  &flux,
+				   simb::GTruth  &gtruth);
+     
     double                 TotalHistFlux();
     double                 TotalExposure()    const { return fTotalExposure;  }
     std::string            FluxType()         const { return fFluxType;       }
@@ -64,6 +66,7 @@ namespace evgb{
     void PackNuMIFlux(simb::MCFlux &flux);
     void PackSimpleFlux(simb::MCFlux &flux);
     void PackMCTruth(genie::EventRecord *record, simb::MCTruth &truth);
+    void PackGTruth(genie::EventRecord *record, simb::GTruth &truth);
 
     void FindFluxPath(std::string userpattern);
 
