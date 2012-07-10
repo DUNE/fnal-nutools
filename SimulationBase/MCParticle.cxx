@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.8 2012-04-27 18:48:33 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.9 2012-07-10 19:21:24 nsmayer Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -62,7 +62,7 @@ namespace simb {
       }
     }
     else fmass = mass;
-
+    SetGvtx(0, 0, 0, 0);
   }
 
   //------------------------------------------------------------
@@ -135,6 +135,33 @@ namespace simb {
     return ftrajectory.Momentum(i);
   }
 
+  void MCParticle::SetGvtx(double *v) 
+  {
+    for(int i = 0; i < 4; i++) {
+      fGvtx[i] = v[i];
+    }
+  }
+  
+  void MCParticle::SetGvtx(float *v) 
+  {
+    for(int i = 0; i < 4; i++) {
+      fGvtx[i] = v[i];
+    }
+  }
+  
+  void MCParticle::SetGvtx(TLorentzVector v)
+  {
+    fGvtx = v;
+  }
+  
+  void MCParticle::SetGvtx(double x, double y, double z, double t) 
+  {
+    fGvtx.SetX(x);
+    fGvtx.SetY(y);
+    fGvtx.SetZ(z);
+    fGvtx.SetT(t);
+  }
+
   //------------------------------------------------------------
   std::ostream& operator<< ( std::ostream& output, const MCParticle& particle )
   {
@@ -150,10 +177,9 @@ namespace simb {
     if ( definition != 0 ) output << definition->GetName();
     else output << "PDG=" << pdg;
     
-    output << ", Mother ID="          << particle.Mother()
-	   << ", Process="            << particle.Process()
-	   << ", trajectory points: " << particle.NumberTrajectoryPoints()
-	   << ", status= "            << particle.StatusCode();
+    output << ", Mother ID=" << particle.Mother()
+	   << ", Process=" << particle.Process()
+	   << ", there are " << particle.NumberTrajectoryPoints() << " trajectory points";
 
     if(particle.NumberTrajectoryPoints() > 0 )
       output << ", Initial vtx (x,y,z,t)=(" << particle.Vx()
