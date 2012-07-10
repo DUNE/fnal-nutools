@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.38 2012-06-06 18:43:05 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.39 2012-07-10 21:22:07 nsmayer Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,8 @@
 #include "FluxDrivers/GBartolAtmoFlux.h"  //for atmo nu generation
 #include "FluxDrivers/GFlukaAtmo3DFlux.h" //for atmo nu generation
 #include "FluxDrivers/GAtmoFlux.h"        //for atmo nu generation
+#include "Conventions/Constants.h" //for calculating event kinematics
+
 #ifndef  MISSING_GSIMPLENTPFLUX
 #include "FluxDrivers/GSimpleNtpFlux.h"
 #endif
@@ -1068,7 +1070,7 @@ namespace evgb {
   }
 
   //--------------------------------------------------
-  bool GENIEHelper::Sample(simb::MCTruth &truth, simb::MCFlux  &flux)
+  bool GENIEHelper::Sample(simb::MCTruth &truth, simb::MCFlux  &flux, simb::GTruth &gtruth)
   {
     // set the top volume for the geometry
     art::ServiceHandle<geo::Geometry> geo;
@@ -1112,6 +1114,8 @@ namespace evgb {
 
     // fill the MC truth information as we have a good interaction
     PackMCTruth(fGenieEventRecord,truth); 
+    // fill the Generator (genie) truth information
+    PackGTruth(fGenieEventRecord, gtruth);
     
     // check to see if we are using flux ntuples but want to 
     // make n events per spill
@@ -1279,11 +1283,12 @@ namespace evgb {
     return;
   }
 
-  //--------------------------------------------------
+ //--------------------------------------------------
   void GENIEHelper::PackMCTruth(genie::EventRecord *record,
-                                simb::MCTruth &truth)
+				simb::MCTruth &truth)
   {
-
+    
+    std::cout << "Pack MCTruth object" << std::endl;
     TLorentzVector *vertex = record->Vertex();
 
     // get the Interaction object from the record - this is the object
@@ -1311,29 +1316,36 @@ namespace evgb {
     std::string primary("primary");
 
     while( (part = dynamic_cast<genie::GHepParticle *>(partitr.Next())) ){
+    
       --trackid;
       simb::MCParticle tpart(trackid, 
-                             part->Pdg(), 
-                             primary, 
-                             part->FirstMother(), 
-                             part->Mass(), 
-                             part->Status());
+			     part->Pdg(), 
+			     primary, 
+			     part->FirstMother(), 
+			     part->Mass(), 
+			     part->Status());
+
 
       double vtx[4] = {part->Vx(), part->Vy(), part->Vz(), part->Vt()};
-      
+      tpart.SetGvtx(vtx);
+      tpart.SetRescatter(part->RescatterCode());
+      //std::cerr << "Nate's Modification to particle loop done" << std::endl;
       // set the vertex location for the neutrino, nucleus and everything
       // that is to be tracked.  vertex returns values in meters.
       if(part->Status() == 0 || part->Status() == 1){
-        vtx[0] = 100.*(part->Vx()*1.e-15 + vertex->X());
-        vtx[1] = 100.*(part->Vy()*1.e-15 + vertex->Y());
-        vtx[2] = 100.*(part->Vz()*1.e-15 + vertex->Z());
-        vtx[3] = part->Vt() + spillTime;
+	vtx[0] = 100.*(part->Vx()*1.e-15 + vertex->X());
+	vtx[1] = 100.*(part->Vy()*1.e-15 + vertex->Y());
+	vtx[2] = 100.*(part->Vz()*1.e-15 + vertex->Z());
+	vtx[3] = part->Vt() + spillTime;
       }
-
       TLorentzVector pos(vtx[0], vtx[1], vtx[2], vtx[3]);
       TLorentzVector mom(part->Px(), part->Py(), part->Pz(), part->E());
       tpart.AddTrajectoryPoint(pos,mom);
-
+      if(part->PolzIsSet()) {
+	TVector3 polz; 
+	part->GetPolarization(polz);
+	tpart.SetPolarization(polz);
+      }
       truth.Add(tpart);
         
     }// end loop to convert GHepParticles to MCParticles
@@ -1350,16 +1362,103 @@ namespace evgb {
     
     int itype = simb::kNuanceOffset + genie::utils::ghep::NuanceReactionCode(record);
 
+   
     // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
-    truth.SetNeutrino(CCNC, mode, itype,
-                      initState.Tgt().Pdg(), 
-                      initState.Tgt().HitNucPdg(), 
-                      initState.Tgt().HitQrkPdg(),
-                      kine.W(true), kine.x(true), kine.y(true), kine.Q2(true));
+    
+    // The genie event kinematics are subtle different from the event kinematics that a experimentalist would calculate
+    // Instead of retriving the genie values for these kinematic variables calcuate them from the the final state particles 
+    // while ingnoring the fermi momentum and the off-shellness of the bound nucleon.
+    genie::GHepParticle * hitnucl = record->HitNucleon();
+    TLorentzVector pdummy(0, 0, 0, 0);
+    const TLorentzVector & k1 = *((record->Probe())->P4());
+    const TLorentzVector & k2 = *((record->FinalStatePrimaryLepton())->P4());
+    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy;
 
+    double M  = genie::constants::kNucleonMass; 
+    TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
+    double Q2 = -1 * q.M2();                       // momemtum transfer
+    double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer to the nucleus)
+    double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
+    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
+    double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
+    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    
+    std::cerr << "Set Neutrino in MCTruth" << std::endl;
+    truth.SetNeutrino(CCNC, mode, itype,
+		      initState.Tgt().Pdg(), 
+		      initState.Tgt().HitNucPdg(), 
+		      initState.Tgt().HitQrkPdg(),
+		      W, x, y, Q2);
+
+    std::cerr << "End PackMCTruth" << std::endl;
+    return;
+  }
+
+  void GENIEHelper::PackGTruth(genie::EventRecord *record, 
+			       simb::GTruth &truth) {
+    
+    //interactions info
+    genie::Interaction *inter = record->Summary();
+    const genie::ProcessInfo  &procInfo = inter->ProcInfo();
+    truth.fGint = (int)procInfo.InteractionTypeId(); 
+    truth.fGscatter = (int)procInfo.ScatteringTypeId(); 
+     
+    //Event info
+    truth.fweight = record->Weight(); 
+    truth.fprobability = record->Probability(); 
+    truth.fXsec = record->XSec(); 
+    truth.fDiffXsec = record->DiffXSec(); 
+
+    TLorentzVector vtx;
+    TLorentzVector *erVtx = record->Vertex();
+    vtx.SetXYZT(erVtx->X(), erVtx->Y(), erVtx->Z(), erVtx->T() );
+    truth.fVertex = vtx;
+    
+    //genie::XclsTag info
+    const genie::XclsTag &exclTag = inter->ExclTag();
+    truth.fNumPiPlus = exclTag.NPiPlus(); 
+    truth.fNumPiMinus = exclTag.NPiMinus();
+    truth.fNumPi0 = exclTag.NPi0();    
+    truth.fNumProton = exclTag.NProtons(); 
+    truth.fNumNeutron = exclTag.NNucleons();
+    truth.fIsCharm = exclTag.IsCharmEvent();   
+    truth.fResNum = (int)exclTag.Resonance();
+
+    //kinematics info 
+    const genie::Kinematics &kine = inter->Kine();
+    
+    truth.fgQ2 = kine.Q2(true);
+    truth.fgq2 = kine.q2(true);
+    truth.fgW = kine.W(true);
+    truth.fgT = kine.t(true);
+    truth.fgX = kine.x(true);
+    truth.fgY = kine.y(true);
+    
+    /*
+    truth.fgQ2 = kine.Q2(false); 
+    truth.fgW = kine.W(false);
+    truth.fgT = kine.t(false);
+    truth.fgX = kine.x(false);
+    truth.fgY = kine.y(false);
+    */
+    truth.fFShadSystP4 = kine.HadSystP4();
+    
+    //Initial State info
+    const genie::InitialState &initState  = inter->InitState();
+    truth.fProbePDG = initState.ProbePdg();
+    truth.fProbeP4 = *initState.GetProbeP4();
+    
+    //Target info
+    const genie::Target &tgt = initState.Tgt();
+    truth.fIsSeaQuark = tgt.HitSeaQrk();
+    truth.fHitNucP4 = tgt.HitNucP4();
+    truth.ftgtZ = tgt.Z();
+    truth.ftgtA = tgt.A();
+    truth.ftgtPDG = tgt.Pdg();
 
     return;
+
   }
 
   //----------------------------------------------------------------------
