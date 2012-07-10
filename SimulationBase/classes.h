@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.5 2012-06-19 23:17:54 brebel Exp $
-// $Author: brebel $
-// $Date: 2012-06-19 23:17:54 $
+// $Id: classes.h,v 1.6 2012-07-10 19:24:09 nsmayer Exp $
+// $Author: nsmayer $
+// $Date: 2012-07-10 19:24:09 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -32,16 +32,28 @@ template class std::vector<simb::MCTrajectory>;
 template class std::vector<simb::MCParticle>;
 template class std::vector<simb::MCTruth>;
 template class std::vector<simb::MCFlux>;
+template class std::vector<simb::GTruth>;
 
 template class std::pair< art::Ptr<simb::MCFlux>,  art::Ptr<simb::MCTruth> >;
 template class std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::MCFlux>  >;
+template class std::pair< art::Ptr<simb::GTruth>,  art::Ptr<simb::MCTruth> >;
+template class std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::GTruth>  >;
+
+
 template class art::Assns<simb::MCFlux,  simb::MCTruth, void>;
 template class art::Assns<simb::MCTruth, simb::MCFlux,  void>;
+template class art::Assns<simb::GTruth,  simb::MCTruth, void>;
+template class art::Assns<simb::MCTruth, simb::GTruth,  void>;
 
 template class art::Wrapper< std::vector<simb::MCNeutrino> >;
 template class art::Wrapper< std::vector<simb::MCTrajectory> >;
 template class art::Wrapper< std::vector<simb::MCParticle> >;
 template class art::Wrapper< std::vector<simb::MCTruth> >;
 template class art::Wrapper< std::vector<simb::MCFlux> >;
+template class art::Wrapper< std::vector<simb::GTruth> >;
+
 template class art::Wrapper< art::Assns<simb::MCFlux,  simb::MCTruth, void> >;
 template class art::Wrapper< art::Assns<simb::MCTruth, simb::MCFlux,  void> >;
+template class art::Wrapper< art::Assns<simb::GTruth,  simb::MCTruth, void> >;
+template class art::Wrapper< art::Assns<simb::MCTruth, simb::GTruth,  void> >;
+
