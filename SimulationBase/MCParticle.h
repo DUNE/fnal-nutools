@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.8 2011-08-01 20:54:56 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.9 2012-07-10 19:20:28 nsmayer Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +125,28 @@ namespace simb {
     double EndPz()               	const { return Momentum(ftrajectory.size()-1).Pz(); }
     double EndE()                	const { return Momentum(ftrajectory.size()-1).E();  }
 
+    // Getters and setters for the genie vertex
+    void SetGvtx(double *v);
+    void SetGvtx(float *v);
+    void SetGvtx(TLorentzVector v);
+    void SetGvtx(double x, double y, double z, double t);
+    TLorentzVector GetGvtx()              {return fGvtx;}
+    double Gvx()                              {return fGvtx.X();}
+    double Gvy()                              {return fGvtx.Y();}
+    double Gvz()                              {return fGvtx.Z();}
+    double Gvt()                              {return fGvtx.T();}
+    /*
+    //Getters and setters for first and last daughter data members
+    void SetFD(int d) {fFirstdaughter = d;}
+    void SetLD(int d) {fLastdaughter = d;}
+    int GetFD() {return fFirstdaughter;}
+    int GetSD() {return fLastdaughter;}
+    */
+    //Getters and setters for rescatter status
+    void SetRescatter(int code) {frescatter = code;}
+    int GetRescatter() {return frescatter;}
+    
+
     // Access to the trajectory in both a const and non-const context.
     const simb::MCTrajectory& Trajectory() const { return ftrajectory; }
 
@@ -160,6 +182,10 @@ namespace simb {
     TVector3                fpolarization;  ///> Polarization
     daughters_type          fdaughters;     ///> Sorted list of daughters of this particle.
     double                  fWeight;        ///> Assigned weight to this particle for MC tests
+    TLorentzVector          fGvtx;          ///> Vertex needed by generater (genie) to rebuild genie::EventRecord for event reweighting
+    //int                     fFirstdaughter; ///> First daughter (to rebuild genie::EventRecord)
+    //int                     fLastdaughter;  ///> Last daughter (to rebuild genie::EventRecord)
+    int                     frescatter;     ///> rescatter code
 
   };
 
