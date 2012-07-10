@@ -8,5 +8,6 @@ namespace simb { }
 #include "SimulationBase/MCTruth.h"
 #include "SimulationBase/MCTrajectory.h"
 #include "SimulationBase/MCParticle.h"
+#include "SimulationBase/GTruth.h"
 
 #endif
