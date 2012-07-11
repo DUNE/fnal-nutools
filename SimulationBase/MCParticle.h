@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.10 2012-07-11 14:42:27 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.11 2012-07-11 15:29:01 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -137,8 +137,8 @@ namespace simb {
     double Gvt()                              { return fGvtx.T(); }
 
     //Getters and setters for first and last daughter data members
-    const int FirstDaughter()         const   { return *(fdaughters.begin()); }
-    const int LastDaughter()          const   { return *(fdaughters.end());   }
+    const int FirstDaughter()         const   { return *(fdaughters.begin());  }
+    const int LastDaughter()          const   { return *(fdaughters.rbegin()); }
 
     //Getters and setters for rescatter status
     void      SetRescatter(int code)          { frescatter = code; }
