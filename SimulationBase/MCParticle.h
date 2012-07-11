@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.11 2012-07-11 15:29:01 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.12 2012-07-11 15:56:08 nsmayer Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -125,7 +125,13 @@ namespace simb {
     double EndPz()               	const { return Momentum(ftrajectory.size()-1).Pz(); }
     double EndE()                	const { return Momentum(ftrajectory.size()-1).E();  }
 
-    // Getters and setters for the genie vertex
+    // Getters and setters for the generator vertex
+    //These are for setting the generator vertex.  In the case of genie
+    //the generator assumes a cooridnate system with origin at the nucleus.
+    //These variables save the particle vertexs in this cooridnate system.
+    //After genie generates the event, a cooridnate transformation is done 
+    //to place the event in the detector cooridnate system.  These variables 
+    //store the vertex before that cooridnate transformation happens.
     void SetGvtx(double *v);
     void SetGvtx(float *v);
     void SetGvtx(TLorentzVector v);
