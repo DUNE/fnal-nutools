@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.40 2012-07-11 14:11:16 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.41 2012-07-11 14:36:02 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1283,12 +1283,11 @@ namespace evgb {
     return;
   }
 
- //--------------------------------------------------
+  //--------------------------------------------------
   void GENIEHelper::PackMCTruth(genie::EventRecord *record,
 				simb::MCTruth &truth)
   {
     
-    std::cout << "Pack MCTruth object" << std::endl;
     TLorentzVector *vertex = record->Vertex();
 
     // get the Interaction object from the record - this is the object
@@ -1366,8 +1365,10 @@ namespace evgb {
     // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
     
-    // The genie event kinematics are subtle different from the event kinematics that a experimentalist would calculate
-    // Instead of retriving the genie values for these kinematic variables calcuate them from the the final state particles 
+    // The genie event kinematics are subtle different from the event 
+    // kinematics that a experimentalist would calculate
+    // Instead of retriving the genie values for these kinematic variables 
+    // calcuate them from the the final state particles 
     // while ingnoring the fermi momentum and the off-shellness of the bound nucleon.
     genie::GHepParticle * hitnucl = record->HitNucleon();
     TLorentzVector pdummy(0, 0, 0, 0);
@@ -1384,17 +1385,15 @@ namespace evgb {
     double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     
-    std::cerr << "Set Neutrino in MCTruth" << std::endl;
     truth.SetNeutrino(CCNC, mode, itype,
 		      initState.Tgt().Pdg(), 
 		      initState.Tgt().HitNucPdg(), 
 		      initState.Tgt().HitQrkPdg(),
 		      W, x, y, Q2);
-
-    std::cerr << "End PackMCTruth" << std::endl;
     return;
   }
-
+  
+  //--------------------------------------------------
   void GENIEHelper::PackGTruth(genie::EventRecord *record, 
 			       simb::GTruth &truth) {
     
