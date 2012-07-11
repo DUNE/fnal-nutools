@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.39 2012-07-10 21:22:07 nsmayer Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.40 2012-07-11 14:11:16 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1298,7 +1298,7 @@ namespace evgb {
     // get the different components making up the interaction
     const genie::InitialState &initState  = inter->InitState();
     const genie::ProcessInfo  &procInfo   = inter->ProcInfo();
-    const genie::Kinematics   &kine       = inter->Kine();
+    //const genie::Kinematics   &kine       = inter->Kine();
     //const genie::XclsTag      &exclTag    = inter->ExclTag();
     //const genie::KPhaseSpace  &phaseSpace = inter->PhaseSpace();
 
@@ -1373,7 +1373,7 @@ namespace evgb {
     TLorentzVector pdummy(0, 0, 0, 0);
     const TLorentzVector & k1 = *((record->Probe())->P4());
     const TLorentzVector & k2 = *((record->FinalStatePrimaryLepton())->P4());
-    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy;
+    //const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy;
 
     double M  = genie::constants::kNucleonMass; 
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer

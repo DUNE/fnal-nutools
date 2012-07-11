@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.11 2011-10-31 14:41:40 greenc Exp $
+// $Id: EventGeneratorTest.cxx,v 1.12 2012-07-11 14:11:16 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -169,8 +169,9 @@ namespace evgen {
 
 	simb::MCTruth truth;
 	simb::MCFlux  flux;
+	simb::GTruth  gTruth;
 
-	if( help.Sample(truth, flux) )
+	if( help.Sample(truth, flux, gTruth) )
 	  ++interactionCount;
 
       } // end creation loop for this spill
