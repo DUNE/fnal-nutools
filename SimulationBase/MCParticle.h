@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.9 2012-07-10 19:20:28 nsmayer Exp $
+/// \version $Id: MCParticle.h,v 1.10 2012-07-11 14:42:27 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -130,23 +130,20 @@ namespace simb {
     void SetGvtx(float *v);
     void SetGvtx(TLorentzVector v);
     void SetGvtx(double x, double y, double z, double t);
-    TLorentzVector GetGvtx()              {return fGvtx;}
-    double Gvx()                              {return fGvtx.X();}
-    double Gvy()                              {return fGvtx.Y();}
-    double Gvz()                              {return fGvtx.Z();}
-    double Gvt()                              {return fGvtx.T();}
-    /*
-    //Getters and setters for first and last daughter data members
-    void SetFD(int d) {fFirstdaughter = d;}
-    void SetLD(int d) {fLastdaughter = d;}
-    int GetFD() {return fFirstdaughter;}
-    int GetSD() {return fLastdaughter;}
-    */
-    //Getters and setters for rescatter status
-    void SetRescatter(int code) {frescatter = code;}
-    int GetRescatter() {return frescatter;}
-    
+    TLorentzVector GetGvtx()                  { return fGvtx;     }
+    double Gvx()                              { return fGvtx.X(); }
+    double Gvy()                              { return fGvtx.Y(); }
+    double Gvz()                              { return fGvtx.Z(); }
+    double Gvt()                              { return fGvtx.T(); }
 
+    //Getters and setters for first and last daughter data members
+    const int FirstDaughter()         const   { return *(fdaughters.begin()); }
+    const int LastDaughter()          const   { return *(fdaughters.end());   }
+
+    //Getters and setters for rescatter status
+    void      SetRescatter(int code)          { frescatter = code; }
+    const int Rescatter()             const   { return frescatter; }
+    
     // Access to the trajectory in both a const and non-const context.
     const simb::MCTrajectory& Trajectory() const { return ftrajectory; }
 
@@ -172,20 +169,19 @@ namespace simb {
   protected:
     typedef std::set<int>   daughters_type;
 
-    int                     fstatus;        ///> Status code from generator, geant, etc
-    int                     ftrackId;       ///> TrackId
-    int                     fpdgCode;       ///> PDG code
-    int                     fmother;        ///> Mother
-    std::string             fprocess;       ///> Detector-simulation physics process that created the particle
-    simb::MCTrajectory      ftrajectory;    ///> particle trajectory (position,momentum)
-    double                  fmass;          ///> Mass; from PDG unless overridden
-    TVector3                fpolarization;  ///> Polarization
-    daughters_type          fdaughters;     ///> Sorted list of daughters of this particle.
-    double                  fWeight;        ///> Assigned weight to this particle for MC tests
-    TLorentzVector          fGvtx;          ///> Vertex needed by generater (genie) to rebuild genie::EventRecord for event reweighting
-    //int                     fFirstdaughter; ///> First daughter (to rebuild genie::EventRecord)
-    //int                     fLastdaughter;  ///> Last daughter (to rebuild genie::EventRecord)
-    int                     frescatter;     ///> rescatter code
+    int                     fstatus;        ///< Status code from generator, geant, etc
+    int                     ftrackId;       ///< TrackId
+    int                     fpdgCode;       ///< PDG code
+    int                     fmother;        ///< Mother
+    std::string             fprocess;       ///< Detector-simulation physics process that created the particle
+    simb::MCTrajectory      ftrajectory;    ///< particle trajectory (position,momentum)
+    double                  fmass;          ///< Mass; from PDG unless overridden
+    TVector3                fpolarization;  ///< Polarization
+    daughters_type          fdaughters;     ///< Sorted list of daughters of this particle.
+    double                  fWeight;        ///< Assigned weight to this particle for MC tests
+    TLorentzVector          fGvtx;          ///< Vertex needed by generater (genie) to rebuild 
+                                            ///< genie::EventRecord for event reweighting
+    int                     frescatter;     ///< rescatter code
 
   };
 
