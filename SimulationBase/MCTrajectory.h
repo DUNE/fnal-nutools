@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCTrajectory.h
-/// \version $Id: MCTrajectory.h,v 1.3 2011-12-03 03:22:43 bckhouse Exp $
+/// \version $Id: MCTrajectory.h,v 1.4 2012-07-13 23:41:02 bckhouse Exp $
 /// \brief Trajectory class
 ///
 /// \author  seligman@nevis.columbia.edu
@@ -121,6 +121,11 @@ namespace simb {
     void push_back( const value_type& v )                              { ftrajectory.push_back(v); }
     void push_back( const TLorentzVector& p, const TLorentzVector& m ) { ftrajectory.push_back( value_type(p,m) ); }
     void Add( const TLorentzVector& p, const TLorentzVector& m )       { push_back(p,m); }
+
+    /// Remove points from trajectory. Straight line interpolation between the
+    /// remaining points will pass no further than \a margin from removed
+    /// points.
+    void Sparsify(double margin = .1);
 
   private:
     list_type ftrajectory;

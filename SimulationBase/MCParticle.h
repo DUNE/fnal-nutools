@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.12 2012-07-11 15:56:08 nsmayer Exp $
+/// \version $Id: MCParticle.h,v 1.13 2012-07-13 23:41:02 bckhouse Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -161,6 +161,8 @@ namespace simb {
     // in studies of rare processes, etc
     const double Weight()             const { return fWeight;}
     void         SetWeight(double wt)       { fWeight = wt;  }
+
+    void SparsifyTrajectory() {ftrajectory.Sparsify();}
 
     // Define a comparison operator for particles.  This allows us to
     // keep them in sets or maps.  It makes sense to order a list of
