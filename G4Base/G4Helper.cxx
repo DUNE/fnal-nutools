@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.13 2012-05-10 19:09:32 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.14 2012-07-31 17:08:50 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +59,8 @@ namespace g4b{
     , fConvertMCTruth(0)
     , fDetector(0)
   {
-    /// Geant4 run manager.  Nothing happens in Geant4 until this object
-    /// is created.
+    // Geant4 run manager.  Nothing happens in Geant4 until this object
+    // is created.
     fRunManager = new G4RunManager;
 
     // Get the pointer to the User Interface manager   
