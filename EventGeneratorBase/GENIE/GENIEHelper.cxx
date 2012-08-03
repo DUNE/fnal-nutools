@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.41 2012-07-11 14:36:02 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.42 2012-08-03 21:10:03 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -56,15 +56,12 @@
 #include "GHEP/GHepParticle.h"
 #include "PDG/PDGCodeList.h"
 
-// currently NuTools, but eventually GENIE
-#ifdef BLENDER_IN_GENIE
+// assumes in GENIE
 #include "FluxDrivers/GFluxBlender.h"
 #include "FluxDrivers/GFlavorMixerI.h"
 #include "FluxDrivers/GFlavorMap.h"
-#else
-#include "EventGeneratorBase/GFluxBlender.h"
-#include "EventGeneratorBase/GFlavorMixerI.h"
-#include "EventGeneratorBase/GFlavorMap.h"
+#ifdef FLAVORMIXERFACTORY
+#include "FluxDrivers/GFlavorMixerFactory.h"
 #endif
 
 //NuTools includes
@@ -873,9 +870,18 @@ namespace evgb {
       // Wrap the true flux driver up in the adapter to allow flavor mixing
       genie::flux::GFlavorMixerI* mixer = 0;
       // here is where we map MixerConfig string keyword to actual class
+      // first is a special case that is part of GENIE proper
       if ( keyword == "map" || keyword == "swap" || keyword == "fixedfrac" )
         mixer = new genie::flux::GFlavorMap();
-      //-- if there are alternative mixers the map from keyword => class goes here
+#ifdef FLAVORMIXERFACTORY
+      // if it wasn't one of the predefined known mixers then
+      // see if the factory knows about it and can create one
+      // assuming the keyword (first token) is the class name
+      if ( ! mixer ) {
+        mixer = genie::flux::GFlavorMixerFactory::Instance().GetFlavorMixer(keyword);
+        fMixerConfig.erase(0,keyword.size()); // remove class from config string
+      }
+#endif
       // configure the mixer
       if ( mixer ) mixer->Config(fMixerConfig);
       else {
