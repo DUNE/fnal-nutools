@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.42 2012-08-03 21:10:03 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.43 2012-08-03 23:14:45 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -865,7 +865,7 @@ namespace evgb {
     fFluxD2GMCJD = fFluxD;  // default: genie's GMCJDriver uses the bare flux generator
     if( fMixerConfig.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
       fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \t\n")  );
-    std::string keyword = fMixerConfig.substr(0,fMixerConfig.find_first_of(" "));
+    std::string keyword = fMixerConfig.substr(0,fMixerConfig.find_first_of(" \t\n"));
     if ( keyword != "none" ) {
       // Wrap the true flux driver up in the adapter to allow flavor mixing
       genie::flux::GFlavorMixerI* mixer = 0;
@@ -878,16 +878,34 @@ namespace evgb {
       // see if the factory knows about it and can create one
       // assuming the keyword (first token) is the class name
       if ( ! mixer ) {
-        mixer = genie::flux::GFlavorMixerFactory::Instance().GetFlavorMixer(keyword);
-        fMixerConfig.erase(0,keyword.size()); // remove class from config string
+        genie::flux::GFlavorMixerFactory& mixerFactory = 
+          genie::flux::GFlavorMixerFactory::Instance();
+        mixer = mixerFactory.GetFlavorMixer(keyword);
+        if ( mixer ) {
+          // remove class name from config string
+          fMixerConfig.erase(0,keyword.size()); 
+          // trim any leading whitespace
+          if ( fMixerConfig.find_first_not_of(" \t\n") != 0 )
+            fMixerConfig.erase( 0, fMixerConfig.find_first_not_of(" \t\n")  );
+        } else {
+          const std::vector<std::string>& knownMixers = 
+            mixerFactory.AvailableFlavorMixers();
+          mf::LogWarning("GENIEHelper")
+            << " GFlavorMixerFactory known mixers: ";
+          for (unsigned int j=0; j < knownMixers.size(); ++j ) {
+            mf::LogWarning("GENIEHelper")
+              << "   [" << std::setw(2) << j << "]  " << knownMixers[j];
+          }
+        }
       }
 #endif
       // configure the mixer
       if ( mixer ) mixer->Config(fMixerConfig);
       else {
-        mf::LogWarning("GENIEHelper") << "GENIEHelper MixerConfig keyword was \"" << keyword
-                                      << "\" but that did not map to a class" << std::endl
-                                      << "GFluxBlender in use, but no mixer";
+        mf::LogWarning("GENIEHelper") 
+          << "GENIEHelper MixerConfig keyword was \"" << keyword
+          << "\" but that did not map to a class; " << std::endl
+          << "GFluxBlender in use, but no mixer";
       }
 
       genie::GFluxI* realFluxD = fFluxD;
