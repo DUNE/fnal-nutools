@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.cxx
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.cxx,v 1.4 2011-11-15 22:53:56 brebel Exp $
+/// \version $Id: ConvertMCTruthToG4.cxx,v 1.5 2012-08-06 23:07:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +62,12 @@ namespace g4b{
   //-----------------------------------------------------
   void ConvertMCTruthToG4::Append( art::Ptr<simb::MCTruth>& mct )
   {
+    this->Append( mct.get() );
+  }
+
+  //-----------------------------------------------------
+  void ConvertMCTruthToG4::Append( const simb::MCTruth* mct )
+  {
     fConvertList.push_back( mct );
   }
 
@@ -89,9 +95,9 @@ namespace g4b{
     // For each MCTruth (probably only one, but you never know):
     // index keeps track of which MCTruth object you are using
     unsigned int index = 0;
-    for( art::PtrVector<simb::MCTruth>::const_iterator mci = fConvertList.begin(); mci != fConvertList.end(); ++mci ){
+    for( std::vector<const simb::MCTruth*>::const_iterator mci = fConvertList.begin(); mci != fConvertList.end(); ++mci ){
     
-      art::Ptr<simb::MCTruth> mct(*mci);
+      const simb::MCTruth* mct(*mci);
 
       // For each simb::MCParticle in the MCTruth:
       for ( int p = 0; p != mct->NParticles(); ++p ){

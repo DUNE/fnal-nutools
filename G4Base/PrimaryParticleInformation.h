@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.5 2011-11-15 22:53:56 brebel Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.6 2012-08-06 23:07:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -58,8 +58,8 @@ namespace g4b {
     inline void operator delete(void*);
     
     // Accessors:
-    const art::Ptr<simb::MCTruth>& GetMCTruth() const { return fMCTruth;      }
-    void SetMCTruth(art::Ptr<simb::MCTruth> m)        { fMCTruth = m;         }
+    const simb::MCTruth* GetMCTruth() const { return fMCTruth; }
+    void SetMCTruth(const simb::MCTruth* m) { fMCTruth = m;    }
 
     // Required by Geant4:
     void Print() const;
@@ -71,7 +71,7 @@ namespace g4b {
     // particle (although in that case it's more likely that a
     // G4Base::PrimaryParticleInformation object would not have been
     // created in the first place.)
-    art::Ptr<simb::MCTruth> fMCTruth;
+    const simb::MCTruth* fMCTruth;
   };
 
   // It's not likely, but there could be memory issues with these

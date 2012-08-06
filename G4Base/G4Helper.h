@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.10 2012-05-10 19:09:32 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.11 2012-08-06 23:07:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +68,15 @@ namespace g4b {
     // first event is simulated.
     void InitMC();
 
-    // This is the method that actually passes the MCTruth objects to 
-    // G4 and gets back a list of particles
-    bool G4Run(art::PtrVector<simb::MCTruth> &primaries);
+    // This is the method that actually passes a list of MCTruth objects to G4 
+    // so it can create a list of particles
+    bool G4Run(std::vector<const simb::MCTruth*> &primaries);
 
     // Pass a single MCTruth object to G4
     bool G4Run(art::Ptr<simb::MCTruth>& primary);
+
+    // Pass a single MCTruth object to G4
+    bool G4Run(const simb::MCTruth* primary);
 
     G4RunManager* GetRunManager() { return fRunManager; }
 

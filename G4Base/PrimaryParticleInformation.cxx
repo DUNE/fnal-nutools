@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.cxx
 //
-/// \version $Id: PrimaryParticleInformation.cxx,v 1.3 2011-11-13 16:12:20 brebel Exp $
+/// \version $Id: PrimaryParticleInformation.cxx,v 1.4 2012-08-06 23:07:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #include "G4Base/PrimaryParticleInformation.h"
@@ -14,6 +14,7 @@ namespace g4b{
 
   //-------------------------------------------------
   PrimaryParticleInformation::PrimaryParticleInformation()
+    : fMCTruth(0)
   {
   }
 
@@ -25,8 +26,8 @@ namespace g4b{
   //-------------------------------------------------
   void PrimaryParticleInformation::Print() const
   {
-    if ( fMCTruth.isNonnull() )
-      std::cout << *(fMCTruth.get());
+    if ( fMCTruth )
+      std::cout << *fMCTruth;
   }
 
 }// namespace

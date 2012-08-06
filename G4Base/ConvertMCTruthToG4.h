@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.h
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.h,v 1.3 2011-10-21 03:37:07 brebel Exp $
+/// \version $Id: ConvertMCTruthToG4.h,v 1.4 2012-08-06 23:07:19 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 ///
@@ -47,6 +47,10 @@ namespace g4b {
     /// be appended to the Geant4 event.
     void Append( art::Ptr<simb::MCTruth> &mct );
 
+    /// Add a new MCTruth object to the list of primary particles to
+    /// be appended to the Geant4 event.
+    void Append( const simb::MCTruth* mct );
+
     /// Required of any class that inherits from
     /// G4VUserPrimaryGeneratorAction; append primary particles to a
     /// G4Event object.  This method is invoked by Geant4, and is not
@@ -55,7 +59,7 @@ namespace g4b {
 
   private:
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
-    art::PtrVector<simb::MCTruth>     fConvertList;   ///< List of MCTruth objects to convert for this spill
+    std::vector<const simb::MCTruth*> fConvertList;   ///< List of MCTruth objects to convert for this spill
     std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
   };
 

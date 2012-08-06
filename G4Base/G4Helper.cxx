@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.14 2012-07-31 17:08:50 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.15 2012-08-06 23:07:19 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -363,36 +363,13 @@ namespace g4b{
   }
 
   //------------------------------------------------
-  bool G4Helper::G4Run(art::PtrVector<simb::MCTruth>& primaries) 
+  bool G4Helper::G4Run(art::Ptr<simb::MCTruth>& primary) 
   {
-    // Get the event converter ready.
-    fConvertMCTruth->Reset();
-
-    //   std::cout << "there are " << primaries.size() << " MCTruth objects in this event" <<std::endl;
-
-    // For each MCTruth:
-    for(art::PtrVector<simb::MCTruth>::const_iterator i = primaries.begin(); i != primaries.end(); ++i ){
-
-      art::Ptr<simb::MCTruth> primary(*i);
-    
-      //     std::cout << "therer are " << primary->NParticles() << " in primary" << std::endl;
-
-      // Pass the MCTruth* to our event generator.
-      fConvertMCTruth->Append( primary );
-    }
-    
-    // Start the simulation for this event.  Note: The following
-    // statement increments the G4RunManager's run number.  Because of
-    // this, it's important for events to use the run/event number
-    // from the EventDataModel Header, not G4's internal numbers.
-    fUIManager->ApplyCommand("/run/beamOn 1");
-
-    return true;
-  
+    return this->G4Run( primary.get() );
   }
 
   //------------------------------------------------
-  bool G4Helper::G4Run(art::Ptr<simb::MCTruth>& primary) 
+  bool G4Helper::G4Run(const simb::MCTruth* primary) 
   {
     // Get the event converter ready.
     fConvertMCTruth->Reset();
