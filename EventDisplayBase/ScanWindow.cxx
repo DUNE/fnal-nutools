@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.14 2011-10-31 14:41:40 greenc Exp $
+/// \version $Id: ScanWindow.cxx,v 1.15 2012-08-09 15:04:44 messier Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -38,32 +38,39 @@ namespace evdb{
   {
     // Create tile view container. Used to show colormap.
     
-    fFrame = new TGGroupFrame(p, "Categories", kHorizontalFrame);
+    fFrame = new TGGroupFrame(p, "Categories", kVerticalFrame);
     
-    TGLayoutHints* fLH3 = new TGLayoutHints(kLHintsLeft|kLHintsExpandX|kLHintsTop,
+    TGLayoutHints* fLH3 = new TGLayoutHints(kLHintsLeft|
+					    kLHintsExpandX|
+					    kLHintsTop,
 					    2,2,2,2);
-    
+    //
     // grab the ScanOptions service and loop over the categories to make a 
     // ScanFrame for each
+    //
     art::ServiceHandle<evdb::ScanOptions> opts;
-
+    
     unsigned int pos = 0;
     for(unsigned int c = 0; c < nCategories; ++c){
       std::vector<std::string> types;
       std::vector<std::string> labels;
       
       for(unsigned int p = 0; p < opts->fFieldsPerCategory[c]; ++p){
-	types.push_back(opts->fFieldTypes[pos+p]);
+	types. push_back(opts->fFieldTypes[pos+p]);
 	labels.push_back(opts->fFieldLabels[pos+p]);	
       }
       
       pos += opts->fFieldsPerCategory[c];
-
+      
+      //
       // Create container for the current category.  
+      //
       TGGroupFrame *frame = 0;
-      fCatFrames.push_back(new TGGroupFrame(fFrame, opts->fCategories[c].c_str(), 
-					    kRaisedFrame|kVerticalFrame));
-      frame = fCatFrames[fCatFrames.size()-1];
+      frame = new TGGroupFrame(fFrame, 
+			       opts->fCategories[c].c_str(), 
+			       kRaisedFrame|kVerticalFrame);
+      fCatFrames.push_back(frame);
+      
       //frame->SetLayoutManager(fML);
       // loop over the fields and determine what to draw
       for(unsigned int i = 0; i < types.size(); ++i){
@@ -271,23 +278,35 @@ namespace evdb{
 
       std::vector< art::Handle< std::vector<simb::MCTruth> > > mclist;
 
-      try{
+      try {
 	evt->getManyByType(mclist);
-	if(mclist.size() < 1){
-	  mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
-				       << " but no MCTruth objects found in event - "
-				       << " put garbage numbers into the file";
-	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
-		  << " " << -999. << " " << -999. << " " << -999.;
+	
+	bool listok = (mclist.size()>0);
+	bool isnu   = false;
+	if (listok) {
+	  isnu = (mclist[0]->at(0).Origin()==simb::kBeamNeutrino);
 	}
-	  
-	if ( mclist[0]->at(0).Origin() != simb::kBeamNeutrino ){
-	  mf::LogWarning("ScanWindow") <<"Unknown particle source or truth information N/A"
-				       << " put garbage numbers into the file";
-	  outfile << -999. << " " << -999. << " " << -999. << " " << -999.
-		  << " " << -999. << " " << -999.<< " " << -999.;
+	
+	if (listok==false) {
+	  mf::LogWarning("ScanWindow") 
+	    << "MC truth information requested for output file"
+	    << " but no MCTruth objects found in event - "
+	    << " put garbage numbers into the file";
+	  outfile
+	    << -999. << " " << -999. << " " << -999. << " " 
+	    << -999. << " " << -999. << " " << -999. << " " << -999.;
 	}
-	else{	      
+	
+	if ( listok && isnu==false) {
+	  mf::LogWarning("ScanWindow") 
+	    << "Unknown particle source or truth information N/A"
+	    << " put garbage numbers into the file";
+	  outfile 
+	    << -999. << " " << -999. << " " << -999. << " " 
+	    << -999. << " " << -999. << " " << -999.<< " " << -999.;
+	}
+	
+	if (listok && isnu) {
 	  // get the event vertex and energy information,
 	  const simb::MCNeutrino& nu = mclist[0]->at(0).GetNeutrino();
 	  
@@ -302,20 +321,22 @@ namespace evdb{
 	}
       }
       catch(cet::exception &e){
-	mf::LogWarning("ScanWindow") << "MC truth information requested for output file"
-				     << " but no MCTruth objects found in event - "
-				     << " put garbage numbers into the file";
-	outfile << -999. << " " << -999. << " " << -999. << " " << -999.
-		<< " " << -999. << " " << -999.;
+	mf::LogWarning("ScanWindow") 
+	  << "MC truth information requested for output file"
+	  << " but no MCTruth objects found in event - "
+	  << " put garbage numbers into the file";
+	outfile 
+	  << -999. << " " << -999. << " " << -999. << " "
+	  << -999. << " " << -999. << " " << -999.;
       }
-
     }//end if using MC information
-
+    
     // end this line for the event
     outfile << " " << comments << std::endl;
   }
 
   //......................................................................
+  
   void ScanFrame::RadioButton()
   {
     TGButton *b = (TGButton *)gTQSender;
