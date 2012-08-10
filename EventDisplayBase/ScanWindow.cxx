@@ -2,10 +2,10 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.16 2012-08-10 02:45:08 messier Exp $
+/// \version $Id: ScanWindow.cxx,v 1.17 2012-08-10 17:01:17 messier Exp $
 ///
 #include "TCanvas.h"
-#include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
+#include "TGFrame.h"  // For TGMainFrame, TGHorizontalFrame
 #include "TGLayout.h" // For TGLayoutHints
 #include "TGButton.h" // For TGCheckButton
 #include "TGDimension.h"
@@ -30,37 +30,26 @@ static int kInputID = 0;
 namespace evdb{
 
   //......................................................................
-  ScanFrame::ScanFrame(const TGWindow* p) :
-    fHeight(0),
-    fWidth(0)
+  ScanFrame::ScanFrame(TGCompositeFrame* f)
   {
-    unsigned int kHcharPix = 16; // One char. of text is this tall
-    unsigned int kWcharPix = 16; // One char. of text is this wide
-    unsigned int kHbuffPix = 4;  // A reasonable estimate of buffer
-    unsigned int kWbuffPix = 4;  // A reasonable estiamte of buffer
-
     art::ServiceHandle<evdb::ScanOptions> opts;
         
     unsigned int nCategories = opts->fCategories.size();
     
-    unsigned int wtmp;
-
-    fFrame = new TGGroupFrame(p, "Scan data", kVerticalFrame);
-    fHeight += 2*kHbuffPix + kHcharPix;
-    fWidth   = 2*kWbuffPix + strlen("Scan data")*kWcharPix;
+    fFrame = new TGGroupFrame(f, "Please complete these fields", kVerticalFrame);
+    fFrameHints = new TGLayoutHints(kLHintsExpandX|
+				    kLHintsExpandY,
+				    4,4,4,4);
+    f->AddFrame(fFrame, fFrameHints);
     
-    TGLayoutHints* fLH3 = new TGLayoutHints(kLHintsLeft|
-					    kLHintsExpandX|
-					    kLHintsTop,
-					    2,2,2,2);
     //
     // grab the ScanOptions service and loop over the categories to make a 
     // ScanFrame for each
     //
-    TGLayoutHints* fCatFrameLH = new TGLayoutHints(kLHintsLeft|
-						   kLHintsExpandX|
-						   kLHintsTop,
-						   2,2,2,2);
+    fCatFrameLH = new TGLayoutHints(kLHintsLeft|
+				    kLHintsExpandX|
+				    kLHintsTop,
+				    2,2,2,2);
     unsigned int pos = 0;
     for(unsigned int c = 0; c < nCategories; ++c){
       std::vector<std::string> types;
@@ -76,44 +65,62 @@ namespace evdb{
       //
       // Create container for the current category.  
       //
-      TGGroupFrame *frame = 0;
-      frame = new TGGroupFrame(fFrame, 
-			       opts->fCategories[c].c_str(), 
-			       kRaisedFrame|kVerticalFrame);
-      fCatFrames.push_back(frame);
-      fFrame->AddFrame(frame,fCatFrameLH);
+      TGGroupFrame *catframe = 0;
+      catframe = new TGGroupFrame(fFrame, 
+				  opts->fCategories[c].c_str(), 
+				  kRaisedFrame|kVerticalFrame);
+      fCatFrames.push_back(catframe);
+      fFrame->AddFrame(catframe,fCatFrameLH);
 
-      wtmp = 2*kWbuffPix + opts->fCategories[c].length()*kWcharPix;
-      if (wtmp>fWidth) fWidth = wtmp;
-      fHeight += 2*kHbuffPix + kHcharPix;
+      fFieldFrameHints = new TGLayoutHints(kLHintsExpandX,2,2,2,2);
 
       // loop over the fields and determine what to draw
       for(unsigned int i = 0; i < types.size(); ++i){
-	
-	if(types[i] == "Text"){
-	  TGLabel *l = new TGLabel(frame, labels[i].c_str());
-	  frame->AddFrame(l, fLH3);
-	  fTextBoxes.push_back(new TGTextEntry(frame));
-	  frame->AddFrame(fTextBoxes[fTextBoxes.size()-1], fLH3);
+	TGHorizontalFrame* fieldframe = new TGHorizontalFrame(catframe);
+	fFieldFrames.push_back(fieldframe);
+	catframe->AddFrame(fieldframe,fFieldFrameHints);
+      
+	if(types[i] == "Text") {
+	  TGLabel *l = new TGLabel(fieldframe, labels[i].c_str());
+	  fieldframe->AddFrame(l);
+	  fTextBoxes.push_back(new TGTextEntry(fieldframe));
+	  fieldframe->AddFrame(fTextBoxes[fTextBoxes.size()-1]);
 	}
 	
 	if(types[i] == "Number"){
-	  TGLabel *l = new TGLabel(frame, labels[i].c_str());
-	  frame->AddFrame(l, fLH3);
-	  fNumberBoxes.push_back(new TGNumberEntry(frame, 0, 2, -1, TGNumberFormat::kNESInteger));
-	  frame->AddFrame(fNumberBoxes[fNumberBoxes.size()-1], fLH3);
+	  TGLabel *l = new TGLabel(fieldframe, labels[i].c_str());
+	  fieldframe->AddFrame(l);
+	  TGNumberEntry* 
+	    ne = new TGNumberEntry(fieldframe, 
+				   0, 
+				   2, 
+				   -1, 
+				   TGNumberFormat::kNESInteger);
+	  fieldframe->AddFrame(ne);
+
+	  fNumberLabels.push_back(l);
+	  fNumberBoxes.push_back(ne);
 	}
 	
 	if(types[i] =="CheckButton"){
-	  fCheckButtons.push_back(new TGCheckButton(frame, labels[i].c_str(), kInputID));
-	  frame->AddFrame(fCheckButtons[fCheckButtons.size()-1], fLH3);
+	  TGCheckButton* cb = new TGCheckButton(fieldframe,
+						labels[i].c_str(),
+						kInputID);
+	  fieldframe->AddFrame(cb);
+	  fCheckButtons.push_back(cb);
 	}
 	
 	if(types[i] =="RadioButton"){
-	  fRadioButtons.push_back(new TGRadioButton(frame, labels[i].c_str(), kInputID));
-	  frame->AddFrame(fRadioButtons[fRadioButtons.size()-1], fLH3);
-	  fRadioButtons[fRadioButtons.size()-1]->Connect("Clicked()","evdb::ScanFrame",
-							 this,"RadioButton()");
+	  TGRadioButton* rb = new TGRadioButton(fieldframe, 
+						labels[i].c_str(),
+						kInputID);
+	  fieldframe->AddFrame(rb);
+	  rb->Connect("Clicked()",
+		      "evdb::ScanFrame",
+		      this,
+		      "RadioButton()");
+
+	  fRadioButtons.push_back(rb);
 	  fRadioButtonIds.push_back(kInputID);
 	}
 	
@@ -122,37 +129,41 @@ namespace evdb{
       }// end loop over types
     } // end loop over categories
     
-    fFrame->Resize(fWidth, fHeight);
-    
     fFrame->Connect("ProcessedEvent(Event_t*)",
 		    "evdb::ScanFrame",
 		    this,
 		    "HandleMouseWheel(Event_t*)");
-
-    // fCanvas = 0;
-    
-    // delete fLH3;
   }
 
   //......................................................................  
   ScanFrame::~ScanFrame()
   { 
-    for(unsigned int i = 0; i < fTextBoxes.size(); ++i){
-      if( fTextBoxes[i] ) delete fTextBoxes[i];
-    }
-    for(unsigned int i = 0; i < fNumberBoxes.size(); ++i){
-      if( fNumberBoxes[i] ) delete fNumberBoxes[i];
-    }
-    for(unsigned int i = 0; i < fRadioButtons.size(); ++i){
-      if( fRadioButtons[i] ) delete fRadioButtons[i];
-    }
-    for(unsigned int i = 0; i < fCheckButtons.size(); ++i){
+    unsigned int i;
+
+    for(i=0; i<fCheckButtons.size(); ++i){
       if( fCheckButtons[i] ) delete fCheckButtons[i];
     }
-    for(unsigned int i = 0; i < fCatFrames.size(); ++i){
+    for(i=0; i<fRadioButtons.size(); ++i){
+      if( fRadioButtons[i] ) delete fRadioButtons[i];
+    }
+    for (i=0; i<fNumberLabels.size(); ++i) {
+      if (fNumberLabels[i]) delete fNumberLabels[i];
+    }
+    for(i=0; i<fNumberBoxes.size(); ++i){
+      if( fNumberBoxes[i] ) delete fNumberBoxes[i];
+    }
+    for(i=0; i<fTextBoxes.size(); ++i){
+      if( fTextBoxes[i] ) delete fTextBoxes[i];
+    }
+    for(i=0; i<fFieldFrames.size(); ++i){
+      if( fFieldFrames[i] ) delete fFieldFrames[i];
+    }
+    for(i=0; i<fCatFrames.size(); ++i){
       if( fCatFrames[i] ) delete fCatFrames[i];
     }
-
+    delete fCatFrameLH;
+    delete fFieldFrameHints;
+    delete fFrameHints;
     delete fFrame; 
   }  
 
@@ -412,7 +423,10 @@ namespace evdb{
     
     fUserFieldsCanvas = new
       TGCanvas(f, kCanvasWidth, kCanvasHeight);
-    f->AddFrame(fUserFieldsCanvas);
+    TGLayoutHints* 
+      fUserFieldsCanvasHints = new TGLayoutHints(kLHintsExpandX|
+						 kLHintsExpandY);
+    f->AddFrame(fUserFieldsCanvas, fUserFieldsCanvasHints);
 
     fScanFrame = new ScanFrame(fUserFieldsCanvas->GetViewPort());
     fUserFieldsCanvas->SetContainer(fScanFrame->GetFrame());
@@ -489,19 +503,26 @@ namespace evdb{
     //output the labels so we know what each is
     outfile << "Run Subrun Event ";
 
-    // figure out how many categories and maximum number of items for a category
+    //
+    // figure out how many categories and maximum number of items for
+    // a category
+    //
     unsigned int maxFields = 1;
     unsigned int pos       = 0;
     for(unsigned int c = 0; c < opts->fCategories.size(); ++c){
       for(unsigned int p = 0; p < opts->fFieldsPerCategory[c]; ++p){
-	if(opts->fFieldsPerCategory[c] > maxFields) maxFields = opts->fFieldsPerCategory[c];
- 	outfile << opts->fCategories[c].c_str() << ":" << opts->fFieldLabels[pos+p].c_str() << " ";
+	if(opts->fFieldsPerCategory[c] > maxFields) {
+	  maxFields = opts->fFieldsPerCategory[c];
+	}
+ 	outfile << opts->fCategories[c].c_str() << ":" 
+		<< opts->fFieldLabels[pos+p].c_str() << " ";
       }
       pos += opts->fFieldsPerCategory[c];
     } // end loop over categories
 
     if(opts->fIncludeMCInfo)
-      outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z Nu_E CCNC Lepton_E InteractionType ";
+      outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z " 
+	      << "Nu_E CCNC Lepton_E InteractionType ";
 
     outfile << "comments" << std::endl;
     }
@@ -511,6 +532,7 @@ namespace evdb{
   //......................................................................
   ScanWindow::~ScanWindow() 
   {
+    delete fScanFrame;
     delete fButtonBarHintsR;
     delete fButtonBarHintsC;
     delete fButtonBarHintsL;

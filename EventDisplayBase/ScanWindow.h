@@ -3,7 +3,7 @@
 /// \file    ScanWindow.h
 /// \brief   A window containing dialog boxes for handscans
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.h,v 1.5 2012-08-10 02:45:08 messier Exp $
+/// \version $Id: ScanWindow.h,v 1.6 2012-08-10 17:01:17 messier Exp $
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ namespace evdb{
     RQ_OBJECT("evdb::ScanFrame");
     
   public:
-    ScanFrame(const TGWindow *p);
+    ScanFrame(TGCompositeFrame* f);
     virtual ~ScanFrame();
     
     TGGroupFrame *GetFrame() const { return fFrame; }
@@ -58,18 +58,20 @@ namespace evdb{
     int  GetWidth() const;
 
   private:
-    unsigned int    fHeight; // Estimated height of frame
-    unsigned int    fWidth;  // Estimated width of frame
-    TGGroupFrame*   fFrame;
-    TGCanvas*       fCanvas;
-    TGMatrixLayout* fML;
-    
-    std::vector<TGGroupFrame*>      fCatFrames;       ///< frames to hold fields for a given category
-    std::vector<TGTextEntry*>       fTextBoxes;       ///< Text box entry fields
-    std::vector<TGNumberEntry*>     fNumberBoxes;     ///< Number box entry fields
-    std::vector<TGRadioButton*>     fRadioButtons;    ///< Radio button entry fields
-    std::vector<TGCheckButton*>     fCheckButtons;    ///< Check button entry fields
-    std::vector<int>                fRadioButtonIds;  ///< Ids for the radio buttons
+    TGGroupFrame*  fFrame;
+    TGCanvas*      fCanvas;
+    TGLayoutHints* fFrameHints;
+    TGLayoutHints* fFieldFrameHints;
+    TGLayoutHints* fCatFrameLH;
+
+    std::vector<TGGroupFrame*>      fCatFrames;      ///< Mother for a category
+    std::vector<TGHorizontalFrame*> fFieldFrames;    ///< Mother for each field
+    std::vector<TGTextEntry*>       fTextBoxes;      ///< Text box fields
+    std::vector<TGLabel*>           fNumberLabels;   ///< Label for number fields
+    std::vector<TGNumberEntry*>     fNumberBoxes;    ///< Number box fields
+    std::vector<TGRadioButton*>     fRadioButtons;   ///< Radio button fields
+    std::vector<TGCheckButton*>     fCheckButtons;   ///< Check button fields
+    std::vector<int>                fRadioButtonIds; ///< Ids for the radio buttons
     
   };
 }
