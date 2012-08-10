@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.15 2012-08-09 15:04:44 messier Exp $
+/// \version $Id: ScanWindow.cxx,v 1.16 2012-08-10 02:45:08 messier Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h" // For TGMainFrame, TGHorizontalFrame
@@ -26,19 +26,28 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 static int kInputID = 0;
-static int kCategoryWidth = 150;
-static int kFieldHeight = 50;
 
 namespace evdb{
 
   //......................................................................
-  ScanFrame::ScanFrame(const TGWindow* p,
-		       unsigned int nCategories,
-		       unsigned int maxFields)
+  ScanFrame::ScanFrame(const TGWindow* p) :
+    fHeight(0),
+    fWidth(0)
   {
-    // Create tile view container. Used to show colormap.
+    unsigned int kHcharPix = 16; // One char. of text is this tall
+    unsigned int kWcharPix = 16; // One char. of text is this wide
+    unsigned int kHbuffPix = 4;  // A reasonable estimate of buffer
+    unsigned int kWbuffPix = 4;  // A reasonable estiamte of buffer
+
+    art::ServiceHandle<evdb::ScanOptions> opts;
+        
+    unsigned int nCategories = opts->fCategories.size();
     
-    fFrame = new TGGroupFrame(p, "Categories", kVerticalFrame);
+    unsigned int wtmp;
+
+    fFrame = new TGGroupFrame(p, "Scan data", kVerticalFrame);
+    fHeight += 2*kHbuffPix + kHcharPix;
+    fWidth   = 2*kWbuffPix + strlen("Scan data")*kWcharPix;
     
     TGLayoutHints* fLH3 = new TGLayoutHints(kLHintsLeft|
 					    kLHintsExpandX|
@@ -48,8 +57,10 @@ namespace evdb{
     // grab the ScanOptions service and loop over the categories to make a 
     // ScanFrame for each
     //
-    art::ServiceHandle<evdb::ScanOptions> opts;
-    
+    TGLayoutHints* fCatFrameLH = new TGLayoutHints(kLHintsLeft|
+						   kLHintsExpandX|
+						   kLHintsTop,
+						   2,2,2,2);
     unsigned int pos = 0;
     for(unsigned int c = 0; c < nCategories; ++c){
       std::vector<std::string> types;
@@ -70,50 +81,57 @@ namespace evdb{
 			       opts->fCategories[c].c_str(), 
 			       kRaisedFrame|kVerticalFrame);
       fCatFrames.push_back(frame);
-      
-      //frame->SetLayoutManager(fML);
+      fFrame->AddFrame(frame,fCatFrameLH);
+
+      wtmp = 2*kWbuffPix + opts->fCategories[c].length()*kWcharPix;
+      if (wtmp>fWidth) fWidth = wtmp;
+      fHeight += 2*kHbuffPix + kHcharPix;
+
       // loop over the fields and determine what to draw
       for(unsigned int i = 0; i < types.size(); ++i){
-
+	
 	if(types[i] == "Text"){
 	  TGLabel *l = new TGLabel(frame, labels[i].c_str());
 	  frame->AddFrame(l, fLH3);
 	  fTextBoxes.push_back(new TGTextEntry(frame));
 	  frame->AddFrame(fTextBoxes[fTextBoxes.size()-1], fLH3);
 	}
-	else if(types[i] == "Number"){
+	
+	if(types[i] == "Number"){
 	  TGLabel *l = new TGLabel(frame, labels[i].c_str());
 	  frame->AddFrame(l, fLH3);
 	  fNumberBoxes.push_back(new TGNumberEntry(frame, 0, 2, -1, TGNumberFormat::kNESInteger));
 	  frame->AddFrame(fNumberBoxes[fNumberBoxes.size()-1], fLH3);
 	}
-	else if(types[i] =="CheckButton"){
+	
+	if(types[i] =="CheckButton"){
 	  fCheckButtons.push_back(new TGCheckButton(frame, labels[i].c_str(), kInputID));
 	  frame->AddFrame(fCheckButtons[fCheckButtons.size()-1], fLH3);
 	}
-	else if(types[i] =="RadioButton"){
+	
+	if(types[i] =="RadioButton"){
 	  fRadioButtons.push_back(new TGRadioButton(frame, labels[i].c_str(), kInputID));
 	  frame->AddFrame(fRadioButtons[fRadioButtons.size()-1], fLH3);
 	  fRadioButtons[fRadioButtons.size()-1]->Connect("Clicked()","evdb::ScanFrame",
 							 this,"RadioButton()");
 	  fRadioButtonIds.push_back(kInputID);
 	}
-
+	
 	++kInputID;
-		
+	
       }// end loop over types
-
-      fFrame->AddFrame(frame, fLH3);
-
     } // end loop over categories
     
-    fFrame->Resize(kCategoryWidth*nCategories, kFieldHeight*maxFields);
+    fFrame->Resize(fWidth, fHeight);
     
-    fFrame->Connect("ProcessedEvent(Event_t*)", "evdb::ScanFrame", this,
+    fFrame->Connect("ProcessedEvent(Event_t*)",
+		    "evdb::ScanFrame",
+		    this,
 		    "HandleMouseWheel(Event_t*)");
-    fCanvas = 0;
+
+    // fCanvas = 0;
     
-    delete fLH3;
+    // delete fLH3;
   }
 
   //......................................................................  
@@ -153,6 +171,7 @@ namespace evdb{
   }
   
   //......................................................................
+
   void ScanFrame::HandleMouseWheel(Event_t *event)
   {
     // Handle mouse wheel to scroll.
@@ -162,8 +181,9 @@ namespace evdb{
     
     Int_t page = 0;
     if (event->fCode == kButton4 || event->fCode == kButton5) {
-      if (!fCanvas) return;
+      if (fCanvas==0) return;
       if (fCanvas->GetContainer()->GetHeight())
+
 	page = Int_t(Float_t(fCanvas->GetViewPort()->GetHeight() *
 			     fCanvas->GetViewPort()->GetHeight()) /
 		     fCanvas->GetContainer()->GetHeight());
@@ -352,14 +372,111 @@ namespace evdb{
     return;
   }
 
+  //--------------------------------------------------------------------
+
+  void ScanWindow::BuildButtonBar(TGHorizontalFrame* f) 
+  {
+    fCommentLabel = new TGLabel     (f, " Comments:");
+    fCommentEntry = new TGTextEntry (f);
+    fPrevButton   = new TGTextButton(f, " <<Prev ");
+    fNextButton   = new TGTextButton(f, " Next>> ");
+    fRcrdButton   = new TGTextButton(f, " Record ");
+
+    fPrevButton->Connect("Clicked()", "evdb::ScanWindow", this, "Prev()");
+    fNextButton->Connect("Clicked()", "evdb::ScanWindow", this, "Next()");
+    fRcrdButton->Connect("Clicked()", "evdb::ScanWindow", this, "Rec()");
+    
+    Pixel_t c;
+    gClient->GetColorByName("pink", c);
+    fRcrdButton->ChangeBackground(c);
+    
+    fButtonBarHintsL = new TGLayoutHints(kLHintsBottom|kLHintsLeft,
+					 4,2,2,8);
+    fButtonBarHintsC = new TGLayoutHints(kLHintsBottom|kLHintsLeft,
+					 2,2,2,8);
+    fButtonBarHintsR = new TGLayoutHints(kLHintsBottom|kLHintsLeft,
+					 2,4,2,8);
+    f->AddFrame(fCommentLabel, fButtonBarHintsL);
+    f->AddFrame(fCommentEntry, fButtonBarHintsC);
+    f->AddFrame(fPrevButton,   fButtonBarHintsC);
+    f->AddFrame(fNextButton,   fButtonBarHintsC);
+    f->AddFrame(fRcrdButton,   fButtonBarHintsR);
+  }
 
   //--------------------------------------------------------------------
-  ScanWindow::ScanWindow() 
-    : TGTransientFrame(gClient->GetRoot(), gClient->GetRoot(), 50, 50)
-  {  
-    TGLayoutHints* fLHTopLeft   = new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 2,2,2,2);
-    TGLayoutHints* fLHBotRight  = new TGLayoutHints(kLHintsBottom|kLHintsRight|kLHintsExpandX, 2,2,2,2);
+  
+  void ScanWindow::BuildUserFields(TGCompositeFrame* f) 
+  {
+    unsigned int kCanvasWidth  = 390;
+    unsigned int kCanvasHeight = 500;
+    
+    fUserFieldsCanvas = new
+      TGCanvas(f, kCanvasWidth, kCanvasHeight);
+    f->AddFrame(fUserFieldsCanvas);
 
+    fScanFrame = new ScanFrame(fUserFieldsCanvas->GetViewPort());
+    fUserFieldsCanvas->SetContainer(fScanFrame->GetFrame());
+    fScanFrame->GetFrame()->SetCleanup(kDeepCleanup);
+  }
+  
+
+  //--------------------------------------------------------------------
+  ScanWindow::ScanWindow() :
+    TGTransientFrame(gClient->GetRoot(), gClient->GetRoot(), 50, 50),
+    fUserFieldsCanvas(0),
+    fUserFieldsFrame(0),
+    fUserFieldsHints(0),
+    fButtonBar(0),
+    fButtonBarHints(0),
+    fCommentLabel(0),
+    fCommentEntry(0),
+    fPrevButton(0),
+    fNextButton(0),
+    fRcrdButton(0),
+    fButtonBarHintsL(0),
+    fButtonBarHintsC(0),
+    fButtonBarHintsR(0),
+    fScanFrame(0)
+  {
+    //
+    // Create a frame to hold the user-configurabale fields
+    //
+    unsigned int kWidth  = 5*50;
+    unsigned int kHeight = 7*50;
+    fUserFieldsFrame = 
+      new TGCompositeFrame(this, kWidth, kHeight);
+    fUserFieldsHints =
+      new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX|kLHintsExpandY);
+    this->AddFrame(fUserFieldsFrame, fUserFieldsHints);
+    
+    //
+    // Create a frame to hold the button bar at the bottom
+    //
+    unsigned int kButtonBarWidth  = 388;
+    unsigned int kButtonBarHeight = 30;
+    fButtonBar =
+      new TGHorizontalFrame(this, kButtonBarHeight, kButtonBarWidth);
+    fButtonBarHints = 
+      new TGLayoutHints(kLHintsBottom|kLHintsLeft);
+    this->AddFrame(fButtonBar, fButtonBarHints);
+    
+    this->BuildButtonBar (fButtonBar);
+    this->BuildUserFields(fUserFieldsFrame);
+    this->OpenOutputFile();
+    
+    //
+    // Finalize the window for display
+    //
+    this->Resize(kButtonBarWidth,kHeight+kButtonBarHeight);
+    this->MapSubwindows();
+    this->MapWindow();
+    this->SetWindowName("Scan dialog window");
+  }
+  
+  //--------------------------------------------------------------------
+  
+  void ScanWindow::OpenOutputFile() 
+  {
     // set up the file name to store the information
     art::ServiceHandle<evdb::ScanOptions> opts;
     std::string user(gSystem->Getenv("USER"));
@@ -373,7 +490,6 @@ namespace evdb{
     outfile << "Run Subrun Event ";
 
     // figure out how many categories and maximum number of items for a category
-    unsigned int ncat      = opts->fCategories.size();
     unsigned int maxFields = 1;
     unsigned int pos       = 0;
     for(unsigned int c = 0; c < opts->fCategories.size(); ++c){
@@ -388,71 +504,27 @@ namespace evdb{
       outfile << "Truth:PDG Vtx_x Vtx_y Vtx_Z Nu_E CCNC Lepton_E InteractionType ";
 
     outfile << "comments" << std::endl;
+    }
 
-    fF1 = new TGCompositeFrame(this, kCategoryWidth, 26, kVerticalFrame);
-    
-    fL1 = new TGLabel(fF1, "");
-  
-    fF1->AddFrame(fL1,fLHTopLeft);
 
-    this->AddFrame(fF1);
-
-    // make a canvas to hold the different fields
-    fCanvas = new TGCanvas(this, kCategoryWidth*ncat, 1.1*kFieldHeight*maxFields);
-    fScan = new ScanFrame(fCanvas->GetViewPort(), ncat, maxFields);
-    fScan->SetCanvas(fCanvas);
-    fCanvas->SetContainer(fScan->GetFrame());
-    fScan->GetFrame()->SetCleanup(kDeepCleanup);
-
-    this->AddFrame(fCanvas);
-
-    // Button bar across the bottom
-    fF3 = new TGCompositeFrame(this, kCategoryWidth, 26, kHorizontalFrame);
-    fB3 = new TGTextButton(fF3, " Prev   ");
-    fB4 = new TGTextButton(fF3, " Next   ");
-    fB5 = new TGTextButton(fF3, " Record ");
-    fComments = new TGTextEntry(fF3);
-    //fComments->SetMaxLength(200);
-    TGLabel *commentLabel = new TGLabel(fF3, "Comments:");
-
-    Pixel_t red;
-    gClient->GetColorByName("red", red);
-    fB5->ChangeBackground(red);
-
-    fF3->AddFrame(commentLabel, fLHTopLeft);
-    fF3->AddFrame(fComments, fLHTopLeft);
-    fF3->AddFrame(fB3, fLHTopLeft);
-    fF3->AddFrame(fB4, fLHTopLeft);
-    fF3->AddFrame(fB5, fLHTopLeft);
-
-    fB3->Connect("Clicked()","evdb::ScanWindow",this,"Prev()");
-    fB4->Connect("Clicked()","evdb::ScanWindow",this,"Next()");
-    fB5->Connect("Clicked()","evdb::ScanWindow",this,"Rec()");
-
-    this->AddFrame(fF3, fLHBotRight);
-    
-    this->Connect("CloseWindow()","evdb::ScanWindow",this,"CloseWindow()");
-
-    this->Resize(1.05*kCategoryWidth*ncat+8, 1.15*kFieldHeight*maxFields+52);
-    this->MapSubwindows();
-    this->MapWindow();
-    this->SetWindowName("Scan Dialog Window");
-
-    delete fLHTopLeft;
-    delete fLHBotRight;
-  }
 
   //......................................................................
   ScanWindow::~ScanWindow() 
-  {  
-    if (fB3)            { delete fB3;             fB3             = 0; }
-    if (fB4)            { delete fB4;             fB4             = 0; }
-    if (fB5)            { delete fB5;             fB5             = 0; }
-    if (fComments)      { delete fComments;       fComments       = 0; }
-    if (fF3)            { delete fF3;             fF3             = 0; }
-
+  {
+    delete fButtonBarHintsR;
+    delete fButtonBarHintsC;
+    delete fButtonBarHintsL;
+    delete fRcrdButton;
+    delete fNextButton;
+    delete fPrevButton;
+    delete fCommentEntry;
+    delete fCommentLabel;
+    delete fButtonBarHints;
+    delete fButtonBar;
+    delete fUserFieldsHints;
+    delete fUserFieldsFrame;
+    delete fUserFieldsCanvas;
   }
-
 
   //......................................................................
   void ScanWindow::CloseWindow() { delete this; }
@@ -460,22 +532,22 @@ namespace evdb{
   //......................................................................
   void ScanWindow::Prev() 
   {
-    fScan->ClearFields();
+    fScanFrame->ClearFields();
     evdb::NavState::Set(kPREV_EVENT);
   }
   
   //......................................................................  
   void ScanWindow::Next() 
   {
-    fScan->ClearFields();
+    fScanFrame->ClearFields();
     evdb::NavState::Set(kNEXT_EVENT);
   }
 
   //......................................................................
   void ScanWindow::Rec()
   {
-    fScan->Record(fOutFileName, fComments->GetText());
-    fComments->SetText("");
+    fScanFrame->Record(fOutFileName, fCommentEntry->GetText());
+    fCommentEntry->SetText("");
     evdb::NavState::Set(evdb::kNEXT_EVENT);
   }
 

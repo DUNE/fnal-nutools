@@ -3,7 +3,7 @@
 /// \file    ScanWindow.h
 /// \brief   A window containing dialog boxes for handscans
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.h,v 1.4 2011-10-17 16:18:32 brebel Exp $
+/// \version $Id: ScanWindow.h,v 1.5 2012-08-10 02:45:08 messier Exp $
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +42,7 @@ namespace evdb{
     RQ_OBJECT("evdb::ScanFrame");
     
   public:
-    ScanFrame(const TGWindow *p, 
-	      unsigned int nCategories,
-	      unsigned int maxFields);
+    ScanFrame(const TGWindow *p);
     virtual ~ScanFrame();
     
     TGGroupFrame *GetFrame() const { return fFrame; }
@@ -60,10 +58,11 @@ namespace evdb{
     int  GetWidth() const;
 
   private:
-
-    TGGroupFrame     *fFrame;
-    TGCanvas         *fCanvas;
-    TGMatrixLayout   *fML;
+    unsigned int    fHeight; // Estimated height of frame
+    unsigned int    fWidth;  // Estimated width of frame
+    TGGroupFrame*   fFrame;
+    TGCanvas*       fCanvas;
+    TGMatrixLayout* fML;
     
     std::vector<TGGroupFrame*>      fCatFrames;       ///< frames to hold fields for a given category
     std::vector<TGTextEntry*>       fTextBoxes;       ///< Text box entry fields
@@ -74,6 +73,8 @@ namespace evdb{
     
   };
 }
+
+//......................................................................
 
 namespace evdb {
 
@@ -92,19 +93,31 @@ namespace evdb {
     void Prev();
     void Next();
 
+    void BuildButtonBar(TGHorizontalFrame* f);
+    void BuildUserFields(TGCompositeFrame* f);
+    void OpenOutputFile();
+
   private:
+    /// Scrollable frame for all user defined fields
+    TGCanvas*         fUserFieldsCanvas;
+    TGCompositeFrame* fUserFieldsFrame;
+    TGLayoutHints*    fUserFieldsHints;
+
+    /// Frame to hold the buttons at the bottom of the window
+    TGHorizontalFrame* fButtonBar;
+    TGLayoutHints*     fButtonBarHints;
+    TGLabel*           fCommentLabel;
+    TGTextEntry*       fCommentEntry;
+    TGTextButton*      fPrevButton;
+    TGTextButton*      fNextButton;
+    TGTextButton*      fRcrdButton;
+    TGLayoutHints*     fButtonBarHintsL;
+    TGLayoutHints*     fButtonBarHintsC;
+    TGLayoutHints*     fButtonBarHintsR;
     
-    ScanFrame*          fScan;        ///< Frame holding the scan fields    
-    TGCanvas*           fCanvas;      ///< Canvas holding the ScanFrame     
-    TGCompositeFrame*   fF3;          ///< Frame to hold record button      
-    TGTextButton*       fB3;          ///< Record button		       
-    TGTextButton*       fB4;          ///< Prev button		       
-    TGTextButton*       fB5;          ///< Next button		       
-    TGTextEntry*        fComments;    ///< Next button		       
-    TGLabel*            fL1;
-    TGCompositeFrame*   fF1;
-					                                        
-    std::string         fOutFileName; ///< Output file name for scan results
+    /// The frame containing the scanner check boxes etc.
+    ScanFrame*  fScanFrame;
+    std::string fOutFileName; ///< Output file name for scan results
 
     ClassDef(ScanWindow, 0);
   };
