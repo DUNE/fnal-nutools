@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.43 2012-08-03 23:14:45 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.44 2012-08-14 21:23:15 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1133,6 +1133,7 @@ namespace evgb {
     if(!viableInteraction) return false;
     
     // GENIE returns values from the Vertex in m and we use cm
+    // \todo: Remove this check in favor of using FiducialCut parameter instead
     TLorentzVector *vertex = fGenieEventRecord->Vertex();
     if(100.*vertex->Z() > fDetLength + fZCutOff) return false;
 
