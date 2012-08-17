@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.22 2012-07-11 14:11:16 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.23 2012-08-17 18:01:14 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -107,7 +107,6 @@ namespace evgb{
                                                  ///< the cylinder for the histogram flux in kg
     double                   fGlobalTimeOffset;  ///< overall time shift (ns) added to every particle time
     double                   fRandomTimeOffset;  ///< additional random time shift (ns) added to every particle time 
-    double                   fZCutOff;           ///< distance in z beyond the end of the detector that you allow interactions, in m
     std::set<int>            fGenFlavors;        ///< pdg codes for flavors to generate
     double                   fAtmoEmin;          ///< atmo: Minimum energy of neutrinos in GeV
     double                   fAtmoEmax;          ///< atmo: Maximum energy of neutrinos in GeV

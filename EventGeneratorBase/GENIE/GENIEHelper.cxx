@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.44 2012-08-14 21:23:15 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.45 2012-08-17 18:01:14 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -113,7 +113,6 @@ namespace evgb {
     , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
     , fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) )
     , fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) )
-    , fZCutOff           (pset.get< double                   >("ZCutOff",          2.5)  )
     , fAtmoEmin          (pset.get< double                   >("AtmoEmin",         0.1)  )
     , fAtmoEmax          (pset.get< double                   >("AtmoEmax",         10.0) )
     , fAtmoRl            (pset.get< double                   >("Rl",               20.0) )
@@ -1132,11 +1131,6 @@ namespace evgb {
     // if no interaction generated return false
     if(!viableInteraction) return false;
     
-    // GENIE returns values from the Vertex in m and we use cm
-    // \todo: Remove this check in favor of using FiducialCut parameter instead
-    TLorentzVector *vertex = fGenieEventRecord->Vertex();
-    if(100.*vertex->Z() > fDetLength + fZCutOff) return false;
-
     // fill the MC truth information as we have a good interaction
     PackMCTruth(fGenieEventRecord,truth); 
     // fill the Generator (genie) truth information
@@ -1191,6 +1185,7 @@ namespace evgb {
 
     // fill these after the Pack[NuMI|Simple]Flux because those
     // will Reset() the values at the start
+    TLorentzVector *vertex = fGenieEventRecord->Vertex();
     TLorentzVector nuray_pos = fFluxD->Position();
     TVector3 ray2vtx = nuray_pos.Vect() - vertex->Vect();
     flux.fgenx    = nuray_pos.X();
