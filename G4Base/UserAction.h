@@ -2,13 +2,15 @@
 /// \file  UserAction.h
 /// \brief see below
 ///
-/// \version $Id: UserAction.h,v 1.2 2011-10-20 17:10:56 brebel Exp $
-/// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
+/// \version $Id: UserAction.h,v 1.3 2012-08-27 17:57:55 rhatcher Exp $
+/// \author  seligman@nevis.columbia.edu, brebel@fnal.gov, rhatcher@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// G4Base::UserAction.h
 /// 1-Sep-1999 Bill Seligman
 ///
 /// 27-Jan-2009 <seligman@nevis.columbia.edu> Revised for LArSoft.
+///
+/// 2012-08-17 <rhatcher@fnal.gov> Add G4UserStackingAction-like interfaces
 ///
 /// This is an abstract base class to be used with Geant 4.0.1 (and
 /// possibly higher, if the User classes don't change).  
@@ -44,6 +46,10 @@ class G4Run;
 class G4Event;
 class G4Track;
 class G4Step;
+#include "G4ClassificationOfNewTrack.hh"
+
+#include <string>
+#include "fhiclcpp/ParameterSet.h"
 
 namespace g4b {
 
@@ -52,22 +58,47 @@ namespace g4b {
   public:
 
     UserAction() {};
+    UserAction(fhicl::ParameterSet const& pset) { Config(pset); }
     virtual ~UserAction() {};
+
+    /// Override Config() to extract any necessary parameters
+    virtual void Config(fhicl::ParameterSet const& /* pset */ ) {};
+
+    /// Override PrintConfig() to print out current configuration
+    virtual void PrintConfig(std::string const& /* opt */ ) {};
 
     /// The following a list of methods that correspond to the available 
     /// user action classes in Geant 4.0.1 and higher.
 
-    /// Note that the user stacking action is not included; it's a
-    /// little tricky to implement in Geant4.  Let's see if we have a
-    /// need for it first.
-
+    /// G4UserRunAction interfaces
     virtual void BeginOfRunAction  (const G4Run*  ) {};
     virtual void EndOfRunAction    (const G4Run*  ) {};
+
+    /// G4UserEventAction interfaces
     virtual void BeginOfEventAction(const G4Event*) {};
     virtual void EndOfEventAction  (const G4Event*) {};
+
+    /// G4UserTrackingAction interfaces
     virtual void PreTrackingAction (const G4Track*) {};
     virtual void PostTrackingAction(const G4Track*) {};
+
+    /// G4UserSteppingAction interface
     virtual void SteppingAction    (const G4Step* ) {};
+
+    /// Does this UserAction do stacking?  
+    /// Override to return "true" if the following interfaces are implemented
+    virtual bool ProvidesStacking() { return false; } 
+    /// G4UserStackingAction interfaces
+    virtual G4ClassificationOfNewTrack 
+      StackClassifyNewTrack(const G4Track*) { return fUrgent; }
+    virtual void StackNewStage() {};
+    virtual void StackPrepareNewEvent() {};
+
+    // allow self-identification
+    std::string const & GetName() const { return myName; }
+    void                SetName(std::string const& name) { myName = name; }
+  private:
+    std::string myName;  ///< self-knowledge
   };
 
 } // namespace g4b
