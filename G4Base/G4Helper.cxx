@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.15 2012-08-06 23:07:19 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.16 2012-08-27 18:03:41 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ namespace g4b{
   G4Helper::~G4Helper() 
   {
     if ( fRunManager != 0 ){
-      // In InitMC(), we set all the G4 user-action classes to be the
+      // In SetUserAction(), we set all the G4 user-action classes to be the
       // same action: G4Base::UserActionManager This is convenient, but
       // it creates a problem here: First the G4RunManager deletes the
       // G4UserRunAction, then it tries to delete the
@@ -85,7 +85,9 @@ namespace g4b{
       // clean-up manually, then tell the G4RunManager that all those
       // classes no longer exist.
     
-      UserActionManager::Instance()->Close();
+      g4b::UserActionManager* uaManager = UserActionManager::Instance();
+      bool wasStacking = uaManager->DoesAnyActionProvideStacking();
+      uaManager->Close();
     
       // Each one of these G4RunManager::SetUserAction methods calls a
       // different method, based on the type of the argument.  We want
@@ -97,7 +99,10 @@ namespace g4b{
       fRunManager->SetUserAction( static_cast<G4UserEventAction*>(0) );
       fRunManager->SetUserAction( static_cast<G4UserTrackingAction*>(0) );
       fRunManager->SetUserAction( static_cast<G4UserSteppingAction*>(0) );
-    
+      if ( wasStacking ) {
+        fRunManager->SetUserAction( static_cast<G4UserStackingAction*>(0) );
+      }
+
       delete fRunManager;
     }
     else{
@@ -308,7 +313,7 @@ namespace g4b{
 
   //------------------------------------------------
   /// Initialization for the Geant4 Monte Carlo.
-  void G4Helper::InitMC() 
+  void G4Helper::InitPhysics() 
   {
     if(!fDetector) this->ConstructDetector();
 
@@ -326,7 +331,13 @@ namespace g4b{
     // converting MCTruth objects from the input into G4Events.
     fConvertMCTruth = new ConvertMCTruthToG4;
     fRunManager->SetUserAction(fConvertMCTruth);
+  }
 
+
+  //------------------------------------------------
+  /// Initialization for the Geant4 Monte Carlo.
+  void G4Helper::SetUserAction() 
+  {
     // Geant4 comes with "user hooks" that allows users to perform
     // special tasks at the beginning and end of runs, events, tracks,
     // steps.  By using the UserActionManager, we've separated each
@@ -347,7 +358,12 @@ namespace g4b{
     fRunManager->SetUserAction( eventAction    );
     fRunManager->SetUserAction( trackingAction );
     fRunManager->SetUserAction( steppingAction );
-  
+
+    if ( uaManager->DoesAnyActionProvideStacking() ) {
+      G4UserStackingAction* stackingAction = (G4UserStackingAction*) uaManager;
+      fRunManager->SetUserAction( stackingAction );
+    }
+
     // Tell the manager to execute the contents of the Geant4 macro
     // file.
     if ( ! fG4MacroPath.empty() ) {

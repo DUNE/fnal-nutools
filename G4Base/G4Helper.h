@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.11 2012-08-06 23:07:19 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.12 2012-08-27 18:03:41 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -65,8 +65,15 @@ namespace g4b {
     void ConstructDetector();
 
     // Initialization for the Geant4 Monte Carlo, called before the
-    // first event is simulated.
-    void InitMC();
+    // first event is simulated.  InitPhysics gets the G4 physics 
+    // initialized, and the UserPrimaryGeneratorAction (ConvertMCTruthToG4).
+    // SetUserAction hands the UserActionManager over (so call it
+    // after it is fully configured) to the RunManager; it also
+    // runs the initial command macro and completes the initialization.
+    // These two should be called in this order with any UserActionManager
+    // configuration in between.
+    void InitPhysics();
+    void SetUserAction();
 
     // This is the method that actually passes a list of MCTruth objects to G4 
     // so it can create a list of particles
