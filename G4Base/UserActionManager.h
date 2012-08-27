@@ -26,6 +26,12 @@
 /// 18-Sep-2007: Make this a true "Manager" class by turning it into a
 /// singleton.  Give the UserAction-derived classes access to the
 /// Geant4 user-class managers.
+/// 
+/// 2012-08-17:  <rhatcher@fnal.gov> Add G4UserStackingAction interfaces.
+/// By default these aren't invoked unless the UserAction::ProvidesStacking()
+/// returns "true".  Generally there should be only one such in the managed
+/// list, but if there are and they can't agree on the track classification
+/// then prioritize them in what seems a sensible manner.
 
 #ifndef G4BASE_UserActionManager_H
 #define G4BASE_UserActionManager_H
@@ -36,6 +42,7 @@
 #include "G4UserEventAction.hh"
 #include "G4UserTrackingAction.hh"
 #include "G4UserSteppingAction.hh"
+#include "G4UserStackingAction.hh"
 
 #include "G4Run.hh"
 #include "G4Event.hh"
@@ -53,7 +60,8 @@ namespace g4b {
   class UserActionManager : public G4UserRunAction
 			  , public G4UserEventAction
 			  , public G4UserTrackingAction
-			  , public G4UserSteppingAction {
+			  , public G4UserSteppingAction 
+                          , public G4UserStackingAction {
   public:
   
     // Access to instance:
@@ -64,25 +72,38 @@ namespace g4b {
     // Delete all the UserAction classes we manage.
     void Close();
 
-    G4int GetSize()                             const { return fuserActions.size(); }
-    UserAction* GetAction(G4int i)              const { return fuserActions[i];     }
-    static void AddAndAdoptAction(UserAction* a)      { fuserActions.push_back(a);  }
+    G4int       GetSize()                 const { return fuserActions.size(); }
+    UserAction* GetAction(G4int i)        const { return fuserActions[i];     }
+    UserAction* GetAction(std::string const& name) const;
+    G4int       GetIndex(std::string const& name) const;
 
+    void        PrintActionList(std::string const& opt) const;
+
+    static void AddAndAdoptAction(UserAction* a){ fuserActions.push_back(a);  }
+
+    // G4UserRunAction interfaces
     virtual void BeginOfRunAction      (const G4Run*  );
     virtual void EndOfRunAction        (const G4Run*  );
+    // G4UserEventAction interfaces
     virtual void BeginOfEventAction    (const G4Event*);
     virtual void EndOfEventAction      (const G4Event*);
+    // G4UserTrackingAction interfaces
     virtual void PreUserTrackingAction (const G4Track*);
     virtual void PostUserTrackingAction(const G4Track*);
+    // G4UserSteppingAction interface
     virtual void UserSteppingAction    (const G4Step* );
+    // G4UserStackingAction interfaces
+    virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
+    virtual void NewStage();
+    virtual void PrepareNewEvent();
+    virtual bool DoesAnyActionProvideStacking();  // do any managed UserActions do stacking
 
     // "Mysterious accessors": Where do the pointers to these managers
     // come from?  They are all defined in the G4User*Action classes.
     // Use care when calling these accessors; for example, the
     // SteppingManager is probably not available in a TrackingAction
-    // method.  Keep the heirarchy in mind: Run > Event > Track >
-    // Step.
-    G4EventManager* GetEventManager()       const { return fpEventManager;    }
+    // method.  Keep the heirarchy in mind: Run > Event > Track > Step.
+    G4EventManager*    GetEventManager()    const { return fpEventManager;    }
     G4TrackingManager* GetTrackingManager() const { return fpTrackingManager; }
     G4SteppingManager* GetSteppingManager() const { return fpSteppingManager; }
 

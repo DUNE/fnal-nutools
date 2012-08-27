@@ -2,13 +2,14 @@
 /// \file  UserActionManager.cxx
 /// \brief Create the physics lists to be used by Geant4.
 ///
-/// \version $Id: UserActionManager.cxx,v 1.2 2011-10-20 17:10:56 brebel Exp $
+/// \version $Id: UserActionManager.cxx,v 1.3 2012-08-27 18:02:25 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 /// 18-Sep-2007 Bill Seligman
 /// Invoke the appropriate action for each stored user-action class.
 
 /// 27-Jan-2009 <seligman@nevis.columbia.edu> Revised for LArSoft.
+/// 2012-08-17: <rhatcher@fnal.gov> Add G4UserStackingAction interfaces
 
 #include "G4Base/UserActionManager.h"
 #include "G4Base/UserAction.h"
@@ -19,8 +20,9 @@
 #include "G4Step.hh"
 
 #include <vector>
+#include <map>
 
-namespace g4b{
+namespace g4b {
 
   UserActionManager::fuserActions_t UserActionManager::fuserActions;
 
@@ -59,6 +61,39 @@ namespace g4b{
     fuserActions.clear();
   }
 
+  //-------------------------------------------------
+  G4int UserActionManager::GetIndex(std::string const& name) const
+  {
+    int indx=0;
+    for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++, indx++ ){
+      if ( (*i)->GetName() == name ) return indx;
+    }
+    // not found
+    return -1;
+  }
+
+  //-------------------------------------------------
+  UserAction* UserActionManager::GetAction(std::string const& name) const
+  {
+    G4int indx = GetIndex(name);
+    if ( indx < 0 ) return 0;  // not found
+    return fuserActions[indx];
+  }
+
+  //-------------------------------------------------
+  void UserActionManager::PrintActionList(std::string const& opt) const
+  {
+    bool pcfg = ( opt.find("config") != std::string::npos );
+    std::cout << "UserActionManager::PrintActionList " << GetSize()
+              << " entries" << std::endl;
+    for ( G4int indx=0; indx < GetSize(); ++indx ) {
+      UserAction* action = GetAction(indx);
+      std::cout << "   [" << indx << "] " << action->GetName()
+                << ( action->ProvidesStacking() ? " [stacking]":"" )
+                << std::endl;
+      if ( pcfg ) action->PrintConfig(opt);
+    }
+  }
 
   //-------------------------------------------------
   // For the rest of the UserAction methods: invoke the corresponding
@@ -121,6 +156,68 @@ namespace g4b{
     for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++ ){
       (*i)->SteppingAction(a_step);
     }
+  }
+
+  //-------------------------------------------------
+  G4ClassificationOfNewTrack
+    UserActionManager::ClassifyNewTrack(const G4Track* a_track)
+  {
+    std::map<G4ClassificationOfNewTrack,int> stackChoices;
+    for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++ ){
+      if ( (*i)->ProvidesStacking() ) {
+        G4ClassificationOfNewTrack choice = (*i)->StackClassifyNewTrack(a_track);
+        stackChoices[choice]++;
+      }
+    }
+    // based on all results pick an action
+    //      fUrgent,    // put into the urgent stack
+    //      fWaiting,   // put into the waiting stack
+    //      fPostpone,  // postpone to the next event
+    //      fKill       // kill without stacking
+
+    //G4ClassificationOfNewTrack choice = fUrgent;  // safe choice
+    // prioritize:  anyone shoots it, it's dead;
+    //   then postpone; then waiting; finally just process it
+    const G4ClassificationOfNewTrack priority[] = 
+      { fKill, fPostpone, fWaiting, fUrgent };
+    const size_t nprio = sizeof(priority)/sizeof(G4ClassificationOfNewTrack);
+    for (unsigned int j=0; j<nprio; ++j) {
+      G4ClassificationOfNewTrack saction = priority[j];
+      if ( stackChoices[saction] > 0 ) return saction;
+    } 
+    // shouldn't get here (already covered) ... but a fall back
+    return fUrgent;
+  }
+
+  //-------------------------------------------------
+  void UserActionManager::NewStage()
+  {
+    for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++ ){
+      if ( (*i)->ProvidesStacking() ) {
+        (*i)->StackNewStage();
+      }
+    }
+  }
+
+  //-------------------------------------------------
+  void UserActionManager::PrepareNewEvent()
+  {
+    for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++ ){
+      if ( (*i)->ProvidesStacking() ) {
+        (*i)->StackPrepareNewEvent();
+      }
+    }
+  }
+
+  //-------------------------------------------------
+  bool UserActionManager::DoesAnyActionProvideStacking()
+  {
+    // do any managed UserActions do stacking?
+    bool doany = false;
+    for ( fuserActions_ptr_t i = fuserActions.begin(); i != fuserActions.end(); i++ ){
+      doany |= (*i)->ProvidesStacking();  // any == take the "or"
+    }
+    return doany;
   }
 
 }// namespace
