@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.23 2012-08-17 18:01:14 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.24 2012-08-31 16:05:53 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -42,12 +42,16 @@ namespace evgb{
 
     void                   Initialize();
     bool                   Stop();
-     bool                   Sample(simb::MCTruth &truth, 
-				   simb::MCFlux  &flux,
-				   simb::GTruth  &gtruth);
+    bool                   Sample(simb::MCTruth &truth, 
+				  simb::MCFlux  &flux,
+				  simb::GTruth  &gtruth);
      
     double                 TotalHistFlux();
     double                 TotalExposure()    const { return fTotalExposure;  }
+
+    // Call the following method before calling Stop, otherwise fSpillExposure
+    // will be reset to 0
+    double                 SpillExposure()    const { return fSpillExposure;  }
     std::string            FluxType()         const { return fFluxType;       }
     std::string            DetectorLocation() const { return fDetLocation;    }
     
@@ -55,8 +59,8 @@ namespace evgb{
     // do not use these in your code!!!!!
     std::vector<TH1D*>     FluxHistograms()   const { return fFluxHistograms; }   
     double                 TotalMass()        const { return fDetectorMass+fSurroundingMass; }
-
-    genie::EventRecord *  GetGenieEventRecord() { return fGenieEventRecord; } ///< pointer to last generated event
+    
+    genie::EventRecord *  GetGenieEventRecord() { return fGenieEventRecord; } 
 
   private:
 
