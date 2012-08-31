@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.45 2012-08-17 18:01:14 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.46 2012-08-31 14:44:46 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1111,7 +1111,7 @@ namespace evgb {
 
     // pack the flux information
     if(fFluxType.compare("ntuple") == 0){
-      fSpillExposure += (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
+      fSpillExposure = (dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
       flux.fFluxType = simb::kNtuple;
       PackNuMIFlux(flux);
     }
@@ -1122,7 +1122,7 @@ namespace evgb {
       assert(0);
 #else
       // pack the flux information
-      fSpillExposure += (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
+      fSpillExposure = (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
 #endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
