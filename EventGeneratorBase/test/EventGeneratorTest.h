@@ -1,15 +1,15 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file EventGeneratorTest.h
 //
-/// \version $Id: EventGeneratorTest.h,v 1.4 2011-08-15 20:39:55 guenette Exp $
+/// \version $Id: EventGeneratorTest.h,v 1.5 2012-09-05 23:51:07 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGEN_TEST_H
 #define EVGEN_TEST_H
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "EventGeneratorBase/GENIEHelper.h"
-#include "EventGeneratorBase/CRYHelper.h"
+#include "EventGeneratorBase/CRY/CRYHelper.h"
+#include "EventGeneratorBase/GENIE/GENIEHelper.h"
 
 #include "TStopwatch.h"
 
