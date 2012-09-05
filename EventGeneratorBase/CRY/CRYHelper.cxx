@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.21 2012-04-27 21:35:52 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.22 2012-09-05 20:24:20 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -26,6 +26,7 @@
 
 // NuTools include files
 #include "EventGeneratorBase/evgenbase.h"
+#include "EventGeneratorBase/CRY/CRYHelper.h"
 #include "SimulationBase/simbase.h"
 
 // Experiment include files

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2012-09-05 15:59:11 brebel Exp $
+# $Id: GNUmakefile,v 1.2 2012-09-05 20:24:21 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -8,7 +8,6 @@ include SoftRelTools/arch_spec_genie.mk
 include SoftRelTools/arch_spec_cern.mk
 
 #VERBOSE     := true
-SUBDIRS     := test
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)GENIE
 LIBCXXFILES := $(wildcard *.cxx)
@@ -41,7 +40,7 @@ endif
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
-override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
+override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry -lEventGeneratorBase
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
 

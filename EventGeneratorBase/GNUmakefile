@@ -1,43 +1,18 @@
 #
-# $Id: GNUmakefile,v 1.9 2012-08-03 21:08:50 rhatcher Exp $
+# $Id: GNUmakefile,v 1.10 2012-09-05 20:24:21 brebel Exp $
 #
 # messier@indiana.edu
 #
 include SoftRelTools/arch_spec_root.mk
-include SoftRelTools/arch_spec_genie.mk
 include SoftRelTools/arch_spec_cern.mk
-include SoftRelTools/arch_spec_cry.mk
 
 #VERBOSE     := true
 PACKAGE     := EventGeneratorBase
-SUBDIRS     := test
+SUBDIRS     := test GENIE CRY
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
 JOBFILES    := $(wildcard *.fcl)
-
-#
-# this makefile (and package code) assumes GENIE r3208 or later
-#
-
-ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFlavorMixerFactory.h 2> /dev/null ),)
-# genie has the new code (r3663)... we can use it
-  override CPPFLAGS += -DFLAVORMIXERFACTORY
-endif
-
-# remain compatible w/ older GENIE version by using inefficient method
-ifeq ($(shell /bin/grep GetMaxPathLength \${GENIE}/src/Geo/ROOTGeomAnalyzer.h 2> /dev/null ),)
-# genie is missing the new code (r3318) ... can't use the method
-#  $(warning GENIE/ROOTGeomAnalyzer does not have GetMaxPathLengths method)
-  override CPPFLAGS += -DGENIE_MISSING_GETMAXPL
-endif
-
-ifeq ($(shell /bin/grep ppmedium \${GENIE}/src/FluxDrivers/GSimpleNtpFlux.h 2> /dev/null ),)
-   override CPPFLAGS += -DGSIMPLE_NUMI_V1
-#     vx, vy,vz, ndecay, ppmedium was added (r3068)
-#     $(warning Hey we have GSimpleNtpFlux but no ppmedium)
-endif
-
 
 ########################################################################
 include SoftRelTools/standard.mk

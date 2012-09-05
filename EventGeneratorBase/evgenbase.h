@@ -1,9 +1,5 @@
 #ifndef EVGENBASE_H
 #define EVGENBASE_H
-///
-
-#include "EventGeneratorBase/GENIEHelper.h"
-#include "EventGeneratorBase/CRYHelper.h"
 
 /// Physics generators for neutrinos, cosmic rays, and others
 namespace evgb {
