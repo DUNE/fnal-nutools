@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.47 2012-09-05 20:24:20 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.48 2012-09-06 19:06:11 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1451,7 +1451,11 @@ namespace evgb {
     truth.fgQ2 = kine.Q2(true);
     truth.fgq2 = kine.q2(true);
     truth.fgW = kine.W(true);
-    truth.fgT = kine.t(true);
+    if ( kine.KVSet(genie::kKVSelt) ) {
+      // only get this if it is set in the Kinematics class
+      // to avoid a warning message
+      truth.fgT = kine.t(true);
+    }
     truth.fgX = kine.x(true);
     truth.fgY = kine.y(true);
     
