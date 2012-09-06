@@ -66,6 +66,9 @@ namespace simb {
     TLorentzVector fProbeP4;
     TLorentzVector fVertex;
     
+    //Flag for values that might not have been set
+    static const double kUndefinedValue = -99999;
+
   };
 
 } //end simp namespace
