@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.48 2012-09-06 19:06:11 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.49 2012-09-06 19:44:38 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include <map>
 #include <cassert>
 #include <fstream>
+#include <iomanip>
 
 //ROOT includes
 #include "TH1.h"
