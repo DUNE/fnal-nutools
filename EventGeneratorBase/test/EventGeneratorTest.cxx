@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.12 2012-07-11 14:11:16 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.13 2012-09-07 21:35:26 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -147,8 +147,13 @@ namespace evgen {
   {
     std::cout << "Test GENIE" << std::endl;
 
+    art::ServiceHandle<geo::Geometry> geo;
+
     // make the GENIEHelper object
-    evgb::GENIEHelper help(pset);
+    evgb::GENIEHelper help(pset,
+			   geo->ROOTGeoManager(),
+			   geo->ROOTFile(),
+			   geo->TotalMass(pset.get< std::string>("TopVolume").c_str()));
     help.Initialize();
 
     std::cout << "GENIE initialized" << std::endl;
@@ -306,6 +311,8 @@ namespace evgen {
     art::ServiceHandle<art::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine& engine = rng->getEngine();
 
+    art::ServiceHandle<geo::Geometry> geo;
+
     // make the CRYHelper
     evgb::CRYHelper help(pset, engine);
 
@@ -318,7 +325,10 @@ namespace evgen {
 
       simb::MCTruth mct;
       
-      help.Sample(mct, 0);
+      help.Sample(mct, 
+		  geo->SurfaceY(),
+		  geo->DetLength(),
+		  0);
 
       avPartPerSpill += mct.NParticles();
 

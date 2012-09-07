@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.h,v 1.24 2012-08-31 16:05:53 brebel Exp $
+/// \version $Id: GENIEHelper.h,v 1.25 2012-09-07 21:35:26 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
@@ -10,6 +10,9 @@
 
 #include <vector>
 #include <set>
+
+#include "TGeoManager.h"
+
 #include "EVGDrivers/GFluxI.h"
 #include "EVGDrivers/GeomAnalyzerI.h"
 #include "EVGDrivers/GMCJDriver.h"
@@ -37,7 +40,10 @@ namespace evgb{
     
   public:
   
-    explicit GENIEHelper(fhicl::ParameterSet const& pset);
+    explicit GENIEHelper(fhicl::ParameterSet const& pset,
+			 TGeoManager*               rootGeom,
+			 std::string         const& rootFile,
+			 double              const& detectorMass);
     ~GENIEHelper();
 
     void                   Initialize();
@@ -77,6 +83,9 @@ namespace evgb{
 
     void FindFluxPath(std::string userpattern);
 
+    TGeoManager*             fGeoManager;        ///< pointer to ROOT TGeoManager
+    std::string              fGeoFile;           ///< name of file containing the Geometry description
+
     genie::EventRecord*      fGenieEventRecord;  ///< last generated event
     genie::GeomAnalyzerI*    fGeomD;       
     genie::GFluxI*           fFluxD;             ///< real flux driver
@@ -105,7 +114,6 @@ namespace evgb{
     TVector3                 fBeamDirection;     ///< direction of the beam for histogram fluxes
     TVector3                 fBeamCenter;        ///< center of beam for histogram fluxes - must be in meters
     double                   fBeamRadius;        ///< radius of cylindar for histogram fluxes - must be in meters
-    double                   fDetLength;         ///< length of the detector in meters
     double                   fDetectorMass;      ///< mass of the detector in kg
     double                   fSurroundingMass;   ///< mass of material surrounding the detector that is intercepted by 
                                                  ///< the cylinder for the histogram flux in kg

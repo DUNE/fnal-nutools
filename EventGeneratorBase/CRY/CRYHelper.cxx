@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.22 2012-09-05 20:24:20 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.23 2012-09-07 21:35:26 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -28,9 +28,6 @@
 #include "EventGeneratorBase/evgenbase.h"
 #include "EventGeneratorBase/CRY/CRYHelper.h"
 #include "SimulationBase/simbase.h"
-
-// Experiment include files
-#include "Geometry/geo.h"
 
 namespace evgb{
 
@@ -90,7 +87,10 @@ namespace evgb{
   }
 
   //......................................................................
-  void CRYHelper::Sample(simb::MCTruth& mctruth, double* w)
+  void CRYHelper::Sample(simb::MCTruth&      mctruth, 
+			 double       const& surfaceY,
+			 double       const& detectorLength,
+			 double*             w)
   {
     // Generator time at start of sample
     double tstart = fGen->timeSimulated();
@@ -127,8 +127,6 @@ namespace evgb{
 	double py = ptot * cryp->w();
 	double pz = ptot * cryp->u();
       
-	art::ServiceHandle<geo::Geometry> geo;
-
 	// Particle start position. CRY distributes uniformly in x-y
 	// plane at fixed z, where z is the vertical direction. This
 	// requires some offsets and rotations to put the particles at
@@ -136,8 +134,8 @@ namespace evgb{
 	// since the coordinate frame has y up and z along the
 	// beam.
 	double vx = cryp->y()*100.0;
-	double vy = cryp->z()*100.0 + geo->SurfaceY();
-	double vz = cryp->x()*100.0 + 0.5*geo->DetLength();
+	double vy = cryp->z()*100.0 + surfaceY;
+	double vz = cryp->x()*100.0 + 0.5*detectorLength;
 	double t  = cryp->t()-tstart + fToffset; // seconds
 
 	// Project backward to edge of world volume
@@ -150,7 +148,7 @@ namespace evgb{
 	double y2 = 0.;
 	double z1 = 0.;
 	double z2 = 0.;
-	geo->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
+	this->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
 	
 	LOG_DEBUG("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
 			       << x1 << " " << x2 << " " 
@@ -194,6 +192,40 @@ namespace evgb{
     /// \todo Check if this time slice passes selection criteria
     if (w) *w = 1.0;
   }
+
+  ///----------------------------------------------------------------
+  ///
+  /// Return the ranges of x,y and z for the "world volume" that the
+  /// entire geometry lives in. If any pointers are 0, then those
+  /// coordinates are ignored.
+  ///
+  /// \param xlo : On return, lower bound on x positions
+  /// \param xhi : On return, upper bound on x positions
+  /// \param ylo : On return, lower bound on y positions
+  /// \param yhi : On return, upper bound on y positions
+  /// \param zlo : On return, lower bound on z positions
+  /// \param zhi : On return, upper bound on z positions
+  ///
+  void CRYHelper::WorldBox(double* xlo, double* xhi,
+			   double* ylo, double* yhi,
+			   double* zlo, double* zhi) const  
+  {
+    const TGeoShape* s = gGeoManager->GetVolume("vWorld")->GetShape();
+    assert(s);
+    
+    if (xlo || xhi) {
+      double x1, x2;
+      s->GetAxisRange(1,x1,x2); if (xlo) *xlo = x1; if (xhi) *xhi = x2;
+    }
+    if (ylo || yhi) {
+      double y1, y2;
+      s->GetAxisRange(2,y1,y2); if (ylo) *ylo = y1; if (yhi) *yhi = y2;
+    }
+    if (zlo || zhi) {
+      double z1, z2;
+      s->GetAxisRange(3,z1,z2); if (zlo) *zlo = z1; if (zhi) *zhi = z2;
+    }
+  }// end of WorldBox
 
   ///----------------------------------------------------------------
   /// Project along a direction from a particular starting point to the

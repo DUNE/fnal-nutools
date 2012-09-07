@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2012-09-05 20:24:21 brebel Exp $
+# $Id: GNUmakefile,v 1.11 2012-09-07 21:35:25 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -18,7 +18,7 @@ JOBFILES    := $(wildcard *.fcl)
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
-override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry
+override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
 

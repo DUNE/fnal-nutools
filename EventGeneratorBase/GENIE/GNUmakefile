@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2012-09-07 19:27:45 rhatcher Exp $
+# $Id: GNUmakefile,v 1.4 2012-09-07 21:35:26 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -47,7 +47,7 @@ endif
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
-override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lGeometry -lEventGeneratorBase
+override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lEventGeneratorBase
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
 

@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.50 2012-09-07 19:30:06 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.51 2012-09-07 21:35:26 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -70,9 +70,6 @@
 #include "EventGeneratorBase/GENIE/GENIEHelper.h"
 #include "SimulationBase/simbase.h"
 
-//experiment includes - assumes every experiment has a Geometry package
-#include "Geometry/geo.h"
-
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "cetlib/search_path.h"
@@ -92,8 +89,13 @@ namespace evgb {
   static const int kNuTauBar = 5;
 
   //--------------------------------------------------
-  GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset)
-    : fGenieEventRecord  (0)
+  GENIEHelper::GENIEHelper(fhicl::ParameterSet const& pset,
+			   TGeoManager*               geoManager,
+			   std::string         const& rootFile,
+			   double              const& detectorMass)
+    : fGeoManager        (geoManager)
+    , fGeoFile           (rootFile) 
+    , fGenieEventRecord  (0)
     , fGeomD             (0)
     , fFluxD             (0)
     , fFluxD2GMCJD       (0)
@@ -112,6 +114,7 @@ namespace evgb {
     , fTotalExposure     (0.)
     , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
     , fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  )
+    , fDetectorMass      (detectorMass)
     , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
     , fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) )
     , fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) )
@@ -481,13 +484,11 @@ namespace evgb {
   //--------------------------------------------------
   void GENIEHelper::InitializeGeometry()
   {
-    art::ServiceHandle<geo::Geometry> geo;
-    TGeoManager* rootgeom = geo->ROOTGeoManager();
     genie::geometry::ROOTGeomAnalyzer *rgeom = 
-      new genie::geometry::ROOTGeomAnalyzer(rootgeom);
+      new genie::geometry::ROOTGeomAnalyzer(fGeoManager);
 
     // get the world volume name from the geometry
-    fWorldVolume = geo->ROOTGeoManager()->GetTopVolume()->GetName();
+    fWorldVolume = fGeoManager->GetTopVolume()->GetName();
 
     // the detector geometry uses cgs units.
     rgeom->SetLengthUnits(genie::units::centimeter);
@@ -498,9 +499,6 @@ namespace evgb {
     //  casting to the GENIE geometry driver interface
     fGeomD        = rgeom; // dynamic_cast<genie::GeomAnalyzerI *>(rgeom);
     InitializeFiducialSelection();
-
-    fDetLength    = geo->DetLength();  
-    fDetectorMass = geo->TotalMass(fTopVolume.c_str());
 
     return;
   }
@@ -1052,7 +1050,6 @@ namespace evgb {
     mf::LogInfo("GENIEHelper") 
         << "about to create MaxPathOutInfo";
 
-    art::ServiceHandle<geo::Geometry> geo;
     fMaxPathOutInfo = "\n";
     fMaxPathOutInfo += "   FluxType:     " + fFluxType + "\n";
     fMaxPathOutInfo += "   BeamName:     " + fBeamName + "\n";
@@ -1062,11 +1059,11 @@ namespace evgb {
       fMaxPathOutInfo += "\n         " + *ffitr;
     fMaxPathOutInfo += "\n";
     fMaxPathOutInfo += "   DetLocation:  " + fDetLocation + "\n";
-    fMaxPathOutInfo += "   ROOTFile:     " + geo->ROOTFile() + "\n";
+    fMaxPathOutInfo += "   ROOTFile:     " + fGeoFile     + "\n";
     fMaxPathOutInfo += "   WorldVolume:  " + fWorldVolume + "\n";
-    fMaxPathOutInfo += "   TopVolume:    " + fTopVolume + "\n";
+    fMaxPathOutInfo += "   TopVolume:    " + fTopVolume   + "\n";
     fMaxPathOutInfo += "   FiducialCut:  " + fFiducialCut + "\n";
-    fMaxPathOutInfo += "   GeomScan:     " + fGeomScan + "\n";
+    fMaxPathOutInfo += "   GeomScan:     " + fGeomScan    + "\n";
 
     mf::LogInfo("GENIEHelper") 
         << "MaxPathOutInfo: \"" << fMaxPathOutInfo << "\"";
@@ -1130,8 +1127,7 @@ namespace evgb {
   bool GENIEHelper::Sample(simb::MCTruth &truth, simb::MCFlux  &flux, simb::GTruth &gtruth)
   {
     // set the top volume for the geometry
-    art::ServiceHandle<geo::Geometry> geo;
-    geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fTopVolume.c_str()));
+    fGeoManager->SetTopVolume(fGeoManager->FindVolumeFast(fTopVolume.c_str()));
     
     if ( fGenieEventRecord ) delete fGenieEventRecord;
     fGenieEventRecord = fDriver->GenerateEvent();
@@ -1245,7 +1241,7 @@ namespace evgb {
     }
 
     // set the top volume of the geometry back to the world volume
-    geo->ROOTGeoManager()->SetTopVolume(geo->ROOTGeoManager()->FindVolumeFast(fWorldVolume.c_str()));
+    fGeoManager->SetTopVolume(fGeoManager->FindVolumeFast(fWorldVolume.c_str()));
 
     return true;
   }

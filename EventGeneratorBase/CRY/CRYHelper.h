@@ -4,8 +4,10 @@
 ///
 /// For documentation on CRY, see: http://nuclear.llnl.gov/simulation/
 /// and http://nuclear.llnl.gov/simulations/additional_bsd.html
+///
+/// This class assumes that the user has a ROOT TGeoManager defined
 /// 
-/// \version $Id: CRYHelper.h,v 1.7 2011-11-30 19:32:38 bckhouse Exp $
+/// \version $Id: CRYHelper.h,v 1.8 2012-09-07 21:35:26 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -15,7 +17,7 @@
 #include "CLHEP/Random/RandEngine.h"
 
 namespace simb { class MCTruth;  }
-namespace geo  { class Geometry; }
+
 class CRYSetup;
 class CRYGenerator;
 class CRYParticle;
@@ -29,10 +31,20 @@ namespace evgb {
 		       CLHEP::HepRandomEngine& engine);
     ~CRYHelper();
 
-    void Sample(simb::MCTruth& mctruth, double* w);
+    void Sample(simb::MCTruth& mctruth, 
+		double       const& surfaceY,
+		double       const& detectorLength,
+		double*             w);
     
   private:
-    
+
+    void WorldBox(double* xlo_cm,
+		  double* xhi_cm,
+		  double* ylo_cm,
+		  double* yhi_cm,
+		  double* zlo_cm,
+		  double* zhi_cm) const;
+
     void ProjectToBoxEdge(const double xyz[],
 			  const double dxyz[],
 			  double &xlo, double &xhi,
