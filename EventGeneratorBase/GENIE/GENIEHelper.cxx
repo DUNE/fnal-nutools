@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.49 2012-09-06 19:44:38 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.50 2012-09-07 19:30:06 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -149,26 +149,27 @@ namespace evgb {
     */
 
     cet::search_path sp("FW_SEARCH_PATH");
-    if ( fluxFiles.size() == 1 && 
-         fluxFiles[0].find_first_of("*?") != std::string::npos ) {
-      mf::LogDebug("GENIEHelper") << "ctor() FindFluxPath" << fluxFiles[0];
-      FindFluxPath(fluxFiles[0]);
-    }
-    else{
-      std::string fileName;
-      for(unsigned int i = 0; i < fluxFiles.size(); i++){
-        sp.find_file(fluxFiles[i], fileName);
-        if ( fileName != "" ) {
-          mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
-                                      << fluxFiles[i] << " found as " << fileName;
-          fFluxFiles.insert(fileName);
-        } else if ( fluxFiles[i][0] == '/' ) {
-          // cet::search_path doesn't return files that start out as
-          // absolute paths
-          mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
-                                      << fluxFiles[i] << " has /";
-          fFluxFiles.insert(fluxFiles[i]);
-        }
+
+    std::string fileName;
+    for(unsigned int i = 0; i < fluxFiles.size(); i++){
+      if ( fluxFiles[i].find_first_of("*?[]") != std::string::npos ) {
+        // wildcards involved
+        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " "
+                                    << fluxFiles[i] << " use FindFluxPath";
+        FindFluxPath(fluxFiles[i]);
+        continue;
+      }
+      sp.find_file(fluxFiles[i], fileName);
+      if ( fileName != "" ) {
+        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
+                                    << fluxFiles[i] << " found as " << fileName;
+        fFluxFiles.insert(fileName);
+      } else if ( fluxFiles[i][0] == '/' ) {
+        // cet::search_path doesn't return files that start out as
+        // absolute paths
+        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
+                                    << fluxFiles[i] << " has /";
+        fFluxFiles.insert(fluxFiles[i]);
       }
     }
 
@@ -327,16 +328,29 @@ namespace evgb {
 
     if(fFluxType.compare("mono")==0){
       fEventsPerSpill = 1;
-      mf::LogInfo("GENIEHelper") << "Generating monoenergetic (" << fMonoEnergy 
-                                 << " GeV) neutrinos with the following flavors: " 
-                                 << flvlist;
+      mf::LogInfo("GENIEHelper") 
+        << "Generating monoenergetic (" << fMonoEnergy 
+        << " GeV) neutrinos with the following flavors: " 
+        << flvlist;
     }
     else{
-      mf::LogInfo("GENIEHelper") << "Generating flux with the following flavors: " << flvlist
-                                 << "\n and these files: ";
-      
-      for(std::set<std::string>::iterator itr = fFluxFiles.begin(); itr != fFluxFiles.end(); itr++)
-        mf::LogInfo("GENIEHelper") << "\t" << *itr;
+
+      std::string fileliststr;
+      if ( fFluxFiles.empty() ) {
+        fileliststr = "NO FLUX FILES FOUND!";
+        mf::LogWarning("GENIEHelper")  << fileliststr;
+      }
+      else {
+        std::set<std::string>::iterator sitr = fFluxFiles.begin();
+        for ( ; sitr != fFluxFiles.end(); sitr++) {
+          fileliststr +=  "\n\t";
+          fileliststr += *sitr;
+        }
+      }
+      mf::LogInfo("GENIEHelper") 
+        << "Generating flux with the following flavors: " << flvlist
+        << "\nand these file patterns: " << fileliststr;
+
     }
 
     if(fEventsPerSpill != 0)
@@ -741,9 +755,18 @@ namespace evgb {
     if(fFluxType.compare("ntuple") == 0){
 
       genie::flux::GNuMIFlux* numiFlux = new genie::flux::GNuMIFlux();
+
+#ifndef GFLUX_TAKES_SETORVECTOR
+      if ( fFluxFiles.empty() ) fFluxFiles.insert("empty-fluxfile-set");
+      if ( fFluxFiles.size() > 1 )
+        mf::LogWarning("GENIEHelper") << "had " << fFluxFiles.size()
+                                      << " patterns, only used first";
       std::set<string>::iterator fluxfileitrntuple = fFluxFiles.begin();
       numiFlux->LoadBeamSimData(*fluxfileitrntuple, fDetLocation);
-    
+#else
+      numiFlux->LoadBeamSimData(fFluxFiles,fDetLocation);
+#endif
+
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
       for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++)
@@ -770,8 +793,17 @@ namespace evgb {
 #else
       genie::flux::GSimpleNtpFlux* simpleFlux = 
         new genie::flux::GSimpleNtpFlux();
+
+#ifndef GFLUX_TAKES_SETORVECTOR
+      if ( fFluxFiles.empty() ) fFluxFiles.insert("empty-fluxfile-set");
+      if ( fFluxFiles.size() > 1 )
+        mf::LogWarning("GENIEHelper") << "had " << fFluxFiles.size()
+                                   << " patterns, only used first";
       std::set<string>::iterator fluxfileitrsimple = fFluxFiles.begin();
       simpleFlux->LoadBeamSimData(*fluxfileitrsimple, fDetLocation);
+#else
+      simpleFlux->LoadBeamSimData(fFluxFiles,fDetLocation);
+#endif
 
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
