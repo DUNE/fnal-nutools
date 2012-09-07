@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.12 2012-08-27 18:03:41 rhatcher Exp $
+/// \version $Id: G4Helper.h,v 1.13 2012-09-07 22:30:22 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,9 @@ namespace g4b {
 
     /// Standard constructor and destructor for an FMWK module.
     G4Helper();
-    G4Helper(std::string g4macropath, std::string g4physicslist = "QGSP_BERT");
+    G4Helper(std::string const& g4macropath, 
+	     std::string const& g4physicslist = "QGSP_BERT",
+	     std::string const& gdmlFile = "");
     virtual ~G4Helper();
 
     // have to call this before InitMC if you want to load in 
@@ -62,7 +64,7 @@ namespace g4b {
     // muck with G4LogicalVolumes
     // if the fDetector pointer is null when InitMC is called
     // it will just construct the fDetector
-    void ConstructDetector();
+    void ConstructDetector(std::string const& gdmlFile);
 
     // Initialization for the Geant4 Monte Carlo, called before the
     // first event is simulated.  InitPhysics gets the G4 physics 
@@ -97,6 +99,7 @@ namespace g4b {
     std::string                        fG4MacroPath;    ///< Full directory path for Geant4 macro file 	 
                           	                        ///< to be executed before main MC processing.	 
     std::string           	       fG4PhysListName; ///< Name of physics list to use	
+    std::string                        fGDMLFile;       ///< Name of the gdml file containing the detector Geometry
     G4RunManager*         	       fRunManager;     ///< Geant4's run manager.		        
     G4UImanager*          	       fUIManager;      ///< Geant4's user-interface manager.		
     ConvertMCTruthToG4*   	       fConvertMCTruth; ///< Converts MCTruth objects; 

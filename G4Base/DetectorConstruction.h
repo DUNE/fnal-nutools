@@ -2,7 +2,7 @@
 /// \file  DetectorConstruction.h
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.h,v 1.2 2011-10-20 17:10:56 brebel Exp $
+/// \version $Id: DetectorConstruction.h,v 1.3 2012-09-07 22:30:22 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef G4BASE_DetectorConstruction_h
@@ -20,7 +20,7 @@ namespace g4b {
 
   public:
     /// Standard constructor and destructor.
-    DetectorConstruction();
+    explicit DetectorConstruction(std::string const& gdmlFile);
     virtual ~DetectorConstruction();
 
     /// The key method in this class; returns the Geant4 version of

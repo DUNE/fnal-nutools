@@ -2,12 +2,11 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.6 2012-03-07 18:59:57 brebel Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.7 2012-09-07 22:30:22 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
 #include "G4Base/DetectorConstruction.h"
-#include "Geometry/geo.h"
 #include "MagneticField/mag.h"
 
 #include <G4VPhysicalVolume.hh>
@@ -17,6 +16,8 @@
 #include <G4UniformMagField.hh>
 #include <G4FieldManager.hh>
 
+#include "cetlib/exception.h"
+
 namespace g4b{
 
   // Allocate static variables.
@@ -25,11 +26,14 @@ namespace g4b{
 
   //---------------------------------------------------
   // Constructor
-  DetectorConstruction::DetectorConstruction() 
+  DetectorConstruction::DetectorConstruction(std::string const& gdmlFile) 
   {
+    if(gdmlFile.empty())
+      throw cet::exception("DetectorConstruction") << "Supplied GDML filename is"
+						   << " empty";
+
     // Get the path to the GDML file from the Geometry interface.
-    art::ServiceHandle<geo::Geometry> geometry;
-    const G4String GDMLfile = static_cast<const G4String>( geometry->GDMLFile() );
+    const G4String GDMLfile = static_cast<const G4String>( gdmlFile );
 
     // Use Geant4's GDML parser to convert the geometry to Geant4 format.
     G4GDMLParser parser;

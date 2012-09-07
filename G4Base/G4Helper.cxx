@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.16 2012-08-27 18:03:41 rhatcher Exp $
+/// \version $Id: G4Helper.cxx,v 1.17 2012-09-07 22:30:22 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -52,9 +52,12 @@ namespace g4b{
 
   //------------------------------------------------
   // Constructor
-  G4Helper::G4Helper(std::string g4macropath, std::string g4physicslist) 
+  G4Helper::G4Helper(std::string const& g4macropath, 
+		     std::string const& g4physicslist,
+		     std::string const& gdmlFile) 
     : fG4MacroPath(g4macropath)
     , fG4PhysListName(g4physicslist)
+    , fGDMLFile(gdmlFile)
     , fUIManager(0)
     , fConvertMCTruth(0)
     , fDetector(0)
@@ -303,10 +306,10 @@ namespace g4b{
   }
 
   //------------------------------------------------
-  void G4Helper::ConstructDetector()
+  void G4Helper::ConstructDetector(std::string const& gdmlFile)
   {
     // Build the Geant4 detector description.
-    fDetector = new DetectorConstruction();
+    fDetector = new DetectorConstruction(gdmlFile);
 
     return;
   }
@@ -315,7 +318,7 @@ namespace g4b{
   /// Initialization for the Geant4 Monte Carlo.
   void G4Helper::InitPhysics() 
   {
-    if(!fDetector) this->ConstructDetector();
+    if(!fDetector) this->ConstructDetector(fGDMLFile);
 
     for(size_t i = 0; i < fParallelWorlds.size(); ++i)
       fDetector->RegisterParallelWorld( fParallelWorlds[i] );
