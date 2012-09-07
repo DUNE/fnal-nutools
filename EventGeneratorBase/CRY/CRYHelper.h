@@ -7,7 +7,7 @@
 ///
 /// This class assumes that the user has a ROOT TGeoManager defined
 /// 
-/// \version $Id: CRYHelper.h,v 1.8 2012-09-07 21:35:26 brebel Exp $
+/// \version $Id: CRYHelper.h,v 1.9 2012-09-07 22:03:53 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
@@ -27,8 +27,9 @@ namespace evgb {
   class CRYHelper {
   public:
     CRYHelper();
-    explicit CRYHelper(fhicl::ParameterSet const& pset, 
-		       CLHEP::HepRandomEngine& engine);
+    explicit CRYHelper(fhicl::ParameterSet     const& pset, 
+		       CLHEP::HepRandomEngine&        engine,
+		       std::string             const& worldVol="vWorld");
     ~CRYHelper();
 
     void Sample(simb::MCTruth& mctruth, 
@@ -57,6 +58,7 @@ namespace evgb {
     double                     fSampleTime; ///< Amount of time to sample (seconds)
     double                     fToffset;    ///< Shift in time of particles (s)
     double                     fEthresh;    ///< Cut on kinetic energy (GeV)
+    std::string                fWorldVolume;///< Name of the world volume
     std::string                fLatitude;   ///< Latitude of detector need space after value
     std::string                fAltitude;   ///< Altitude of detector need space after value
     std::string                fSubBoxL;    ///< Length of subbox (m) need space after value

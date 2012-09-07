@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.23 2012-09-07 21:35:26 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.24 2012-09-07 22:03:53 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -37,15 +37,17 @@ namespace evgb{
   }
 
   //......................................................................
-  CRYHelper::CRYHelper(fhicl::ParameterSet const& pset, 
-		       CLHEP::HepRandomEngine& engine)
-    : fSampleTime(pset.get< double      >("SampleTime")          )
-    , fToffset   (pset.get< double      >("TimeOffset")     	 )
-    , fEthresh   (pset.get< double      >("EnergyThreshold")	 )
-    , fLatitude  (pset.get< std::string >("Latitude")       	 )
-    , fAltitude  (pset.get< std::string >("Altitude")       	 )
-    , fSubBoxL   (pset.get< std::string >("SubBoxLength")    	 )
-    , fBoxDelta  (pset.get< double      >("WorldBoxDelta", 1.e-5))
+  CRYHelper::CRYHelper(fhicl::ParameterSet     const& pset, 
+		       CLHEP::HepRandomEngine&        engine,
+		       std::string             const& worldVol)
+    : fSampleTime (pset.get< double      >("SampleTime")          )
+    , fToffset    (pset.get< double      >("TimeOffset")     	  )
+    , fEthresh    (pset.get< double      >("EnergyThreshold")	  )
+    , fWorldVolume(worldVol) 
+    , fLatitude   (pset.get< std::string >("Latitude")       	  )
+    , fAltitude   (pset.get< std::string >("Altitude")       	  )
+    , fSubBoxL    (pset.get< std::string >("SubBoxLength")    	  )
+    , fBoxDelta   (pset.get< double      >("WorldBoxDelta", 1.e-5))
   {    
     // Construct the CRY generator
     std::string config("date 1-1-2014 "
@@ -210,7 +212,7 @@ namespace evgb{
 			   double* ylo, double* yhi,
 			   double* zlo, double* zhi) const  
   {
-    const TGeoShape* s = gGeoManager->GetVolume("vWorld")->GetShape();
+    const TGeoShape* s = gGeoManager->GetVolume(fWorldVolume.c_str())->GetShape();
     assert(s);
     
     if (xlo || xhi) {
