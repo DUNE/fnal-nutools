@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2012-09-05 20:24:21 brebel Exp $
+# $Id: GNUmakefile,v 1.3 2012-09-07 19:27:45 rhatcher Exp $
 #
 # messier@indiana.edu
 #
@@ -16,6 +16,13 @@ JOBFILES    := $(wildcard *.fcl)
 #
 # this makefile (and package code) assumes GENIE r3208 or later
 #
+
+# take advantage of new GENIE flux driver interfaces
+ifneq ($(shell /bin/grep \<set\> \${GENIE}/src/FluxDrivers/GSimpleNtpFlux.h 2> /dev/null ),)
+# genie is has the new code (r3669) ... can use the method
+#  $(warning GENIE/ROOTGeomAnalyzer haves new LoadBeamSimData set/vector methods)
+  override CPPFLAGS += -DGFLUX_TAKES_SETORVECTOR
+endif
 
 ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFlavorMixerFactory.h 2> /dev/null ),)
 # genie has the new code (r3663)... we can use it
