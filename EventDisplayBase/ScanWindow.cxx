@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.17 2012-08-10 17:01:17 messier Exp $
+/// \version $Id: ScanWindow.cxx,v 1.18 2012-09-09 22:21:36 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h"  // For TGMainFrame, TGHorizontalFrame
@@ -14,6 +14,7 @@
 #include "TMath.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TTimeStamp.h"
 
 #include "EventDisplayBase/ScanWindow.h"
 #include "EventDisplayBase/ScanOptions.h"
@@ -494,8 +495,13 @@ namespace evdb{
     // set up the file name to store the information
     art::ServiceHandle<evdb::ScanOptions> opts;
     std::string user(gSystem->Getenv("USER"));
+    user.append("_");
+    TTimeStamp cur;
+    std::string time(cur.AsString("s"));
+    time.replace(time.find(" "), 1, "_");
     fOutFileName.append(opts->fScanFileBase);
     fOutFileName.append(user);
+    fOutFileName.append(time);
     fOutFileName.append(".txt");
 
     std::ofstream outfile(fOutFileName.c_str());
