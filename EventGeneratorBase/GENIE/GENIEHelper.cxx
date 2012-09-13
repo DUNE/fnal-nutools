@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.51 2012-09-07 21:35:26 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.52 2012-09-13 15:52:58 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -975,20 +975,23 @@ namespace evgb {
     }
 
     // convert string to lowercase
-    std::transform(fGeomScan.begin(),fGeomScan.end(),fGeomScan.begin(),::tolower);
+    //std::transform(fGeomScan.begin(),fGeomScan.end(),fGeomScan.begin(),::tolower);
 
     // parse out string
     vector<string> strtok = genie::utils::str::Split(fGeomScan," ");
     // first value is a string, others should be numbers unless "file:"
     string scanmethod = strtok[0];
 
+    // convert key string to lowercase (but not potential file name)
+    std::transform(scanmethod.begin(),scanmethod.end(),scanmethod.begin(),::tolower);
+
     if ( scanmethod.find("file") != std::string::npos ) {
       // xml expand path before passing in
       string filename = strtok[1];
       string fullname = genie::utils::xml::GetXMLFilePath(filename);
-      fDriver->UseMaxPathLengths(fullname);
       mf::LogInfo("GENIEHelper") 
         << "ConfigGeomScan getting MaxPathLengths from \"" << fullname << "\"";
+      fDriver->UseMaxPathLengths(fullname);
       return;
     }
 
