@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \version $Id: ReweightAna.cxx,v 1.2 2012-09-19 17:15:48 nsmayer Exp $
+/// \version $Id: ReweightAna.cxx,v 1.3 2012-09-19 18:12:09 brebel Exp $
 // 
 ////////////////////////////////////////////////////////////////////////
 #include "NuReweight/ReweightAna.h"
@@ -14,7 +14,6 @@
 #include "SimulationBase/GTruth.h"
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCFlux.h"
-#include "Geometry/geo.h"
 
 #include "art/Framework/Principal/Event.h" 
 #include "art/Framework/Principal/SubRun.h" 
@@ -26,25 +25,15 @@
 #include "art/Framework/Services/Optional/TFileService.h" 
 #include "art/Framework/Services/Optional/TFileDirectory.h" 
 #include "messagefacility/MessageLogger/MessageLogger.h" 
-#include "Utilities/AssociationUtil.h"
 
-//#include "EventGeneratorBase/evgenbase.h"
-//#include "NuReweight/reweight.h"
 #include "NuReweight/GENIEReweight.h"
-//#include "ReWeight/GSystSet.h"
-//#include "ReWeight/GSyst.h"
-//#include "EventGeneratorBase/ReweightLabels.h"
 
 
 namespace rwgt{
 
-  //  static int msg1cnt = 0;
   static int cntEvent = 0; //event number
-  //  static int cntFLSHit = 0; //FLS hit number
 
-  //......................................................................
-  
-  
+  //......................................................................  
   ReweightAna::ReweightAna(fhicl::ParameterSet const& p)
   {
     this->reconfigure(p);
@@ -52,21 +41,18 @@ namespace rwgt{
   
 
   //......................................................................
-  
   ReweightAna::~ReweightAna() { }
   
   //......................................................................
   void ReweightAna::beginJob()
   {
     art::ServiceHandle<art::TFileService> tfs;
-    art::ServiceHandle<geo::Geometry> geo;
    
-    std::cout << "make histograms" << std::endl;
+    mf::LogVerbatim("ReweightAna") << "make histograms" ;
+
     fEnergyNeutrino   = tfs->make<TH1F>("fEnergyneutrino", "Total number of events", 50, 0., 25); 
     fNeventsSubrun    = tfs->make<TH1F>("fNeventsSubrun", "Total number of events", 1, 0., 1.); 
-    //fNeventsPOTSubrun = tfs->make<TH1F>("fNeventsPOTSubrun", "Total number of events", 1, 0., 1.); 
-    //fPOTSubrun        = tfs->make<TH1F>("fPOTSubrun", "Total number of events", 1, 0., 1.); 
-    //fPOTSpillSubrun   = tfs->make<TH1F>("fPOTSpillSubrun", "Total number of events", 1, 0., 1.); 
+
     char name[300];
     for(int i = 0; i < 3; i++) {
       sprintf(name, "fWgtQE_%dsigma", i+1);
@@ -78,7 +64,6 @@ namespace rwgt{
 
       double sigma = (double)(i+1);
       fGrwgt[i] = new rwgt::GENIEReweight();
-      //fGrwgt[i]->AddReweightValue(genie::rew::kXSecTwkDial_NormCCQE, 4.);
       fGrwgt[i]->AddReweightValue(rwgt::fReweightMaCCQE, sigma);
       fGrwgt[i]->AddReweightValue(rwgt::fReweightMaCCRES, sigma);
       fGrwgt[i]->AddReweightValue(rwgt::fReweightMaNCRES, sigma);
@@ -98,19 +83,6 @@ namespace rwgt{
   //......................................................................
   void ReweightAna::beginSubRun(art::SubRun const& sr) {
     
-    std::cerr << "beginSubRun" << std::endl;
-    //art::Handle< sumdata::POTSum > p;
-    //sr.getByLabel(fPotLabel,p);
-
-    std::cerr << "temp" << std::endl;
-
-    //fPOTSum->totpot     = p->totpot;
-    //fPOTSum->totgoodpot = p->totgoodpot;
-    //fPOTSum->totspills  = p->totspills;
-    std::cerr << "temp" << std::endl;
-    //fPOTSum->goodspills = p->goodspills;
-    //std::cerr << "end beginSubRun" << std::endl;
-
   }
 
   //......................................................................
@@ -118,47 +90,34 @@ namespace rwgt{
   { 
 
     // // Pull the MC generator information out of the event
-    std::cout << "Start analyze" << std::endl;
+    mf::LogVerbatim("ReweightAna") << "Start analyze" ;
     art::Handle< std::vector<simb::MCTruth> > mclist;
     evt.getByLabel(fMCTruthModuleLabel, mclist);
     if (mclist->empty()) {
-      std::cerr << "Error retrieving MCTruth list" << std::endl;
-       return;
-     }
-    
-    //art::Handle< std::vector<simb::MCFlux> > fllist;
-    //evt.getByLabel(fMCTruthModuleLabel, fllist);
-    //if (fllist->empty()) {
-    //if(msg1cnt < 5){
-    //std::cerr << "ooops file made before MCFlux existed.  let it slide" 
-    //<< std::endl;
-    //++msg1cnt;
-    //}
+      mf::LogWarning("ReweightAna") << "Error retrieving MCTruth list" ;
+      return;
+    }
     
     art::Handle< std::vector<simb::GTruth> > gtlist;
     evt.getByLabel(fMCTruthModuleLabel, gtlist);
     if (gtlist->empty()) {
-      std::cerr << "Error retrieving GTruth list" << std::endl;
+      mf::LogWarning("ReweightAna") << "Error retrieving GTruth list" ;
       return;
     }
     
-    std::cout<<"MC List sizes:" << mclist->size() << " " << gtlist->size() << "\n";
+   LOG_DEBUG("ReweightAna")<<"MC List sizes:" << mclist->size() << " " << gtlist->size() << "\n";
     
     // // Loop over neutrino interactions
-    for(unsigned int i_intx = 0; i_intx < mclist->size(); ++i_intx){
-      std::cout << "start loop" << std::endl;
-      // Pointers to current MCTruth and MCFlux
-      art::Ptr<simb::MCTruth> mc    (mclist,i_intx);
-      std::cerr << "GTruth" << std::endl;
-      art::Ptr<simb::GTruth> gt (gtlist, i_intx);
-      //   art::Ptr<simb::MCFlux>  mcflux(fllist,i_intx);
+    for(size_t i_intx = 0; i_intx < mclist->size(); ++i_intx){
+      LOG_DEBUG("ReweightAna") << "start loop";
       
       //   // Link to the MCNeutrino class.
       //   // The class contains information not only about
       //   // the incoming neutrino, but about the products of the decay
-      const simb::MCNeutrino& mc_neutrino = mc->GetNeutrino();
-      simb::MCTruth truth = *mc;
-      simb::GTruth gtruth = *gt;
+      simb::MCTruth    const& truth       = mclist->at(i_intx);
+      simb::GTruth     const& gtruth      = gtlist->at(i_intx);
+      simb::MCNeutrino const& mc_neutrino = truth.GetNeutrino();
+
       fEnergyNeutrino->Fill(mc_neutrino.Nu().E());
       for(int i = 0; i < 3; i++) {
 	double wgt = fGrwgt[i]->CalcWeight(truth, gtruth);
@@ -173,17 +132,16 @@ namespace rwgt{
 	  fWgtDIS[i]->Fill(wgt);
 	}
       }
-      //   //mc->Print();
-      std::cerr << "end loop" << std::endl;
+
+      LOG_DEBUG("ReweightAna") << "end loop" ;
     }//end loop over interactions
 
  
-    
+    return;
   }
   
 
-  //......................................................................
-  
+  //......................................................................  
   void ReweightAna::LoadMCInfo(art::Event const& evt)
   {
 
@@ -193,25 +151,13 @@ namespace rwgt{
   
   //......................................................................
   void ReweightAna::reconfigure(const fhicl::ParameterSet& p)
-  {
-    
+  {    
     fMCTruthModuleLabel = p.get< std::string>("MCTruthModuleLabel");
-    //fGTruthModuleLabel = p.get< std::string>("MCTruthModuleLabel");
-    fPotLabel = p.get< std::string>("PotLabel");
   }
   
   //......................................................................
   void ReweightAna::endSubRun(art::SubRun const& sr)
   {
-    /*
-    mf::LogInfo ("ReweightAna") << "Event Number " << cntEvent << std::endl;
-    mf::LogInfo ("ReweightAna") << "Subrun Number " << sr.subRun() << std::endl;
-    mf::LogInfo ("ReweightAna") << "Event per POT " << cntEvent/fPOTSum->totpot << std::endl;
-
-    fNeventsPOTSubrun->Fill(sr.subRun(), cntEvent/fPOTSum->totpot);
-    fPOTSubrun->Fill(sr.subRun(), fPOTSum->totpot);
-    */
-    //fPOTSpillSubrun->Fill(sr.subRun(), fPOTSum->totpot/fPOTSum->totspills);
     fNeventsSubrun->Fill(sr.subRun(), cntEvent);
     cntEvent = 0;
 

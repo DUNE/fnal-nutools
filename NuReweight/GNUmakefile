@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2012-09-18 16:15:58 nsmayer Exp $
+# $Id: GNUmakefile,v 1.2 2012-09-19 18:12:09 brebel Exp $
 #
 # messier@indiana.edu
 #
@@ -33,6 +33,6 @@ LIBLINK    := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 #-lEventGeneratorBase
-override LIBLIBS += $(LOADLIBES)  -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lUtilities -lGeometry -lSimulationBase  -lSummaryData
+override LIBLIBS += $(LOADLIBES)  -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lSimulationBase 
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))

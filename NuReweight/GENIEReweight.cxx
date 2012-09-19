@@ -25,7 +25,6 @@
 //GENIE includes
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
-//#include "EVGDrivers/GMCJDriver.h"
 #include "GHEP/GHepUtils.h"
 
 #include "ReWeight/GReWeightI.h"
