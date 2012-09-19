@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \version $Id: ReweightAna.cxx,v 1.1 2012-09-18 16:15:58 nsmayer Exp $
+/// \version $Id: ReweightAna.cxx,v 1.2 2012-09-19 17:15:48 nsmayer Exp $
 // 
 ////////////////////////////////////////////////////////////////////////
 #include "NuReweight/ReweightAna.h"
@@ -15,7 +15,6 @@
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCFlux.h"
 #include "Geometry/geo.h"
-#include "SummaryData/SumData.h"
 
 #include "art/Framework/Principal/Event.h" 
 #include "art/Framework/Principal/SubRun.h" 
