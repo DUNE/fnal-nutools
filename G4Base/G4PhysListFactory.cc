@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactory.cc,v 1.1 2011-10-17 17:16:07 rhatcher Exp $
+// $Id: G4PhysListFactory.cc,v 1.2 2012-09-20 21:43:53 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -37,8 +37,8 @@
 //----------------------------------------------------------------------------
 //
 
-#include "G4PhysListFactory.hh"
-#include "G4PhysListFactorySingleton.hh"
+#include "G4Base/G4PhysListFactory.hh"
+#include "G4Base/G4PhysListFactorySingleton.hh"
 
 #ifdef DEF_ALT_FACTORY
 namespace alt {

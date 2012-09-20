@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysicsProcessFactorySingleton.cc,v 1.1 2012-02-09 21:28:38 rhatcher Exp $
+// $Id: G4PhysicsProcessFactorySingleton.cc,v 1.2 2012-09-20 21:43:53 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -37,7 +37,7 @@
 //----------------------------------------------------------------------------
 //
 
-#include "G4PhysicsProcessFactorySingleton.hh"
+#include "G4Base/G4PhysicsProcessFactorySingleton.hh"
 
 // Define static variable which holds the one-and-only instance
 G4PhysicsProcessFactorySingleton* G4PhysicsProcessFactorySingleton::fgTheInstance;

@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.cc,v 1.3 2012-02-09 21:17:19 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.cc,v 1.4 2012-09-20 21:43:53 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -37,7 +37,7 @@
 //----------------------------------------------------------------------------
 //
 
-#include "G4PhysListFactorySingleton.hh"
+#include "G4Base/G4PhysListFactorySingleton.hh"
 
 // Define static variable which holds the one-and-only instance
 G4PhysListFactorySingleton* G4PhysListFactorySingleton::fgTheInstance;
@@ -174,4 +174,4 @@ G4bool G4PhysListFactorySingleton::RegisterCreator(G4String name,
 }
 
 /// !!!!!! register existing classes without disturbing their .cc files (yet)
-#include "G4PhysListRegisterOld.icc"
+#include "G4Base/G4PhysListRegisterOld.icc"
