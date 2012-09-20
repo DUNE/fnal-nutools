@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.cxx
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.cxx,v 1.5 2012-08-06 23:07:19 brebel Exp $
+/// \version $Id: ConvertMCTruthToG4.cxx,v 1.6 2012-09-20 21:47:05 greenc Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -10,9 +10,9 @@
 #include "G4Base/PrimaryParticleInformation.h"
 #include "SimulationBase/simbase.h"
 
-#include <G4Event.hh>
-#include <G4PrimaryVertex.hh>
-#include <G4ParticleDefinition.hh>
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4PrimaryVertex.hh"
+#include "Geant4/G4ParticleDefinition.hh"
 
 #include <TParticle.h>
 

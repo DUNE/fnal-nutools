@@ -2,19 +2,19 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.7 2012-09-07 22:30:22 brebel Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.8 2012-09-20 21:47:05 greenc Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
 #include "G4Base/DetectorConstruction.h"
 #include "MagneticField/mag.h"
 
-#include <G4VPhysicalVolume.hh>
-#include <G4GDMLParser.hh>
-#include <G4LogicalVolumeStore.hh>
-#include <G4Material.hh>
-#include <G4UniformMagField.hh>
-#include <G4FieldManager.hh>
+#include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4GDMLParser.hh"
+#include "Geant4/G4LogicalVolumeStore.hh"
+#include "Geant4/G4Material.hh"
+#include "Geant4/G4UniformMagField.hh"
+#include "Geant4/G4FieldManager.hh"
 
 #include "cetlib/exception.h"
 

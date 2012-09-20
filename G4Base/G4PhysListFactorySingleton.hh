@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListFactorySingleton.hh,v 1.3 2012-02-09 21:17:19 rhatcher Exp $
+// $Id: G4PhysListFactorySingleton.hh,v 1.4 2012-09-20 21:47:05 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -50,8 +50,8 @@
 #ifndef G4PhysListFactorySingleton_h
 #define G4PhysListFactorySingleton_h 1
 
-#include "G4VModularPhysicsList.hh"
-#include "globals.hh"
+#include "Geant4/G4VModularPhysicsList.hh"
+#include "Geant4/globals.hh"
 
 // define a type for the pointer to a function that returns a 
 //    G4VModularPhysicsList* 

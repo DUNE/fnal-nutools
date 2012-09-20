@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysListRegisterOld.icc,v 1.1 2011-10-17 17:16:07 rhatcher Exp $
+// $Id: G4PhysListRegisterOld.icc,v 1.2 2012-09-20 21:47:05 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -41,82 +41,82 @@
 //----------------------------------------------------------------------------
 //
 
-#include "G4PhysListFactorySingleton.hh"
+#include "G4Base/G4PhysListFactorySingleton.hh"
 
-#include "CHIPS.hh"
+#include "Geant4/CHIPS.hh"
 PHYSLISTREG(CHIPS)
 
-#include "FTFP_BERT.hh"
+#include "Geant4/FTFP_BERT.hh"
 PHYSLISTREG(FTFP_BERT)
 
-#include "FTFP_BERT_EMV.hh"
+#include "Geant4/FTFP_BERT_EMV.hh"
 PHYSLISTREG(FTFP_BERT_EMV)
 
-#include "FTFP_BERT_EMX.hh"
+#include "Geant4/FTFP_BERT_EMX.hh"
 PHYSLISTREG(FTFP_BERT_EMX)
 
-#include "FTFP_BERT_TRV.hh"
+#include "Geant4/FTFP_BERT_TRV.hh"
 PHYSLISTREG(FTFP_BERT_TRV)
 
-#include "FTF_BIC.hh"
+#include "Geant4/FTF_BIC.hh"
 PHYSLISTREG(FTF_BIC)
 
-#include "LBE.hh"
+#include "Geant4/LBE.hh"
 PHYSLISTREG(LBE)
 
-#include "LHEP.hh"
+#include "Geant4/LHEP.hh"
 PHYSLISTREG(LHEP)
 
-#include "LHEP_EMV.hh"
+#include "Geant4/LHEP_EMV.hh"
 PHYSLISTREG(LHEP_EMV)
 
-#include "QBBC.hh"
+#include "Geant4/QBBC.hh"
 PHYSLISTREG(QBBC)
 
-#include "QGSC_BERT.hh"
+#include "Geant4/QGSC_BERT.hh"
 PHYSLISTREG(QGSC_BERT)
 
-#include "QGSP.hh"
+#include "Geant4/QGSP.hh"
 PHYSLISTREG(QGSP)
 
-#include "QGSP_BERT.hh"
+#include "Geant4/QGSP_BERT.hh"
 PHYSLISTREG(QGSP_BERT)
 
-#include "QGSP_BERT_EMV.hh"
+#include "Geant4/QGSP_BERT_EMV.hh"
 PHYSLISTREG(QGSP_BERT_EMV)
 
-#include "QGSP_BERT_EMX.hh"
+#include "Geant4/QGSP_BERT_EMX.hh"
 PHYSLISTREG(QGSP_BERT_EMX)
 
-#include "QGSP_BERT_HP.hh"
+#include "Geant4/QGSP_BERT_HP.hh"
 PHYSLISTREG(QGSP_BERT_HP)
 
-#include "QGSP_BERT_NOLEP.hh"
+#include "Geant4/QGSP_BERT_NOLEP.hh"
 PHYSLISTREG(QGSP_BERT_NOLEP)
 
-#include "QGSP_BERT_TRV.hh"
+#include "Geant4/QGSP_BERT_TRV.hh"
 PHYSLISTREG(QGSP_BERT_TRV)
 
-#include "QGSP_BERT_CHIPS.hh"
+#include "Geant4/QGSP_BERT_CHIPS.hh"
 PHYSLISTREG(QGSP_BERT_CHIPS)
 
-#include "QGSP_BIC.hh"
+#include "Geant4/QGSP_BIC.hh"
 PHYSLISTREG(QGSP_BIC)
 
-#include "QGSP_BIC_EMY.hh"
+#include "Geant4/QGSP_BIC_EMY.hh"
 PHYSLISTREG(QGSP_BIC_EMY)
 
-#include "QGSP_BIC_HP.hh"
+#include "Geant4/QGSP_BIC_HP.hh"
 PHYSLISTREG(QGSP_BIC_HP)
 
-#include "QGSP_FTFP_BERT.hh"
+#include "Geant4/QGSP_FTFP_BERT.hh"
 PHYSLISTREG(QGSP_FTFP_BERT)
 
-#include "QGS_BIC.hh"
+#include "Geant4/QGS_BIC.hh"
 PHYSLISTREG(QGS_BIC)
 
-#include "QGSP_INCL_ABLA.hh"
+#include "Geant4/QGSP_INCL_ABLA.hh"
 PHYSLISTREG(QGSP_INCL_ABLA)
 
-#include "Shielding.hh"
+#include "Geant4/Shielding.hh"
 PHYSLISTREG(Shielding)

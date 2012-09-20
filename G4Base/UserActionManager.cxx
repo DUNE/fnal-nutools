@@ -2,7 +2,7 @@
 /// \file  UserActionManager.cxx
 /// \brief Create the physics lists to be used by Geant4.
 ///
-/// \version $Id: UserActionManager.cxx,v 1.3 2012-08-27 18:02:25 rhatcher Exp $
+/// \version $Id: UserActionManager.cxx,v 1.4 2012-09-20 21:47:06 greenc Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 /// 18-Sep-2007 Bill Seligman
@@ -14,10 +14,10 @@
 #include "G4Base/UserActionManager.h"
 #include "G4Base/UserAction.h"
 
-#include "G4Run.hh"
-#include "G4Event.hh"
-#include "G4Track.hh"
-#include "G4Step.hh"
+#include "Geant4/G4Run.hh"
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4Track.hh"
+#include "Geant4/G4Step.hh"
 
 #include <vector>
 #include <map>

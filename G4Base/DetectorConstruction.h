@@ -2,13 +2,13 @@
 /// \file  DetectorConstruction.h
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.h,v 1.3 2012-09-07 22:30:22 brebel Exp $
+/// \version $Id: DetectorConstruction.h,v 1.4 2012-09-20 21:47:05 greenc Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef G4BASE_DetectorConstruction_h
 #define G4BASE_DetectorConstruction_h
 
-#include "G4VUserDetectorConstruction.hh"
+#include "Geant4/G4VUserDetectorConstruction.hh"
 
 // forward declarations
 class G4VPhysicalVolume;

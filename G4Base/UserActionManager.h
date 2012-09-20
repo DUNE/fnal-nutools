@@ -38,20 +38,20 @@
 
 #include "G4Base/UserAction.h"
 
-#include "G4UserRunAction.hh"
-#include "G4UserEventAction.hh"
-#include "G4UserTrackingAction.hh"
-#include "G4UserSteppingAction.hh"
-#include "G4UserStackingAction.hh"
+#include "Geant4/G4UserRunAction.hh"
+#include "Geant4/G4UserEventAction.hh"
+#include "Geant4/G4UserTrackingAction.hh"
+#include "Geant4/G4UserSteppingAction.hh"
+#include "Geant4/G4UserStackingAction.hh"
 
-#include "G4Run.hh"
-#include "G4Event.hh"
-#include "G4Track.hh"
-#include "G4Step.hh"
+#include "Geant4/G4Run.hh"
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4Track.hh"
+#include "Geant4/G4Step.hh"
 
-#include "G4EventManager.hh"
-#include "G4TrackingManager.hh"
-#include "G4SteppingManager.hh"
+#include "Geant4/G4EventManager.hh"
+#include "Geant4/G4TrackingManager.hh"
+#include "Geant4/G4SteppingManager.hh"
 
 #include <vector>
 

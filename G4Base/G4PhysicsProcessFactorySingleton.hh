@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PhysicsProcessFactorySingleton.hh,v 1.1 2012-02-09 21:28:38 rhatcher Exp $
+// $Id: G4PhysicsProcessFactorySingleton.hh,v 1.2 2012-09-20 21:47:05 greenc Exp $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
@@ -46,8 +46,8 @@
 #ifndef G4PhysicsProcessFactorySingleton_h
 #define G4PhysicsProcessFactorySingleton_h 1
 
-#include "G4VPhysicsConstructor.hh"
-#include "globals.hh"
+#include "Geant4/G4VPhysicsConstructor.hh"
+#include "Geant4/globals.hh"
 
 // define a type for the pointer to a function that returns a 
 //    G4VPhysicsConstructor* 

@@ -2,7 +2,7 @@
 /// \file  ConvertMCTruthToG4.h
 /// \brief Convert MCTruth to G4Event; Geant4 event generator
 ///
-/// \version $Id: ConvertMCTruthToG4.h,v 1.4 2012-08-06 23:07:19 brebel Exp $
+/// \version $Id: ConvertMCTruthToG4.h,v 1.5 2012-09-20 21:47:05 greenc Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 ///
@@ -17,9 +17,9 @@
 #define G4BASE_CONVERTMCTRUTHTOG4_H
 
 // G4 Includes
-#include <G4VUserPrimaryGeneratorAction.hh>
-#include <G4ParticleTable.hh>
-#include <globals.hh>
+#include "Geant4/G4VUserPrimaryGeneratorAction.hh"
+#include "Geant4/G4ParticleTable.hh"
+#include "Geant4/globals.hh"
 
 // ART Includes
 #include "art/Persistency/Common/Ptr.h"

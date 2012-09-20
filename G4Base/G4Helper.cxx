@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.17 2012-09-07 22:30:22 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.18 2012-09-20 21:47:05 greenc Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -12,28 +12,28 @@
 
 #include "SimulationBase/simbase.h"
 
-#include <G4UImanager.hh>
-#include <G4VUserDetectorConstruction.hh>
-#include <G4VUserPrimaryGeneratorAction.hh>
-#include <G4VUserPhysicsList.hh>
-#include <G4UserRunAction.hh>
-#include <G4UserEventAction.hh>
-#include <G4UserTrackingAction.hh>
-#include <G4UserSteppingAction.hh>
-#include <G4VisExecutive.hh>
+#include "Geant4/G4UImanager.hh"
+#include "Geant4/G4VUserDetectorConstruction.hh"
+#include "Geant4/G4VUserPrimaryGeneratorAction.hh"
+#include "Geant4/G4VUserPhysicsList.hh"
+#include "Geant4/G4UserRunAction.hh"
+#include "Geant4/G4UserEventAction.hh"
+#include "Geant4/G4UserTrackingAction.hh"
+#include "Geant4/G4UserSteppingAction.hh"
+#include "Geant4/G4VisExecutive.hh"
 
 #include <boost/algorithm/string.hpp>
 
-#include <QGSP_BERT.hh>
+#include "Geant4/QGSP_BERT.hh"
 #define TRY_NEW_PL_FACTORY
 #ifdef TRY_NEW_PL_FACTORY
 #include "G4Base/G4PhysListFactory.hh"
 #else
-#include <G4PhysListFactory.hh>
+#include "G4Base/G4PhysListFactory.hh"
 #endif
 // 
 #include "G4Base/G4PhysicsProcessFactorySingleton.hh"
-#include "G4VModularPhysicsList.hh"
+#include "Geant4/G4VModularPhysicsList.hh"
 
 #include <Rtypes.h>
 

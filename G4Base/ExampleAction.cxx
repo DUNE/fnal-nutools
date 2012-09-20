@@ -2,7 +2,7 @@
 /// \file  ExampleAction.cxx
 /// \brief Example UserAction w/ Geant4's user "hooks"
 ///
-/// \version $Id: ExampleAction.cxx,v 1.1 2012-08-27 17:55:03 rhatcher Exp $
+/// \version $Id: ExampleAction.cxx,v 1.2 2012-09-20 21:47:05 greenc Exp $
 /// \author  rhatcher@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -14,18 +14,18 @@
 USERACTIONREG3(altns,ExampleAction,altns::ExampleAction)
 
 // G4 includes
-#include <G4Event.hh>
-#include <G4Track.hh>
-#include <G4ThreeVector.hh>
-#include <G4ParticleDefinition.hh>
-#include <G4PrimaryParticle.hh>
-#include <G4DynamicParticle.hh>
-#include <G4VUserPrimaryParticleInformation.hh>
-#include <G4Step.hh>
-#include <G4StepPoint.hh>
-#include <G4VProcess.hh>
-#include <G4VPhysicalVolume.hh>
-#include <G4VTouchable.hh>
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4Track.hh"
+#include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4ParticleDefinition.hh"
+#include "Geant4/G4PrimaryParticle.hh"
+#include "Geant4/G4DynamicParticle.hh"
+#include "Geant4/G4VUserPrimaryParticleInformation.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/G4StepPoint.hh"
+#include "Geant4/G4VProcess.hh"
+#include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4VTouchable.hh"
 
 // ROOT includes
 #include <TLorentzVector.h>

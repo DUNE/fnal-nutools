@@ -2,7 +2,7 @@
 /// \file  UserAction.h
 /// \brief see below
 ///
-/// \version $Id: UserAction.h,v 1.3 2012-08-27 17:57:55 rhatcher Exp $
+/// \version $Id: UserAction.h,v 1.4 2012-09-20 21:47:05 greenc Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov, rhatcher@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// G4Base::UserAction.h
@@ -46,7 +46,7 @@ class G4Run;
 class G4Event;
 class G4Track;
 class G4Step;
-#include "G4ClassificationOfNewTrack.hh"
+#include "Geant4/G4ClassificationOfNewTrack.hh"
 
 #include <string>
 #include "fhiclcpp/ParameterSet.h"

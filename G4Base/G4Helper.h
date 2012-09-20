@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.13 2012-09-07 22:30:22 brebel Exp $
+/// \version $Id: G4Helper.h,v 1.14 2012-09-20 21:47:05 greenc Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +27,8 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 
-#include <G4RunManager.hh>
-#include <G4VUserParallelWorld.hh>
+#include "Geant4/G4RunManager.hh"
+#include "Geant4/G4VUserParallelWorld.hh"
 
 // Forward declarations
 class G4UImanager;

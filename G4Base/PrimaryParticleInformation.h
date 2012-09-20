@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file PrimaryParticleInformation.h
 //
-/// \version $Id: PrimaryParticleInformation.h,v 1.6 2012-08-06 23:07:19 brebel Exp $
+/// \version $Id: PrimaryParticleInformation.h,v 1.7 2012-09-20 21:47:05 greenc Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 /// PrimaryParticleInformation
@@ -33,8 +33,8 @@
 #define G4BASE_PrimaryParticleInformation_h
 
 // G4 Includes
-#include "G4VUserPrimaryParticleInformation.hh"
-#include "G4Allocator.hh"
+#include "Geant4/G4VUserPrimaryParticleInformation.hh"
+#include "Geant4/G4Allocator.hh"
 
 // ART Includes
 #include "art/Persistency/Common/Ptr.h"
