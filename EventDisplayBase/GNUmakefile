@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2011-10-31 14:41:40 greenc Exp $
+# $Id: GNUmakefile,v 1.11 2012-09-20 21:38:32 greenc Exp $
 #
 # messier@indiana.edu
 #
@@ -13,7 +13,6 @@ JOBFILES    := $(wildcard *.fcl)
 
 ROOTLIBS  = $(shell root-config --evelibs)
 
-override CPPFLAGS += $(shell root-config --cflags) 
 override LDFLAGS += $(shell root-config --evelibs) 
 
 override LOADLIBES += -L$(ART_LIB) -lart_Framework_IO_Root_RootInput_source $(ROOTLIBS)

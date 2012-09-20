@@ -4,7 +4,7 @@
 ///
 /// \todo This needs a lot of work if it is to actually provide help...
 ///
-/// \version $Id: HelpMenu.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: HelpMenu.cxx,v 1.2 2012-09-20 21:38:32 greenc Exp $
 /// \author  messier@indiaa.edu
 ////////////////////////////////////////////////////////////////////////
 #include "EventDisplayBase/HelpMenu.h"
@@ -16,7 +16,7 @@
 #include "TGMsgBox.h"
 #include "TGMenu.h"
 #include "TGLayout.h"
-#include "evdb.h"
+#include "EventDisplayBase/evdb.h"
 using namespace evdb;
 
 // Define ID codes for the actions on the file menu
@@ -113,7 +113,7 @@ int HelpMenu::About()
   about =  "MIPP Event Display\n\n";
 
   about += "  Version: "; 
-  about += "$Id: HelpMenu.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $";
+  about += "$Id: HelpMenu.cxx,v 1.2 2012-09-20 21:38:32 greenc Exp $";
   about += "\n";
 
   about += "  ";
