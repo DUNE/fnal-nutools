@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.24 2012-09-07 22:03:53 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.25 2012-09-20 21:58:51 greenc Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -103,7 +103,7 @@ namespace evgb{
     
       for (unsigned int i=0; i<parts.size(); ++i) {
 	// Take ownership of the particle from the vector
-	std::auto_ptr<CRYParticle> cryp(parts[i]);
+	std::unique_ptr<CRYParticle> cryp(parts[i]);
       
 	// Pull out the PDG code
 	int pdg = cryp->PDGid();
