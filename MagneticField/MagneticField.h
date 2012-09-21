@@ -1,7 +1,7 @@
 /// \file MagField.h
 /// \brief Describe the magnetic field structure of a detector
 /// 
-/// \version $Id: MagneticField.h,v 1.2 2012-03-07 19:01:44 brebel Exp $
+/// \version $Id: MagneticField.h,v 1.3 2012-09-21 02:46:38 greenc Exp $
 /// \author dmckee@phys.ksu.edu
 //////////////////////////////////////////////////////////////////////////
 /// \namespace mag
@@ -13,7 +13,7 @@
 #include <string>
 
 // Geant4 includes
-#include <G4ThreeVector.hh>
+#include "Geant4/G4ThreeVector.hh"
 
 // Framework includes
 #include "fhiclcpp/ParameterSet.h"
