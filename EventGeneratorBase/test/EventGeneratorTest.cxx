@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest.cxx,v 1.13 2012-09-07 21:35:26 brebel Exp $
+// $Id: EventGeneratorTest.cxx,v 1.14 2012-09-22 22:32:24 brebel Exp $
 //
 // gGENIE neutrino event generator
 //
@@ -25,7 +25,7 @@
 
 #include "SimulationBase/simbase.h"
 #include "EventGeneratorBase/test/EventGeneratorTest.h"
-#include "Geometry/geo.h"
+#include "Geometry/Geometry.h"
 #include "EventGeneratorBase/evgenbase.h"
 
 
