@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest_module.cc,v 1.2 2012-09-24 15:19:37 brebel Exp $
+// $Id: EventGeneratorTest_module.cc,v 1.3 2012-09-24 18:30:48 brebel Exp $
 //
 //
 // geometry unit tests
@@ -35,7 +35,6 @@
 #include "SimulationBase/MCFlux.h"
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCParticle.h"
-#include "EventGeneratorBase/test/EventGeneratorTest.h"
 #include "Geometry/Geometry.h"
 #include "EventGeneratorBase/evgenbase.h"
 
