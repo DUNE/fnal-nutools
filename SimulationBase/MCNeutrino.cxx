@@ -2,10 +2,11 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.cxx,v 1.3 2011-05-17 01:47:35 brebel Exp $
+/// \version $Id: MCNeutrino.cxx,v 1.4 2012-09-24 15:20:02 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCNeutrino.h"
+#include "SimulationBase/MCParticle.h"
 #include "TVector3.h"
 #include <iostream>
 

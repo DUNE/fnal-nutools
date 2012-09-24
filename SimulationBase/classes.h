@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.6 2012-07-10 19:24:09 nsmayer Exp $
-// $Author: nsmayer $
-// $Date: 2012-07-10 19:24:09 $
+// $Id: classes.h,v 1.7 2012-09-24 15:20:02 brebel Exp $
+// $Author: brebel $
+// $Date: 2012-09-24 15:20:02 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -20,7 +20,12 @@
 #include "art/Persistency/Common/Assns.h" 
 
 // nutools includes
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCTruth.h"
+#include "SimulationBase/MCTrajectory.h"
+#include "SimulationBase/MCParticle.h"
+#include "SimulationBase/MCNeutrino.h"
+#include "SimulationBase/MCFlux.h"
+#include "SimulationBase/GTruth.h"
 
 //
 // Only include objects that we would like to be able to put into the event.

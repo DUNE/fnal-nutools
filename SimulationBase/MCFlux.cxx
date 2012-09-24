@@ -3,11 +3,11 @@
 /// \brief Simple MC truth class, holds information about neutrino parent from
 ///        flux files
 ///
-/// \version $Id: MCFlux.cxx,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCFlux.cxx,v 1.2 2012-09-24 15:20:02 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCFlux.h"
 #include <iostream>
 #include <cmath>
 

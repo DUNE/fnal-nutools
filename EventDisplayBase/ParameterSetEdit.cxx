@@ -2,7 +2,7 @@
 /// \file  ParameterSetEdit.cxx
 /// \brief Popup to edit configuration data
 ///
-/// \version $Id: ParameterSetEdit.cxx,v 1.4 2012-02-25 00:45:02 bckhouse Exp $
+/// \version $Id: ParameterSetEdit.cxx,v 1.5 2012-09-24 15:19:47 brebel Exp $
 /// \author  messier@indiana.edu
 ///
 #include "EventDisplayBase/ParameterSetEdit.h"
@@ -23,7 +23,7 @@ extern "C" {
 #include "TGWindow.h"
 #include "TGButton.h"
 #include "TGTextEntry.h"
-#include "TGScrollBar.h"
+
 using namespace evdb;
 
 static void parse_pset_string(const std::string& pset, 

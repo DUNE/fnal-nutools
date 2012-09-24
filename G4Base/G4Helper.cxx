@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.18 2012-09-20 21:47:05 greenc Exp $
+/// \version $Id: G4Helper.cxx,v 1.19 2012-09-24 15:19:29 brebel Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -10,7 +10,7 @@
 #include "G4Base/DetectorConstruction.h"
 #include "G4Base/UserActionManager.h"
 
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCTruth.h"
 
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4VUserDetectorConstruction.hh"

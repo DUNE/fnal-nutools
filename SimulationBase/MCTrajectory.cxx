@@ -5,7 +5,7 @@
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCTrajectory.h"
 
 #include <TLorentzVector.h>
 

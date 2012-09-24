@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.52 2012-09-13 15:52:58 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.53 2012-09-24 15:19:37 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,11 @@
 //NuTools includes
 #include "EventGeneratorBase/evgenbase.h"
 #include "EventGeneratorBase/GENIE/GENIEHelper.h"
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCTruth.h"
+#include "SimulationBase/MCFlux.h"
+#include "SimulationBase/GTruth.h"
+#include "SimulationBase/MCParticle.h"
+#include "SimulationBase/MCNeutrino.h"
 
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"

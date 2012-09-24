@@ -2,7 +2,7 @@
 /// \file    ScanWindow.cxx
 /// \brief   window for hand scanning
 /// \author  brebel@fnal.gov
-/// \version $Id: ScanWindow.cxx,v 1.18 2012-09-09 22:21:36 brebel Exp $
+/// \version $Id: ScanWindow.cxx,v 1.19 2012-09-24 15:19:47 brebel Exp $
 ///
 #include "TCanvas.h"
 #include "TGFrame.h"  // For TGMainFrame, TGHorizontalFrame
@@ -20,7 +20,8 @@
 #include "EventDisplayBase/ScanOptions.h"
 #include "EventDisplayBase/NavState.h"
 #include "EventDisplayBase/EventHolder.h"
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCTruth.h"
+#include "SimulationBase/MCNeutrino.h"
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
