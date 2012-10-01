@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.53 2012-09-24 15:19:37 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.54 2012-10-01 14:56:17 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -478,9 +478,45 @@ namespace evgb {
     fSpillExposure = 0.;
     fTotalExposure = 0.;
 
-    // if the flux driver knows how to keep track of exposure (time,pots)
+    // If the flux driver knows how to keep track of exposure (time,pots)
     // reset it now as some might have been used in determining
-    // the geometry maxpathlength or internally scanning for weights
+    // the geometry maxpathlength or internally scanning for weights.
+    // This should not be necessary (GENIE should do it automagically)
+    // but the current version (as of 3665) doesn't.
+
+    double preUsedFluxPOTs = 0;
+    bool   wasCleared = true;
+    bool   doprintpre = false;
+    if( fFluxType.compare("ntuple") == 0 ) {
+      genie::flux::GNuMIFlux* gnumiflux = 
+        dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD);
+      preUsedFluxPOTs = gnumiflux->UsedPOTs();
+      if ( preUsedFluxPOTs > 0 ) {
+        doprintpre = true;
+        gnumiflux->Clear("CycleHistory");
+        if ( gnumiflux->UsedPOTs() != 0 ) wasCleared = false;
+      }
+    } else if ( fFluxType.compare("simple_flux") == 0 ) {
+      genie::flux::GSimpleNtpFlux* gsimpleflux = 
+        dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
+      preUsedFluxPOTs = gsimpleflux->UsedPOTs();
+      if ( preUsedFluxPOTs > 0 ) {
+        doprintpre = true;
+        gsimpleflux->Clear("CycleHistory");
+        if ( gsimpleflux->UsedPOTs() != 0 ) wasCleared = false;
+      }
+    }
+    if ( doprintpre ) {
+      double probscale = fDriver->GlobProbScale();
+      mf::LogInfo("GENIEHelper") 
+        << "Pre-Event Generation: " 
+        << " FluxDriver base " << preUsedFluxPOTs
+        << " / GMCJDriver GlobProbScale " << probscale 
+        << " = used POTS " << preUsedFluxPOTs/TMath::Max(probscale,1.0e-100)
+        << " "
+        << (wasCleared?"successfully":"failed to") << " cleared count for "
+        << fFluxType;
+    }
 
     return;
   }
@@ -1029,9 +1065,19 @@ namespace evgb {
       int np = (int)vals[0];
       if ( nvals >= 2 ) safetyfactor = vals[1];
       if ( nvals >= 3 ) writeout     = vals[2];
-      if ( np <= 10 ) np = rgeom->ScannerNParticles();
+      // sanity check, need some number of rays to explore the geometry
+      // negative now means adjust rays to enu_max (GENIE svn 3676)
+      if ( abs(np) <= 100 ) {
+        int npnew = rgeom->ScannerNParticles(); 
+        if ( np < 0 ) npnew = -abs(npnew);
+        mf::LogWarning("GENIEHelper") 
+          << "Too few rays requested for geometry scan: " << np
+          << ", use: " << npnew << "instead";
+        np = npnew;
+      }
       mf::LogInfo("GENIEHelper") 
-        << "ConfigGeomScan scan using flux " << np << " particles ";
+        << "ConfigGeomScan scan using " << np << " flux particles"
+        << ( (np>0) ? "" : " with ray energy pushed to flux driver maximum" );
       rgeom->SetScannerFlux(fFluxD);
       rgeom->SetScannerNParticles(np);
     } else {
