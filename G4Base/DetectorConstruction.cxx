@@ -2,7 +2,7 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.8 2012-09-20 21:47:05 greenc Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.9 2012-10-07 05:05:32 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -28,10 +28,11 @@ namespace g4b{
   // Constructor
   DetectorConstruction::DetectorConstruction(std::string const& gdmlFile) 
   {
-    if(gdmlFile.empty())
-      throw cet::exception("DetectorConstruction") << "Supplied GDML filename is"
-						   << " empty";
-
+    if ( gdmlFile.empty() ) {
+      throw cet::exception("DetectorConstruction") 
+        << "Supplied GDML filename is empty\n"
+        << __FILE__ << ":" << __LINE__ << "\n";
+    }
     // Get the path to the GDML file from the Geometry interface.
     const G4String GDMLfile = static_cast<const G4String>( gdmlFile );
 
