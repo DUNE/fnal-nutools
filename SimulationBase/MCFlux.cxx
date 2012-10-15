@@ -3,7 +3,7 @@
 /// \brief Simple MC truth class, holds information about neutrino parent from
 ///        flux files
 ///
-/// \version $Id: MCFlux.cxx,v 1.2 2012-09-24 15:20:02 brebel Exp $
+/// \version $Id: MCFlux.cxx,v 1.3 2012-10-15 20:36:27 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -14,84 +14,79 @@
 namespace simb{
 
   //......................................................................
-  MCFlux::MCFlux() :
-    frun(-999),
-    fevtno(-999),
-    fndxdz(-999.),
-    fndydz(-999.),
-    fnpz(-999.),
-    fnenergy(-999.),
-    fndxdznea(-999.),
-    fndydznea(-999.),
-    fnenergyn(-999.),
-    fnwtnear(-999.),
-    fndxdzfar(-999.),
-    fndydzfar(-999.),
-    fnenergyf(-999.),
-    fnwtfar(-999.),
-    fnorig(-999),
-    fndecay(-999),
-    fntype(-999),
-    fvx(-999.),
-    fvy(-999.),
-    fvz(-999.),
-    fpdpx(-999.),
-    fpdpy(-999.),
-    fpdpz(-999.),
-    fppdxdz(-999.),
-    fppdydz(-999.),
-    fpppz(-999.),
-    fppenergy(-999.),
-    fppmedium(-999),
-    fptype(-999),     // converted to PDG
-    fppvx(-999.),
-    fppvy(-999.),
-    fppvz(-999.),
-    fmuparpx(-999.),
-    fmuparpy(-999.),
-    fmuparpz(-999.),
-    fmupare(-999.),
-    fnecm(-999.),
-    fnimpwt(-999.),
-    fxpoint(-999.),
-    fypoint(-999.),
-    fzpoint(-999.),
-    ftvx(-999.),
-    ftvy(-999.),
-    ftvz(-999.),
-    ftpx(-999.),
-    ftpy(-999.),
-    ftpz(-999.),
-    ftptype(-999),   // converted to PDG
-    ftgen(-999),
-    ftgptype(-999),  // converted to PDG
-    ftgppx(-999.),
-    ftgppy(-999.),
-    ftgppz(-999.),
-    ftprivx(-999.),
-    ftprivy(-999.),
-    ftprivz(-999.),
-    fbeamx(-999.),
-    fbeamy(-999.),
-    fbeamz(-999.),
-    fbeampx(-999.),
-    fbeampy(-999.),
-    fbeampz(-999.),
-    fFluxType(simb::kGenerator),
-    fgenx(-999.),
-    fgeny(-999.),
-    fgenz(-999.),
-    fdk2gen(-999.),
-    fgen2vtx(-999.)
+  MCFlux::MCFlux() 
+    : frun(-999)
+    , fevtno(-999)
+    , fndxdz(-999.)
+    , fndydz(-999.)
+    , fnpz(-999.)
+    , fnenergy(-999.)
+    , fndxdznea(-999.)
+    , fndydznea(-999.)
+    , fnenergyn(-999.)
+    , fnwtnear(-999.)
+    , fndxdzfar(-999.)
+    , fndydzfar(-999.)
+    , fnenergyf(-999.)
+    , fnwtfar(-999.)
+    , fnorig(-999)
+    , fndecay(-999)
+    , fntype(-999)
+    , fvx(-999.)
+    , fvy(-999.)
+    , fvz(-999.)
+    , fpdpx(-999.)
+    , fpdpy(-999.)
+    , fpdpz(-999.)
+    , fppdxdz(-999.)
+    , fppdydz(-999.)
+    , fpppz(-999.)
+    , fppenergy(-999.)
+    , fppmedium(-999)
+    , fptype(-999)     // converted to PDG
+    , fppvx(-999.)
+    , fppvy(-999.)
+    , fppvz(-999.)
+    , fmuparpx(-999.)
+    , fmuparpy(-999.)
+    , fmuparpz(-999.)
+    , fmupare(-999.)
+    , fnecm(-999.)
+    , fnimpwt(-999.)
+    , fxpoint(-999.)
+    , fypoint(-999.)
+    , fzpoint(-999.)
+    , ftvx(-999.)
+    , ftvy(-999.)
+    , ftvz(-999.)
+    , ftpx(-999.)
+    , ftpy(-999.)
+    , ftpz(-999.)
+    , ftptype(-999)   // converted to PDG
+    , ftgen(-999)
+    , ftgptype(-999)  // converted to PDG
+    , ftgppx(-999.)
+    , ftgppy(-999.)
+    , ftgppz(-999.)
+    , ftprivx(-999.)
+    , ftprivy(-999.)
+    , ftprivz(-999.)
+    , fbeamx(-999.)
+    , fbeamy(-999.)
+    , fbeamz(-999.)
+    , fbeampx(-999.)
+    , fbeampy(-999.)
+    , fbeampz(-999.)
+    , fFluxType(simb::kGenerator)
+    , fgenx(-999.)
+    , fgeny(-999.)
+    , fgenz(-999.)
+    , fdk2gen(-999.)
+    , fgen2vtx(-999.)
   {
 
     for (int i=0; i<6; ++i) fFluxGen[i]=fFluxPos[i]=fFluxNeg[i]= 0;
 
-  }
-
-  //......................................................................
-  MCFlux::~MCFlux()
-  {
   }
 
   //......................................................................

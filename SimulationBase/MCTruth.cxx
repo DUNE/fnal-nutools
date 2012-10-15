@@ -1,13 +1,15 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCTruth.cxx
-/// \brief Simple MC truth class, holds a vector of TParticles
+/// \brief Simple MC truth class, holds a vector of MCParticles
 ///
-/// \version $Id: MCTruth.cxx,v 1.7 2012-09-24 15:20:02 brebel Exp $
+/// \version $Id: MCTruth.cxx,v 1.8 2012-10-15 20:36:27 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/MCTruth.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCNeutrino.h"
+
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "TDatabasePDG.h"
 
@@ -16,15 +18,12 @@
 namespace simb{
 
   //......................................................................
-  MCTruth::MCTruth() :
-    fOrigin(simb::kUnknown),
-    fNeutrinoSet(false)
+  MCTruth::MCTruth() 
+    : fPartList()
+    , fMCNeutrino()
+    , fOrigin(simb::kUnknown)
+    , fNeutrinoSet(false)
   { 
-  }
-
-  //......................................................................
-  MCTruth::~MCTruth()
-  {
   }
 
   //......................................................................
@@ -41,17 +40,17 @@ namespace simb{
   {
     if( !fNeutrinoSet ){
       fNeutrinoSet = true;
-      ///loop over the MCParticle list and get the outgoing lepton
+      // loop over the MCParticle list and get the outgoing lepton
+      // assume this is a neutral current interaction to begin with
+      // which means the outgoing lepton is the incoming neutrino
       MCParticle nu  = fPartList[0];
-      MCParticle lep = fPartList[1];
-      ///start at i = 1 because i = 0 is the incoming neutrino
+      MCParticle lep = fPartList[0];
+
+      // start at i = 1 because i = 0 is the incoming neutrino
       for(unsigned int i = 1; i < fPartList.size(); ++i){
-	if(CCNC == simb::kNC && fPartList[i].PdgCode() == nu.PdgCode() ){
-	  lep = fPartList[i];
-	  break;
-	}
-	else if(CCNC == simb::kCC 
-		&& abs(fPartList[i].PdgCode()) == abs(nu.PdgCode())-1){
+	if(fPartList[i].Mother() == nu.TrackId() &&
+	   (fPartList[i].PdgCode()  == nu.PdgCode() ||
+	    abs(fPartList[i].PdgCode()) == abs(nu.PdgCode())-1) ){
 	  lep = fPartList[i];
 	  break;
 	}
@@ -61,10 +60,10 @@ namespace simb{
 				     CCNC, mode, interactionType,
 				     target, nucleon, quark, 
 				     w, x, y, qsqr);
-    }
+    } // end if MCNeutrino is not already set
     else
-      std::cerr << "MCTruth - attempt to set neutrino when already set" << std::endl;
-
+      mf::LogWarning("MCTruth") << "MCTruth - attempt to set neutrino when already set";
+      
     return;
   }
 

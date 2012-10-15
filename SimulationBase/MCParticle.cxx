@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.9 2012-07-10 19:21:24 nsmayer Exp $
+/// \version $Id: MCParticle.cxx,v 1.10 2012-10-15 20:36:27 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -30,6 +30,17 @@ namespace simb {
 
   //------------------------------------------------------------
   MCParticle::MCParticle()
+    : fstatus(s_uninitialized)
+    , ftrackId(s_uninitialized)
+    , fpdgCode(s_uninitialized)
+    , fmother(s_uninitialized)
+    , fprocess()
+    , fmass(s_uninitialized)
+    , fpolarization()
+    , fdaughters()
+    , fWeight(s_uninitialized)
+    , fGvtx()
+    , frescatter(s_uninitialized)
   {
   }
 
@@ -46,8 +57,12 @@ namespace simb {
     , fpdgCode(pdg)
     , fmother(mother)
     , fprocess(process)
-    , fmass(0)
+    , fmass(mass)
+    , fpolarization()
+    , fdaughters()
     , fWeight(0.)
+    , fGvtx()
+    , frescatter(s_uninitialized)
   {
     // If the user has supplied a mass, use it.  Otherwise, get the
     // particle mass from the PDG table.
@@ -70,43 +85,31 @@ namespace simb {
   {
   }
 
-//   // Copy constructor.  Note that since this class inherits from
-//   // TObject, we have to copy its information explicitly.
-//   MCParticle::MCParticle( const MCParticle& rhs ) 
+//   //------------------------------------------------------------
+//   // Assignment operator
+//   MCParticle& MCParticle::operator=( const MCParticle& rhs )
 //   {
+//     // Usual test for self-assignment.
+//     if ( this == &rhs ) return *this;
+
+//     // As a trivial exercise, let's make this operator exception-safe:
+
+//     // Copy the non-pointer items.
+//     fstatus       = rhs.fstatus;
 //     ftrackId      = rhs.ftrackId;
 //     fpdgCode      = rhs.fpdgCode;
 //     fmother       = rhs.fmother;
-//     ftrajectory   = new sim::Trajectory(*(rhs.ftrajectory));
-//     fmass         = rhs.fmass;
 //     fprocess      = rhs.fprocess;
+//     ftrajectory   = rhs.ftrajectory;
+//     fmass         = rhs.fmass;
 //     fpolarization = rhs.fpolarization;
+//     fdaughters    = rhs.fdaughters;
 //     fWeight       = rhs.fWeight;
+//     fGvtx         = rhs.fGvtx;
+//     frescatter    = rhs.frescatter;
+
+//     return *this;
 //   }
-
-  //------------------------------------------------------------
-  // Assignment operator
-  MCParticle& MCParticle::operator=( const MCParticle& rhs )
-  {
-    // Usual test for self-assignment.
-    if ( this == &rhs ) return *this;
-
-    // As a trivial exercise, let's make this operator exception-safe:
-
-    // Copy the non-pointer items.
-    fstatus       = rhs.fstatus;
-    ftrackId      = rhs.ftrackId;
-    fpdgCode      = rhs.fpdgCode;
-    fmother       = rhs.fmother;
-    fprocess      = rhs.fprocess;
-    ftrajectory   = rhs.ftrajectory;
-    fmass         = rhs.fmass;
-    fpolarization = rhs.fpolarization;
-    fdaughters    = rhs.fdaughters;
-    fWeight       = fWeight;
-
-    return *this;
-  }
 
   //------------------------------------------------------------
   // Return the "index-th' daughter in the list.
@@ -178,7 +181,8 @@ namespace simb {
     else output << "PDG=" << pdg;
     
     output << ", Mother ID=" << particle.Mother()
-	   << ", Process=" << particle.Process()
+	   << ", Process="   << particle.Process()
+	   << ", Status="    << particle.StatusCode()
 	   << ", there are " << particle.NumberTrajectoryPoints() << " trajectory points";
 
     if(particle.NumberTrajectoryPoints() > 0 )

@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.7 2012-09-24 15:20:02 brebel Exp $
+// $Id: classes.h,v 1.8 2012-10-15 20:36:27 brebel Exp $
 // $Author: brebel $
-// $Date: 2012-09-24 15:20:02 $
+// $Date: 2012-10-15 20:36:27 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -26,12 +26,12 @@
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCFlux.h"
 #include "SimulationBase/GTruth.h"
-
+#include <TLorentzVector.h>
 //
 // Only include objects that we would like to be able to put into the event.
 // Do not include the objects they contain internally.
 //
-
+template class std::pair< TLorentzVector, TLorentzVector>;
 template class std::vector<simb::MCNeutrino>;
 template class std::vector<simb::MCTrajectory>;
 template class std::vector<simb::MCParticle>;

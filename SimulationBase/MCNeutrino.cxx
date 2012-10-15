@@ -2,39 +2,60 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.cxx,v 1.4 2012-09-24 15:20:02 brebel Exp $
+/// \version $Id: MCNeutrino.cxx,v 1.5 2012-10-15 20:36:27 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCParticle.h"
 #include "TVector3.h"
 #include <iostream>
+#include <climits>
 
 namespace simb{
 
   //......................................................................
   MCNeutrino::MCNeutrino()
+    : fNu()
+    , fLepton()
+    , fMode           (std::numeric_limits<int>::min())
+    , fInteractionType(std::numeric_limits<int>::min())
+    , fCCNC           (std::numeric_limits<int>::min())
+    , fTarget         (std::numeric_limits<int>::min())
+    , fHitNuc	      (std::numeric_limits<int>::min())
+    , fHitQuark       (std::numeric_limits<int>::min())
+    , fW              (std::numeric_limits<double>::min())
+    , fX	      (std::numeric_limits<double>::min())
+    , fY	      (std::numeric_limits<double>::min())
+    , fQSqr           (std::numeric_limits<double>::min())
   {
   }
 
   //......................................................................
   ///nu is the incoming neutrino and lep is the outgoing lepton
-  MCNeutrino::MCNeutrino(MCParticle &nu, MCParticle &lep, 
-			 int CCNC, int mode, int interactionType,
-			 int target, int nucleon,
-			 int quark, double w, double x, double y, double qsqr) :
-    fNu(nu),
-    fLepton(lep),
-    fMode(mode),
-    fInteractionType(interactionType),
-    fCCNC(CCNC),
-    fTarget(target),
-    fHitNuc(nucleon),
-    fHitQuark(quark),
-    fW(w),
-    fX(x),
-    fY(y),
-    fQSqr(qsqr)
+  MCNeutrino::MCNeutrino(MCParticle &nu, 
+			 MCParticle &lep, 
+			 int CCNC, 
+			 int mode, 
+			 int interactionType,
+			 int target, 
+			 int nucleon,
+			 int quark, 
+			 double w, 
+			 double x, 
+			 double y, 
+			 double qsqr)
+    : fNu(nu)
+    , fLepton(lep)
+    , fMode(mode)
+    , fInteractionType(interactionType)
+    , fCCNC(CCNC)
+    , fTarget(target)
+    , fHitNuc(nucleon)
+    , fHitQuark(quark)
+    , fW(w)
+    , fX(x)
+    , fY(y)
+    , fQSqr(qsqr)
   { 
   }
 
@@ -58,21 +79,21 @@ namespace simb{
   //......................................................................
   std::ostream&  operator<< (std::ostream& output, const simb::MCNeutrino &mcnu)
   {
-    output << " neutrino =        " << mcnu.Nu().PdgCode() 
-	   << " neutrino energy = " << mcnu.Nu().E()
-	   << " CCNC =            " << mcnu.CCNC()
-	   << " mode =            " << mcnu.Mode();
-    output << " target =          " << mcnu.Target() 
-	   << " nucleon =         " << mcnu.HitNuc()
-	   << " quark =           " << mcnu.HitQuark() << std::endl;
-    output << " W =               " << mcnu.W() 
-	   << " X =               " << mcnu.X() 
-	   << " Y =               " << mcnu.Y() 
-	   << " Q^2 =             " << mcnu.QSqr() << std::endl;
+    output << " neutrino =         " << mcnu.Nu().PdgCode()    << std::endl
+	   << " neutrino energy =  " << mcnu.Nu().E()          << std::endl
+	   << " CCNC =             " << mcnu.CCNC()            << std::endl
+	   << " mode =             " << mcnu.Mode()            << std::endl
+	   << " interaction type = " << mcnu.InteractionType() << std::endl
+	   << " target =           " << mcnu.Target()          << std::endl 
+	   << " nucleon =          " << mcnu.HitNuc()          << std::endl 
+	   << " quark =            " << mcnu.HitQuark()        << std::endl 
+	   << " W =                " << mcnu.W()               << std::endl 
+	   << " X =                " << mcnu.X()               << std::endl 
+	   << " Y =                " << mcnu.Y()               << std::endl 
+	   << " Q^2 =              " << mcnu.QSqr()            << std::endl;
 
     return output;
   }
 
-  MCNeutrino::~MCNeutrino() { }
 }
 ////////////////////////////////////////////////////////////////////////

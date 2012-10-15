@@ -16,17 +16,19 @@
 
 namespace simb {
 
+  // Nothing special need be done for the default constructor or destructor.
+  MCTrajectory::MCTrajectory() 
+    : ftrajectory()
+  {}
 
+  //----------------------------------------------------------------------------
   MCTrajectory::MCTrajectory( const TLorentzVector& position, 
 			      const TLorentzVector& momentum )
   {
     ftrajectory.push_back( value_type( position, momentum ) );
   }
 
-  // Nothing special need be done for the default constructor or destructor.
-  MCTrajectory::MCTrajectory() {}
-  MCTrajectory::~MCTrajectory() {}
-
+  //----------------------------------------------------------------------------
   const TLorentzVector& MCTrajectory::Position( const size_type index ) const
   {
     const_iterator i = ftrajectory.begin();
@@ -34,6 +36,7 @@ namespace simb {
     return (*i).first;
   }
 
+  //----------------------------------------------------------------------------
   const TLorentzVector& MCTrajectory::Momentum( const size_type index ) const
   {
     const_iterator i = ftrajectory.begin();
@@ -41,6 +44,7 @@ namespace simb {
     return (*i).second;
   }
 
+  //----------------------------------------------------------------------------
   double MCTrajectory::TotalLength() const
   {
     const int N = size();
@@ -55,6 +59,7 @@ namespace simb {
     return dist;
   }
 
+  //----------------------------------------------------------------------------
   std::ostream& operator<< ( std::ostream& output, const MCTrajectory& list )
   {
     // Determine a field width for the voxel number.
@@ -85,6 +90,7 @@ namespace simb {
     return output;
   }
 
+  //----------------------------------------------------------------------------
   void MCTrajectory::Sparsify(double margin)
   {
     // Need at least three points to think of removing one

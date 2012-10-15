@@ -11,8 +11,6 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <TLorentzVector.h>
-
 #include <vector>
 #include <iostream>
 #include <string>
@@ -59,9 +57,4 @@ namespace simb {
     fVertex.SetXYZT(0, 0, 0, 0);
   }
   
-  //---------------------------------------------------------------
-  GTruth::~GTruth() {
-
-  }
-
 } // namespace simb

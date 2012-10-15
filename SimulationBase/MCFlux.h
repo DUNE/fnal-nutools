@@ -2,7 +2,7 @@
 /// \file  MCFlux.h
 /// \brief object containing MC flux information
 ///
-/// \version $Id: MCFlux.h,v 1.1.1.1 2010-12-22 16:18:52 p-nusoftart Exp $
+/// \version $Id: MCFlux.h,v 1.2 2012-10-15 20:36:27 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCFLUX_H
@@ -26,22 +26,6 @@ namespace simb{
   public:
 
     MCFlux();
-    ~MCFlux();
-
-    void Reset();
-    double Flux(int pdgcode, int which=0) const;
-    void SetFluxPos(double nue,  double nuebar,
-		    double numu, double numubar,
-		    double nutau,double nutaubar);
-    void SetFluxNeg(double nue,  double nuebar,
-		    double numu, double numubar,
-		    double nutau,double nutaubar);
-    void SetFluxGen(double nue,  double nuebar,
-		    double numu, double numubar,
-		    double nutau,double nutaubar);
-
-    void ReDecay(double &newE, double &newW, double x, double y, double z);
-    
 
     // maintained variable names from gnumi ntuples
     // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
@@ -122,6 +106,31 @@ namespace simb{
     float fFluxPos[6]; ///< e,ebar,mu,mubar,tau,taubar flux, +horn focus
     float fFluxNeg[6]; ///< Fluxes as aboce, for negative horn focus
     float fFluxGen[6]; ///< Fluxes as above, assumed by generator
+
+#ifndef __GCCXML__
+
+  public:
+    
+    void Reset();
+    double Flux(int pdgcode, 
+		int which=0) const;
+    void SetFluxPos(double nue,  double nuebar,
+		    double numu, double numubar,
+		    double nutau,double nutaubar);
+    void SetFluxNeg(double nue,  double nuebar,
+		    double numu, double numubar,
+		    double nutau,double nutaubar);
+    void SetFluxGen(double nue,  double nuebar,
+		    double numu, double numubar,
+		    double nutau,double nutaubar);
+
+    void ReDecay(double &newE, 
+		 double &newW, 
+		 double x, 
+		 double y, 
+		 double z);
+    
+#endif
 
   };
 }

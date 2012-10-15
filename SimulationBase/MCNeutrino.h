@@ -2,7 +2,7 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.h,v 1.4 2012-01-03 20:13:18 brebel Exp $
+/// \version $Id: MCNeutrino.h,v 1.5 2012-10-15 20:36:27 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCNEUTRINO_H
@@ -11,7 +11,67 @@
 #include "SimulationBase/MCParticle.h"
 
 namespace simb {
+  
+  //......................................................................
 
+  /// Event generator information
+  class MCNeutrino {
+  public:
+
+    MCNeutrino();
+    MCNeutrino(simb::MCParticle &nu, 
+	       simb::MCParticle &lep, 
+	       int CCNC, 
+	       int mode, 
+	       int interactionType,
+	       int target, 
+	       int nucleon,
+	       int quark, 
+	       double w, 
+	       double x, 
+	       double y, 
+	       double qsqr);
+
+  private:
+ 
+    simb::MCParticle fNu;              ///< the incoming neutrino			      
+    simb::MCParticle fLepton;          ///< the outgoing lepton			      
+    int              fMode;            ///< Interaction mode (QE/1-pi/DIS...) see enum list			
+    int        	     fInteractionType; ///< More detailed interaction type, see enum list below kNuanceOffset	
+    int        	     fCCNC;            ///< CC or NC interaction? see enum list	      			
+    int        	     fTarget;          ///< Nuclear target, as PDG code				      	
+    int        	     fHitNuc;          ///< Hit nucleon (2212 (proton) or 2112 (neutron))  			
+    int        	     fHitQuark;        ///< For DIS events only, as PDG code			      		
+    double     	     fW;               ///< Hadronic invariant mass, in GeV			      		
+    double     	     fX;               ///< Bjorken x=Q^2/(2M*(E_neutrino-E_lepton)), unitless	      	
+    double     	     fY;               ///< Inelasticity y=1-(E_lepton/E_neutrino), unitless	      		
+    double           fQSqr;            ///< Momentum transfer Q^2, in GeV^2                                     
+
+#ifndef __GCCXML__
+  public:
+
+    const  simb::MCParticle& Nu()              const;
+    const  simb::MCParticle& Lepton()          const;
+    int                      CCNC()            const;								    
+    int                	     Mode()            const;								    
+    int                	     InteractionType() const;								    
+    int                	     Target()          const;								    
+    int                	     HitNuc()          const;								    
+    int                	     HitQuark()        const;								    
+    double             	     W()               const;								    
+    double             	     X()               const;								    
+    double             	     Y()               const;								    
+    double             	     QSqr()            const;								    
+    double             	     Pt()              const; ///< transverse momentum of interaction, in GeV/c	    
+    double             	     Theta()           const; ///< angle between incoming and outgoing leptons, in radians
+    friend std::ostream&  operator<< (std::ostream& output, const simb::MCNeutrino &mcnu);
+#endif
+
+  };
+}
+
+#ifndef __GCCXML__
+namespace simb{
   /// Neutrino interaction categories
   enum curr_type_{
     kCC,
@@ -72,55 +132,21 @@ namespace simb {
     kNuElectronElastic         = kNuanceOffset + 98,  ///< neutrino electron elastic scatter	
     kInverseMuDecay            = kNuanceOffset + 99   ///< inverse muon decay			  
   };
-  
-  //......................................................................
-
-  /// Event generator information
-  class MCNeutrino {
-  public:
-
-    MCNeutrino();
-    MCNeutrino(MCParticle &nu, MCParticle &lep, 
-	       int CCNC, int mode, int interactionType,
-	       int target, int nucleon,
-	       int quark, double w, double x, double y, double qsqr);
-    ~MCNeutrino();
-
-  public:
-
-    const  MCParticle& Nu()              const { return fNu;              }
-    const  MCParticle& Lepton()   	 const { return fLepton;  	  }
-    int                CCNC()     	 const { return fCCNC;    	  }
-    int                Mode()     	 const { return fMode;    	  }
-    int                InteractionType() const { return fInteractionType; }
-    int                Target()          const { return fTarget;          }
-    int                HitNuc()   	 const { return fHitNuc;  	  }
-    int                HitQuark() 	 const { return fHitQuark;	  }
-    double             W()        	 const { return fW;       	  }
-    double             X()        	 const { return fX;       	  }
-    double             Y()        	 const { return fY;       	  }
-    double             QSqr()     	 const { return fQSqr;    	  }
-    double             Pt()              const; ///< transverse momentum of interaction, in GeV/c
-    double             Theta()           const; ///< angle between incoming and outgoing leptons, in radians
-    friend std::ostream&  operator<< (std::ostream& output, const simb::MCNeutrino &mcnu);
-
-  private:
- 
-    MCParticle fNu;              ///< the incoming neutrino			      
-    MCParticle fLepton;   	 ///< the outgoing lepton			      
-    int        fMode;     	 ///< Interaction mode (QE/1-pi/DIS...) see enum list
-    int        fInteractionType; ///< More detailed interaction type, see enum list below kNuanceOffset
-    int        fCCNC;            ///< CC or NC interaction? see enum list	      
-    int        fTarget;   	 ///< Nuclear target, as PDG code				      
-    int        fHitNuc;   	 ///< Hit nucleon (2212 (proton) or 2112 (neutron))  
-    int        fHitQuark; 	 ///< For DIS events only, as PDG code			      
-    double     fW;        	 ///< Hadronic invariant mass, in GeV			      
-    double     fX;        	 ///< Bjorken x=Q^2/(2M*(E_neutrino-E_lepton)), unitless	      
-    double     fY;        	 ///< Inelasticity y=1-(E_lepton/E_neutrino), unitless	      
-    double     fQSqr;     	 ///< Momentum transfer Q^2, in GeV^2                          
-
-  };
 }
+
+inline const  simb::MCParticle& simb::MCNeutrino::Nu()              const { return fNu;              }
+inline const  simb::MCParticle& simb::MCNeutrino::Lepton()   	    const { return fLepton;  	     }
+inline        int               simb::MCNeutrino::CCNC()     	    const { return fCCNC;    	     }
+inline        int         	simb::MCNeutrino::Mode()     	    const { return fMode;    	     }
+inline        int         	simb::MCNeutrino::InteractionType() const { return fInteractionType; }
+inline        int         	simb::MCNeutrino::Target()          const { return fTarget;          }
+inline        int         	simb::MCNeutrino::HitNuc()   	    const { return fHitNuc;  	     }  
+inline        int         	simb::MCNeutrino::HitQuark()        const { return fHitQuark;	     }  
+inline        double      	simb::MCNeutrino::W()               const { return fW;       	     }  
+inline        double      	simb::MCNeutrino::X()               const { return fX;       	     }  
+inline        double      	simb::MCNeutrino::Y()               const { return fY;       	     }  
+inline        double      	simb::MCNeutrino::QSqr()            const { return fQSqr;    	     }  
+#endif
 
 #endif //SIMB_MCNEUTRINO_H
 ////////////////////////////////////////////////////////////////////////
