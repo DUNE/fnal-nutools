@@ -2,7 +2,7 @@
 /// \file  CRYHelper.cxx
 /// \brief Implementation of an interface to the CRY cosmic-ray generator.
 ///
-/// \version $Id: CRYHelper.cxx,v 1.26 2012-09-24 15:19:37 brebel Exp $
+/// \version $Id: CRYHelper.cxx,v 1.27 2012-10-15 20:46:42 brebel Exp $
 /// \author messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
@@ -97,7 +97,7 @@ namespace evgb{
   {
     // Generator time at start of sample
     double tstart = fGen->timeSimulated();
-    int    idctr = -1;
+    int    idctr = 1;
     while (1) {
       std::vector<CRYParticle*> parts;
       fGen->genEvent(&parts);
@@ -182,7 +182,7 @@ namespace evgb{
 	p.AddTrajectoryPoint(pos,mom);
 
 	mctruth.Add(p);
-	--idctr;
+	++idctr;
       } // Loop on particles in event
     
       // Check if we're done with this time sample

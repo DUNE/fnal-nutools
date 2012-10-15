@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.54 2012-10-01 14:56:17 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.55 2012-10-15 20:46:42 brebel Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -1419,15 +1419,12 @@ namespace evgb {
 
     while( (part = dynamic_cast<genie::GHepParticle *>(partitr.Next())) ){
     
-      --trackid;
       simb::MCParticle tpart(trackid, 
 			     part->Pdg(), 
 			     primary, 
 			     part->FirstMother(), 
 			     part->Mass(), 
 			     part->Status());
-
-
       double vtx[4] = {part->Vx(), part->Vy(), part->Vz(), part->Vt()};
       tpart.SetGvtx(vtx);
       tpart.SetRescatter(part->RescatterCode());
@@ -1449,7 +1446,8 @@ namespace evgb {
 	tpart.SetPolarization(polz);
       }
       truth.Add(tpart);
-        
+
+      ++trackid;        
     }// end loop to convert GHepParticles to MCParticles
 
     // is the interaction NC or CC
