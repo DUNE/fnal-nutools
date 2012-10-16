@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.14 2012-10-15 20:36:27 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.15 2012-10-16 02:24:19 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -221,6 +221,7 @@ inline       double          	 simb::MCParticle::P(const int i)           const 
 												- pow(fmass,2.));              }
 inline       double          	 simb::MCParticle::Pt(const int i)          const { return sqrt(pow(Momentum(i).Px(),2.) 
 												+ pow(Momentum(i).Py(),2.));   }
+inline       double              simb::MCParticle::Mass()                   const { return fmass;                             }
 inline const TLorentzVector& 	 simb::MCParticle::EndMomentum()            const { return Momentum(ftrajectory.size()-1);     }
 inline       double          	 simb::MCParticle::EndPx()                  const { return Momentum(ftrajectory.size()-1).X(); }
 inline       double          	 simb::MCParticle::EndPy()                  const { return Momentum(ftrajectory.size()-1).Y(); }
