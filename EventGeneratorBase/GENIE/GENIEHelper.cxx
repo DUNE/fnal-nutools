@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.55 2012-10-15 20:46:42 brebel Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.56 2012-10-18 04:25:32 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -659,7 +659,7 @@ namespace evgb {
         mf::LogError("GENIEHelper") << "MakeBox needs 6 values, not " << nvals
                                     << " fidcut=\"" << fidcut << "\"";
       double xyzmin[3] = { vals[0], vals[1], vals[2] };
-      double xyzmax[3] = { vals[4], vals[5], vals[5] };
+      double xyzmax[3] = { vals[3], vals[4], vals[5] };
       fidsel->MakeBox(xyzmin,xyzmax);
 
     } else if ( stype.find("zpoly")  != string::npos ) {
