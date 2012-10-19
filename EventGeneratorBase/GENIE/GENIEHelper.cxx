@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.56 2012-10-18 04:25:32 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.57 2012-10-19 21:16:00 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -373,7 +373,7 @@ namespace evgb {
   GENIEHelper::~GENIEHelper()
   {
     // user request writing out the scan of the geometry
-    if ( fMaxPathOutInfo != "" ) {
+    if ( fGeomD && fMaxPathOutInfo != "" ) {
       genie::geometry::ROOTGeomAnalyzer* rgeom = 
         dynamic_cast<genie::geometry::ROOTGeomAnalyzer*>(fGeomD);
 
@@ -400,27 +400,36 @@ namespace evgb {
         << "-->" 
         << std::endl;
       mpfile.close();
-    }
+    }  // finished writing max path length XML file (if requested)
 
-    double probscale = fDriver->GlobProbScale();
-    double rawpots   = 0;
-    if      ( fFluxType.compare("ntuple")==0 ) {
-      genie::flux::GNuMIFlux* numiFlux = dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD);
-      rawpots = numiFlux->UsedPOTs();
-      numiFlux->PrintConfig();
-    }
+    // protect against lack of driver due to not getting to Initialize()
+    // (called from module's beginRun() method)
+    if ( ! fDriver || ! fFluxD ) {
+      mf::LogInfo("GENIEHelper") 
+        << "~GENIEHelper called, but previously failed to construct "
+        << ( (fDriver) ? " genie::GMCJDriver":"" )
+        << ( (fFluxD)  ? " genie::GFluxI":"" );
+    } else {
+      double probscale = fDriver->GlobProbScale();
+      double rawpots   = 0;
+      if      ( fFluxType.compare("ntuple")==0 ) {
+        genie::flux::GNuMIFlux* numiFlux = dynamic_cast<genie::flux::GNuMIFlux *>(fFluxD);
+        rawpots = numiFlux->UsedPOTs();
+        numiFlux->PrintConfig();
+      }
 #ifndef MISSING_GSIMPLENTPFLUX
-    else if ( fFluxType.compare("simple_flux")==0 ) {
-      genie::flux::GSimpleNtpFlux* simpleFlux = dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
-      rawpots = simpleFlux->UsedPOTs();
-      simpleFlux->PrintConfig();
-    }
+      else if ( fFluxType.compare("simple_flux")==0 ) {
+        genie::flux::GSimpleNtpFlux* simpleFlux = dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
+        rawpots = simpleFlux->UsedPOTs();
+        simpleFlux->PrintConfig();
+      }
 #endif
-    mf::LogInfo("GENIEHelper") 
-      << " Total Exposure " << fTotalExposure
-      << " GMCJDriver GlobProbScale " << probscale 
-      << " FluxDriver base pots " << rawpots
-      << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-100);
+      mf::LogInfo("GENIEHelper") 
+        << " Total Exposure " << fTotalExposure
+        << " GMCJDriver GlobProbScale " << probscale 
+        << " FluxDriver base pots " << rawpots
+        << " corrected POTS " << rawpots/TMath::Max(probscale,1.0e-100);
+    }
 
     // clean up owned genie object (other genie obj are ref ptrs)
     delete fGenieEventRecord;
