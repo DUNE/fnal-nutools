@@ -1,9 +1,9 @@
 //
 // Build a dictionary.
 //
-// $Id: classes.h,v 1.8 2012-10-15 20:36:27 brebel Exp $
+// $Id: classes.h,v 1.9 2012-10-29 16:42:11 brebel Exp $
 // $Author: brebel $
-// $Date: 2012-10-15 20:36:27 $
+// $Date: 2012-10-29 16:42:11 $
 // 
 // Original author Rob Kutschke, modified by klg
 //
@@ -39,16 +39,20 @@ template class std::vector<simb::MCTruth>;
 template class std::vector<simb::MCFlux>;
 template class std::vector<simb::GTruth>;
 
-template class std::pair< art::Ptr<simb::MCFlux>,  art::Ptr<simb::MCTruth> >;
-template class std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::MCFlux>  >;
-template class std::pair< art::Ptr<simb::GTruth>,  art::Ptr<simb::MCTruth> >;
-template class std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::GTruth>  >;
+template class std::pair< art::Ptr<simb::MCFlux>,     art::Ptr<simb::MCTruth>    >;
+template class std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::MCFlux>     >;
+template class std::pair< art::Ptr<simb::GTruth>,     art::Ptr<simb::MCTruth>    >;
+template class std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::GTruth>     >;
+template class std::pair< art::Ptr<simb::MCParticle>, art::Ptr<simb::MCTruth>    >;
+template class std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::MCParticle> >;
 
 
-template class art::Assns<simb::MCFlux,  simb::MCTruth, void>;
-template class art::Assns<simb::MCTruth, simb::MCFlux,  void>;
-template class art::Assns<simb::GTruth,  simb::MCTruth, void>;
-template class art::Assns<simb::MCTruth, simb::GTruth,  void>;
+template class art::Assns<simb::MCFlux,     simb::MCTruth,    void>;
+template class art::Assns<simb::MCTruth,    simb::MCFlux,     void>;
+template class art::Assns<simb::GTruth,     simb::MCTruth,    void>;
+template class art::Assns<simb::MCTruth,    simb::GTruth,     void>;
+template class art::Assns<simb::MCParticle, simb::MCTruth,    void>;
+template class art::Assns<simb::MCTruth,    simb::MCParticle, void>;
 
 template class art::Wrapper< std::vector<simb::MCNeutrino> >;
 template class art::Wrapper< std::vector<simb::MCTrajectory> >;
@@ -57,8 +61,10 @@ template class art::Wrapper< std::vector<simb::MCTruth> >;
 template class art::Wrapper< std::vector<simb::MCFlux> >;
 template class art::Wrapper< std::vector<simb::GTruth> >;
 
-template class art::Wrapper< art::Assns<simb::MCFlux,  simb::MCTruth, void> >;
-template class art::Wrapper< art::Assns<simb::MCTruth, simb::MCFlux,  void> >;
-template class art::Wrapper< art::Assns<simb::GTruth,  simb::MCTruth, void> >;
-template class art::Wrapper< art::Assns<simb::MCTruth, simb::GTruth,  void> >;
+template class art::Wrapper< art::Assns<simb::MCParticle, simb::MCTruth,    void> >;
+template class art::Wrapper< art::Assns<simb::MCTruth,    simb::MCParticle, void> >;
+template class art::Wrapper< art::Assns<simb::MCFlux,     simb::MCTruth,    void> >;
+template class art::Wrapper< art::Assns<simb::MCTruth,    simb::MCFlux,     void> >;
+template class art::Wrapper< art::Assns<simb::GTruth,     simb::MCTruth,    void> >;
+template class art::Wrapper< art::Assns<simb::MCTruth,    simb::GTruth,     void> >;
 

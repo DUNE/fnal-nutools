@@ -1,7 +1,7 @@
 <!--                                                                                  -->
-<!--  $Id: classes_def.xml,v 1.12 2012-07-11 14:42:27 brebel Exp $                     -->
+<!--  $Id: classes_def.xml,v 1.13 2012-10-29 16:42:11 brebel Exp $                     -->
 <!--  $Author: brebel $                                                               -->
-<!--  $Date: 2012-07-11 14:42:27 $                                                    -->
+<!--  $Date: 2012-10-29 16:42:11 $                                                    -->
 <!--                                                                                  -->
 <!--  Include art::Wrapper lines for objects that we would like to put into the event -->
 <!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
@@ -10,41 +10,48 @@
 
 <lcgdict>
 
- <class name="std::set<int>"                                                 />
- <class name="simb::MCParticle"    ClassVersion="14"                  	     />
- <class name="simb::MCTrajectory"  ClassVersion="11"                  	     />
- <class name="simb::MCNeutrino"    ClassVersion="10"                  	     />
- <class name="simb::MCFlux"        ClassVersion="10"                  	     />
- <class name="simb::MCTruth"       ClassVersion="10"                  	     />
- <class name="simb::GTruth"        ClassVersion="10"                         />
- <class name="art::Ptr<simb::MCTruth>"       				     />
- <class name="art::Ptr<simb::MCFlux>"       				     />
- <class name="art::Ptr<simb::GTruth>"                                        />
- <class name="std::pair< art::Ptr<simb::MCFlux>,  art::Ptr<simb::MCTruth> >" />
- <class name="std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::MCFlux>  >" />
- <class name="std::pair< art::Ptr<simb::GTruth>,  art::Ptr<simb::MCTruth> >" />
- <class name="std::pair< art::Ptr<simb::MCTruth>, art::Ptr<simb::GTruth>  >" />
- <class name="std::pair<TLorentzVector,TLorentzVector>"                      />
- <class name="std::vector< std::pair<TLorentzVector,TLorentzVector> >"	     />
- <class name="std::vector<simb::MCParticle>"                          	     />
- <class name="std::vector<simb::MCTrajectory>"                        	     />
- <class name="std::vector<simb::MCNeutrino>"                          	     />
- <class name="std::vector<simb::MCFlux>"                              	     />
- <class name="std::vector<simb::MCTruth>"                             	     />
- <class name="std::vector<simb::GTruth>"                                     />
- <class name="art::Assns<simb::MCFlux,  simb::MCTruth, void>"          	     />
- <class name="art::Assns<simb::MCTruth, simb::MCFlux,  void>"          	     />
- <class name="art::Assns<simb::GTruth,  simb::MCTruth, void>"                />
- <class name="art::Assns<simb::MCTruth, simb::GTruth,  void>"                />
- <class name="art::Wrapper< std::vector<simb::MCParticle>   >"        	     />
- <class name="art::Wrapper< std::vector<simb::MCTrajectory> >"        	     />
- <class name="art::Wrapper< std::vector<simb::MCNeutrino>   >"        	     />
- <class name="art::Wrapper< std::vector<simb::MCTruth>      >"        	     />
- <class name="art::Wrapper< std::vector<simb::MCFlux>       >"        	     />
- <class name="art::Wrapper< std::vector<simb::GTruth>       >"               />
- <class name="art::Wrapper< art::Assns<simb::MCFlux,  simb::MCTruth, void> >"/>
- <class name="art::Wrapper< art::Assns<simb::MCTruth, simb::MCFlux,  void> >"/>
- <class name="art::Wrapper< art::Assns<simb::GTruth,  simb::MCTruth, void> >"/>
- <class name="art::Wrapper< art::Assns<simb::MCTruth, simb::GTruth,  void> >"/>
+ <class name="std::set<int>"                                                       />  
+ <class name="simb::MCParticle"    ClassVersion="17"                  	     	   />
+ <class name="simb::MCTrajectory"  ClassVersion="11"                  	     	   />
+ <class name="simb::MCNeutrino"    ClassVersion="10"                  	     	   />
+ <class name="simb::MCFlux"        ClassVersion="10"                  	     	   />
+ <class name="simb::MCTruth"       ClassVersion="10"                  	     	   />
+ <class name="simb::GTruth"        ClassVersion="10"                         	   />
+ <class name="art::Ptr<simb::MCTruth>"       				     	   />
+ <class name="art::Ptr<simb::MCFlux>"       				     	   />
+ <class name="art::Ptr<simb::GTruth>"                                        	   />
+ <class name="art::Ptr<simb::MCParticle>"   			             	   />
+ <class name="std::pair< art::Ptr<simb::MCParticle>, art::Ptr<simb::MCTruth>    >" />
+ <class name="std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::MCParticle> >" />
+ <class name="std::pair< art::Ptr<simb::MCFlux>,     art::Ptr<simb::MCTruth>    >" />
+ <class name="std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::MCFlux>     >" />
+ <class name="std::pair< art::Ptr<simb::GTruth>,     art::Ptr<simb::MCTruth>    >" />
+ <class name="std::pair< art::Ptr<simb::MCTruth>,    art::Ptr<simb::GTruth>     >" />
+ <class name="std::pair<TLorentzVector, TLorentzVector>"                           />
+ <class name="std::vector< std::pair<TLorentzVector, TLorentzVector> >"	           />
+ <class name="std::vector<simb::MCParticle>"                          	     	   />
+ <class name="std::vector<simb::MCTrajectory>"                        	     	   />
+ <class name="std::vector<simb::MCNeutrino>"                          	     	   />
+ <class name="std::vector<simb::MCFlux>"                              	     	   />
+ <class name="std::vector<simb::MCTruth>"                             	     	   />
+ <class name="std::vector<simb::GTruth>"                                     	   />
+ <class name="art::Assns<simb::MCFlux,     simb::MCTruth,    void>"                />
+ <class name="art::Assns<simb::MCTruth,    simb::MCFlux,     void>"                />
+ <class name="art::Assns<simb::GTruth,     simb::MCTruth,    void>"                />
+ <class name="art::Assns<simb::MCTruth,    simb::GTruth,     void>"                />
+ <class name="art::Assns<simb::MCParticle, simb::MCTruth,    void>"                />
+ <class name="art::Assns<simb::MCTruth,    simb::MCParticle, void>"                />
+ <class name="art::Wrapper< std::vector<simb::MCParticle>   >"        	           />
+ <class name="art::Wrapper< std::vector<simb::MCTrajectory> >"        	     	   />
+ <class name="art::Wrapper< std::vector<simb::MCNeutrino>   >"        	     	   />
+ <class name="art::Wrapper< std::vector<simb::MCTruth>      >"        	     	   />
+ <class name="art::Wrapper< std::vector<simb::MCFlux>       >"        	     	   />
+ <class name="art::Wrapper< std::vector<simb::GTruth>       >"               	   />
+ <class name="art::Wrapper< art::Assns<simb::MCFlux,     simb::MCTruth,    void> >"/>
+ <class name="art::Wrapper< art::Assns<simb::MCTruth,    simb::MCFlux,     void> >"/>
+ <class name="art::Wrapper< art::Assns<simb::GTruth,     simb::MCTruth,    void> >"/>
+ <class name="art::Wrapper< art::Assns<simb::MCTruth,    simb::GTruth,     void> >"/>
+ <class name="art::Wrapper< art::Assns<simb::MCParticle, simb::MCTruth,    void> >"/>
+ <class name="art::Wrapper< art::Assns<simb::MCTruth,    simb::MCParticle, void> >"/>
 
 </lcgdict>

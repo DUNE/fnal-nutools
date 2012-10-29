@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.10 2012-10-15 20:36:27 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.11 2012-10-29 16:42:11 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -138,6 +138,7 @@ namespace simb {
     return ftrajectory.Momentum(i);
   }
 
+  //----------------------------------------------------------------------------
   void MCParticle::SetGvtx(double *v) 
   {
     for(int i = 0; i < 4; i++) {
@@ -145,6 +146,7 @@ namespace simb {
     }
   }
   
+  //----------------------------------------------------------------------------
   void MCParticle::SetGvtx(float *v) 
   {
     for(int i = 0; i < 4; i++) {
@@ -152,11 +154,13 @@ namespace simb {
     }
   }
   
+  //----------------------------------------------------------------------------
   void MCParticle::SetGvtx(TLorentzVector v)
   {
     fGvtx = v;
   }
   
+  //----------------------------------------------------------------------------
   void MCParticle::SetGvtx(double x, double y, double z, double t) 
   {
     fGvtx.SetX(x);
