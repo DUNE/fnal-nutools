@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest_module.cc,v 1.3 2012-09-24 18:30:48 brebel Exp $
+// $Id: EventGeneratorTest_module.cc,v 1.4 2012-10-29 22:07:23 gsdavies Exp $
 //
 //
 // geometry unit tests
@@ -160,7 +160,7 @@ namespace evgen {
     
 
     std::vector<std::string> env;
-    env.push_back("GSPLOAD");   env.push_back("gxspl-NUMI-R2.6.0.xml");
+    env.push_back("GSPLOAD");   env.push_back("gxspl-NUMIsmall.xml");
     env.push_back("GPRODMODE"); env.push_back("YES");
     env.push_back("GEVGL");     env.push_back("Default");
 
