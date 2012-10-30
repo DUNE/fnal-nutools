@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest_module.cc,v 1.4 2012-10-29 22:07:23 gsdavies Exp $
+// $Id: EventGeneratorTest_module.cc,v 1.5 2012-10-30 16:55:57 brebel Exp $
 //
 //
 // geometry unit tests
@@ -65,12 +65,12 @@ namespace evgen {
     fhicl::ParameterSet GENIEParameterSet(std::string fluxType, 
 					  bool usePOTPerSpill);
 
-    void                 GENIETest(fhicl::ParameterSet const& pset);
-    void                 GENIEHistogramFluxTest();
-    void                 GENIESimpleFluxTest();
-    void                 GENIEMonoFluxTest();
-    void                 GENIEAtmoFluxTest();
-    void                 GENIENtupleFluxTest();
+    void                GENIETest(fhicl::ParameterSet const& pset);
+    void                GENIEHistogramFluxTest();
+    void                GENIESimpleFluxTest();
+    void                GENIEMonoFluxTest();
+    void                GENIEAtmoFluxTest();
+    void                GENIENtupleFluxTest();
 
     fhicl::ParameterSet  CRYParameterSet();
     void                 CRYTest();
@@ -160,7 +160,6 @@ namespace evgen {
     
 
     std::vector<std::string> env;
-    env.push_back("GSPLOAD");   env.push_back("gxspl-NUMIsmall.xml");
     env.push_back("GPRODMODE"); env.push_back("YES");
     env.push_back("GEVGL");     env.push_back("Default");
 
