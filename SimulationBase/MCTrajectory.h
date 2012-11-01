@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCTrajectory.h
-/// \version $Id: MCTrajectory.h,v 1.5 2012-10-15 20:36:27 brebel Exp $
+/// \version $Id: MCTrajectory.h,v 1.6 2012-11-01 19:18:11 brebel Exp $
 /// \brief Trajectory class
 ///
 /// \author  seligman@nevis.columbia.edu
@@ -14,7 +14,7 @@
 
 /// - Methods Position(int) and Momentum(int) for those who are unfamiliar with the
 ///   concept of "first" and "second" as used with STL pairs:
-///      sim::Trajectory* trajectory = sim::Particle.Trajectory();
+///      sim::Trajectory* trajectory = simb::MCParticle.Trajectory();
 ///      int numberOfPonts = trajectory->size();
 ///      for (int i=0; i<numberOfPoints; ++i)
 ///        {
@@ -22,7 +22,7 @@
 ///           TLorentzVector momentum = trajectory->Momentum(i);
 ///        }
 ///   The STL equivalent to the above statements (more efficient):
-///      sim::Trajectory* trajectory = sim::Particle.Trajectory();
+///      sim::Trajectory* trajectory = simb::MCParticle.Trajectory();
 ///      for ( sim::Trajectory::const_iterator i = trajectory->begin();
 ///            i != trajectory->end(); ++i )
 ///        {
@@ -72,14 +72,15 @@ namespace simb {
     /// Standard constructor: Start with initial position and momentum
     /// of the particle.
     MCTrajectory();
-    MCTrajectory( const TLorentzVector& vertex, 
-		  const TLorentzVector& momentum );
 
   private:
     list_type ftrajectory;
 
 #ifndef __GCCXML__
   public:
+
+    MCTrajectory( const TLorentzVector& vertex, 
+		  const TLorentzVector& momentum );
 
     /// The accessor methods described above.
     const TLorentzVector& Position( const size_type ) const;
