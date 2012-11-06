@@ -41,7 +41,7 @@ namespace rwgt {
     fReweightRvnCC1pi = genie::rew::kXSecTwkDial_RvnCC1pi,          ///< tweak the 1pi non-RES bkg in the RES region, for v+n CC
     fReweightRvnCC2pi = genie::rew::kXSecTwkDial_RvnCC2pi,          ///< tweak the 2pi non-RES bkg in the RES region, for v+n CC
     fReweightRvnNC1pi = genie::rew::kXSecTwkDial_RvnNC1pi,          ///< tweak the 1pi non-RES bkg in the RES region, for v+n NC
-fReweightRvnNC2pi = genie::rew::kXSecTwkDial_RvnNC2pi,          ///< tweak the 2pi non-RES bkg in the RES region, for v+n NC
+    fReweightRvnNC2pi = genie::rew::kXSecTwkDial_RvnNC2pi,          ///< tweak the 2pi non-RES bkg in the RES region, for v+n NC
     fReweightRvbarpCC1pi = genie::rew::kXSecTwkDial_RvbarpCC1pi,       ///< tweak the 1pi non-RES bkg in the RES region, for vbar+p CC
     fReweightRvbarpCC2pi = genie::rew::kXSecTwkDial_RvbarpCC2pi,       ///< tweak the 2pi non-RES bkg in the RES region, for vbar+p CC
     fReweightRvbarpNC1pi = genie::rew::kXSecTwkDial_RvbarpNC1pi,       ///< tweak the 1pi non-RES bkg in the RES region, for vbar+p NC
