@@ -31,7 +31,7 @@ namespace rwgt {
     fReweightMvNCRES = genie::rew::kXSecTwkDial_MvNCRES,           ///< tweak Mv NCRES, affects d2sigma(NCRES)/dWdQ2 both in shape and normalization
     
     // Coherent pion production tweaking parameters:
-    fReweightMaCHOpi = genie::rew::kXSecTwkDial_MaCOHpi,           ///< tweak Ma for COH pion production
+    fReweightMaCOHpi = genie::rew::kXSecTwkDial_MaCOHpi,           ///< tweak Ma for COH pion production
     fReweightR0COHpi = genie::rew::kXSecTwkDial_R0COHpi,           ///< tweak R0 for COH pion production
     // Non-resonance background tweaking parameters:
     fReweightRvpCC1pi = genie::rew::kXSecTwkDial_RvpCC1pi,          ///< tweak the 1pi non-RES bkg in the RES region, for v+p CC
