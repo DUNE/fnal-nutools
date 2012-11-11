@@ -71,18 +71,18 @@ namespace rwgt{
     
     //General Reweight Configurations
     void MaQEshape() {fMaQEshape=true;}
-    void MaQErate() {fMaQEshape=false;}
+    void MaQErate()  {fMaQEshape=false;}
     
     void CCRESshape() {fMaCCResShape=true;}
-    void CCRESrate() {fMaCCResShape=false;}
+    void CCRESrate()  {fMaCCResShape=false;}
     
     void NCRESshape() {fMaNCResShape=true;}
-    void NCRESrate() {fMaNCResShape=false;}
+    void NCRESrate()  {fMaNCResShape=false;}
     
     void DIS_BYshape() {fDISshape=true;}
-    void DIS_BYrate() {fDISshape=false;}
+    void DIS_BYrate()  {fDISshape=false;}
     
-    void UseSigmaDef() {fUseSigmaDef=true;}
+    void UseSigmaDef()    {fUseSigmaDef=true;}
     void UseStandardDef() {fUseSigmaDef=false;}
     
   private:

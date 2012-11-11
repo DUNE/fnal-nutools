@@ -106,7 +106,7 @@ namespace rwgt {
     fDISshape(false),
     fUseSigmaDef(true) {
     
-    std::cout << "Create GENIEReweight object" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Create GENIEReweight object";
     
     fWcalc = new genie::rew::GReWeight();
     this->SetNominalValues();
@@ -148,7 +148,7 @@ namespace rwgt {
     fNominalParameters[(int)rwgt::fReweightMvNCRES] = 0.84;
  
     //Coherent pion nominal values
-    fNominalParameters[(int)rwgt::fReweightMaCHOpi] = 1.0;
+    fNominalParameters[(int)rwgt::fReweightMaCOHpi] = 1.0;
     fNominalParameters[(int)rwgt::fReweightR0COHpi] = 1.0;
     
     
@@ -222,16 +222,21 @@ namespace rwgt {
     //RFG Nuclear model
     // 
     fNominalParameters[(int)rwgt::fReweightCCQEPauliSupViaKF] = 1.0;
-    fNominalParameters[(int)rwgt::fReweightCCQEMomDistroFGtoSF] = 0.0; //Continous "switch" at 0.0 full FG model.  At 1.0 full spectral function model.  From genie code it looks like weird stuff may happen for <0 and >1.
-    //This parameter does not have an "uncertainty" value associated with it.  The tweaked dial value gets passed all the way through unchanged to the weight calculator
+    fNominalParameters[(int)rwgt::fReweightCCQEMomDistroFGtoSF] = 0.0; 
+    //Continous "switch" at 0.0 full FG model.  At 1.0 full spectral function model.  
+    //From genie code it looks like weird stuff may happen for <0 and >1.
+    //This parameter does not have an "uncertainty" value associated with it.  
+    //The tweaked dial value gets passed all the way through unchanged to the weight calculator
     
     //
     // Resonance decays
     // 
     fNominalParameters[(int)rwgt::fReweightBR1gamma] = 1.0;
     fNominalParameters[(int)rwgt::fReweightBR1eta] = 1.0;
-    fNominalParameters[(int)rwgt::fReweightTheta_Delta2Npi] = 0.0; //Continous "switch" at 0.0 full isotropic pion angular distribution.  At 1.0 full R/S pion angular distribtuion.
-    //This parameter does not have an "uncertainty" value associated with it.  The tweaked dial value gets passed all the way through unchanged to the weight calculator
+    fNominalParameters[(int)rwgt::fReweightTheta_Delta2Npi] = 0.0; 
+    //Continous "switch" at 0.0 full isotropic pion angular distribution.  At 1.0 full R/S pion angular distribtuion.
+    //This parameter does not have an "uncertainty" value associated with it.  
+    //The tweaked dial value gets passed all the way through unchanged to the weight calculator
   }
 
   ///<Return the nominal value for the given parameter.
@@ -270,7 +275,7 @@ namespace rwgt {
   ///<Add reweight parameters to the list
   void GENIEReweight::AddReweightValue(ReweightLabel_t rLabel, double value) {
     int label = (int)rLabel;   
-    std::cout << "Adding parameter: " << label << ".  With value: " << value << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding parameter: " << label << ".  With value: " << value;
     fReWgtParameterName.push_back(label);
     fReWgtParameterValue.push_back(value);
     
@@ -293,7 +298,7 @@ namespace rwgt {
   
   ///<Configure the weight calculators.
   void GENIEReweight::Configure() {
-    std::cout << "Configure weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configure weight calculator";
     
     for(unsigned int i = 0; i < fReWgtParameterName.size(); i++) {
       
@@ -330,7 +335,7 @@ namespace rwgt {
 	fReweightNCRes = true;
       }
       //Coherant parameters
-      else if( (fReWgtParameterName[i]==rwgt::fReweightMaCHOpi) || 
+      else if( (fReWgtParameterName[i]==rwgt::fReweightMaCOHpi) || 
 	       (fReWgtParameterName[i]==rwgt::fReweightR0COHpi) ) {
 	fReweightCoh = true;
       }
@@ -443,7 +448,7 @@ namespace rwgt {
   
   ///<Simple Configuraiton of the NC elastic weight calculator
   void GENIEReweight::ReweightNCEL(double ma, double eta) {
-    std::cout << "Configuring GENIEReweight for NC Elastic Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for NC Elastic Reweighting";
     if(ma!=0.0) {
       this->AddReweightValue(rwgt::fReweightMaNCEL, ma);
     }
@@ -455,7 +460,7 @@ namespace rwgt {
   
   ///<Simple Configurtion of the CCQE axial weight calculator
   void GENIEReweight::ReweightQEMA(double ma) {
-    std::cout << "Configuring GENIEReweight for QE Axial Mass Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for QE Axial Mass Reweighting";
     fMaQEshape=false;
     this->AddReweightValue(rwgt::fReweightMaCCQE, ma);
     this->Configure();
@@ -463,14 +468,14 @@ namespace rwgt {
 
   ///<Simple Configuration of the CCQE vector weight calculator
   void GENIEReweight::ReweightQEVec(double mv) {
-    std::cout << "Configuring GENIEReweight for QE Vector Mass Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for QE Vector Mass Reweighting";
     this->AddReweightValue(rwgt::fReweightVecCCQEshape, mv);
     this->Configure();
   }
   
   ///<Simple Configuration of the CC Resonance weight calculator
   void GENIEReweight::ReweightCCRes(double ma, double mv) {
-    std::cout << "Configuring GENIEReweight for CC Resonance Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for CC Resonance Reweighting";
     fMaCCResShape=false;
     this->AddReweightValue(rwgt::fReweightMaCCRES, ma);
     if(mv!=0.0) {
@@ -481,7 +486,7 @@ namespace rwgt {
   
   ///<Simple Configurtion of the NC Resonance weight calculator
   void GENIEReweight::ReweightNCRes(double ma, double mv) {
-    std::cout << "Configuring GENIEReweight for NC Resonance Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for NC Resonance Reweighting";
     fMaNCResShape=false;
     this->AddReweightValue(rwgt::fReweightMaNCRES, ma);
     if(mv!=0.0) {
@@ -492,15 +497,16 @@ namespace rwgt {
   
   ///<Simple Configuration of the Coherant weight calculator
   void GENIEReweight::ReweightCoh(double ma, double r0) {
-    std::cout << "Configuring GENIEReweight for Coherant Reweighting" << std::endl;
-    this->AddReweightValue(rwgt::fReweightMaCHOpi, ma);
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for Coherant Reweighting";
+    this->AddReweightValue(rwgt::fReweightMaCOHpi, ma);
     this->AddReweightValue(rwgt::fReweightR0COHpi, r0);
     this->Configure();
   }
   
-  ///<Simple Configuration of the Non-Resonance Background weight calculator.  Here it is being configured for v+p and vbar + n (1 pi) type interactions
+  ///<Simple Configuration of the Non-Resonance Background weight calculator.  
+  //Here it is being configured for v+p and vbar + n (1 pi) type interactions
   void GENIEReweight::ReweightNonResRvp1pi(double sigma) {
-    std::cout << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Neutrino Single Pion)" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Neutrino Single Pion)";
     this->AddReweightValue(rwgt::fReweightRvpCC1pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvbarnCC1pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvpNC1pi, sigma);
@@ -508,9 +514,10 @@ namespace rwgt {
     this->Configure();
   }
   
-  ///<Simple Configuration of the Non-Resonance Background weight calculator.  Here it is being configured for v+n and vbar + p (1 pi) type interactions
+  ///<Simple Configuration of the Non-Resonance Background weight calculator.  
+  //Here it is being configured for v+n and vbar + p (1 pi) type interactions
   void GENIEReweight::ReweightNonResRvbarp1pi(double sigma) {
-    std::cout << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Anti-Neutrino Single Pion)" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Anti-Neutrino Single Pion)";
     this->AddReweightValue(rwgt::fReweightRvnCC1pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvbarpCC1pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvnNC1pi, sigma);
@@ -520,7 +527,7 @@ namespace rwgt {
   
   ///<Simple Configuration of the Non-Resonance Background weight calculator.  Here it is being configured for v+p and vbar + n (2 pi) type interactions
   void GENIEReweight::ReweightNonResRvp2pi(double sigma) {
-    std::cout << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Neutrino Two Pion)" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Neutrino Two Pion)";
     this->AddReweightValue(rwgt::fReweightRvpCC2pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvbarnCC2pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvpNC2pi, sigma);
@@ -528,9 +535,10 @@ namespace rwgt {
     this->Configure();
   }
   
-  ///<Simple Configuration of the Non-Resonance Background weight calculator.  Here it is being configured for v+n and vbar + p (2 pi) type interactions
+  ///<Simple Configuration of the Non-Resonance Background weight calculator. 
+  // Here it is being configured for v+n and vbar + p (2 pi) type interactions
   void GENIEReweight::ReweightNonResRvbarp2pi(double sigma) {
-    std::cout << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Anti-Neutrino Two Pion)" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for  Non-Resonance Background Reweighting (Anti-Neutrino Two Pion)";
     this->AddReweightValue(rwgt::fReweightRvnCC2pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvbarpCC2pi, sigma);
     this->AddReweightValue(rwgt::fReweightRvnNC2pi, sigma);
@@ -540,7 +548,7 @@ namespace rwgt {
   
   ///<Simple Configuration of the Resonance decay model weight calculator
   void GENIEReweight::ReweightResDecay(double gamma, double eta, double theta) {
-    std::cout << "Configuring GENIEReweight for Resoncance Decay Parameters" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for Resoncance Decay Parameters";
     if(gamma!=0.0) {
       this->AddReweightValue(rwgt::fReweightBR1gamma, gamma);
     }
@@ -555,14 +563,14 @@ namespace rwgt {
   
   ///<Simple Configuration of the Total NC cross section
   void GENIEReweight::ReweightNC(double norm) {
-    std::cout << "Configuring GENIEReweight for NC Cross Section Scale" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for NC Cross Section Scale";
     this->AddReweightValue(rwgt::fReweightNC, norm);
     this->Configure();
   }
 
   ///<Simple Configuration of the DIS FF model weight calculator
   void GENIEReweight::ReweightDIS(double aht, double bht, double cv1u, double cv2u) {
-    std::cout << "Configuring GENIEReweight for DIS Form Factor Model Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for DIS Form Factor Model Reweighting";
     fDISshape = false;
     if(aht==0.0) {
       this->AddReweightValue(rwgt::fReweightAhtBY, aht);
@@ -581,14 +589,14 @@ namespace rwgt {
   
   ///<Simple Configuration of the DIS nuclear model
   void GENIEReweight::ReweightDISnucl(bool mode) {
-    std::cout << "Configuring GENIEReweight for DIS Nuclear Model" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for DIS Nuclear Model";
     this->AddReweightValue(rwgt::fReweightDISNuclMod, mode);
     this->Configure();
   }
   
   ///<Simple Configuration of the DIS AGKY hadronization model
   void GENIEReweight::ReweightAGKY(double xF, double pT) {
-    std::cout << "Configuring GENIEReweight for DIS AGKY Hadronization Model Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for DIS AGKY Hadronization Model Reweighting";
     if(xF==0.0) {
       this->AddReweightValue(rwgt::fReweightAGKY_xF1pi, xF);
     }
@@ -600,7 +608,7 @@ namespace rwgt {
   
   ///<Simple Configuration of the Intranuke Nuclear model
   void GENIEReweight::ReweightIntraNuke(ReweightLabel_t name, double sigma) {
-    std::cout << "Configuring GENIEReweight for Intranuke Model Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for Intranuke Model Reweighting";
     if ( (name==rwgt::fReweightMFP_pi) ||
 	 (name==rwgt::fReweightMFP_N) ||
 	 (name==rwgt::fReweightFrCEx_pi) || 
@@ -623,14 +631,14 @@ namespace rwgt {
 
   ///<Simple Configuration of the Formation Zone reweight calculator
   void GENIEReweight::ReweightFormZone(double sigma) {
-    std::cout << "Configuring GENIEReweight for Formation Zone Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight for Formation Zone Reweighting";
     this->AddReweightValue(rwgt::fReweightFormZone, sigma);
     this->Configure();
   }
   
   ///<Simple Configuration of the Fermigas model reweight calculator
   void GENIEReweight::ReweightFGM(double kF, double sf) {
-    std::cout << "Configuruing GENIEReweight for Fermi Gas Model Reweighting" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Configuruing GENIEReweight for Fermi Gas Model Reweighting";
     this->AddReweightValue(rwgt::fReweightCCQEPauliSupViaKF, kF);
     this->AddReweightValue(rwgt::fReweightCCQEMomDistroFGtoSF, sf);
     this->Configure();
@@ -641,123 +649,123 @@ namespace rwgt {
   ///<Private Member functions to configure individual weight calculators.
   ///<Configure the NCEL weight calculator
   void GENIEReweight::ConfigureNCEL() {
-    std::cout << "Adding NC elastic weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding NC elastic weight calculator";
     fWcalc->AdoptWghtCalc( "xsec_ncel",       new GReWeightNuXSecNCEL      );
   }
   
   ///<Configure the MaQE weight calculator
   void GENIEReweight::ConfigureQEMA() {
-    std::cout << "Adding CCQE axial FF weight calculator ";
+    mf::LogVerbatim("GENIEReweight") << "Adding CCQE axial FF weight calculator ";
     fWcalc->AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
     if(!fMaQEshape) {
-      std::cout << "in axial mass (QE) rate+shape mode" << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (QE) rate+shape mode";
       GReWeightNuXSecCCQE *rwccqe = dynamic_cast <GReWeightNuXSecCCQE*> (fWcalc->WghtCalc("xsec_ccqe"));
       rwccqe->SetMode(GReWeightNuXSecCCQE::kModeMa);
     }
     else {
-      std::cout << "in axial mass (QE) shape only mode" << std::endl; 
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (QE) shape only mode"; 
     }
   }
 
   ///<Configure the QE vector FF weightcalculator
   void GENIEReweight::ConfigureQEVec() {
-    std::cout << "Adding CCQE vector FF weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding CCQE vector FF weight calculator";
     fWcalc->AdoptWghtCalc( "xsec_ccqe_vec",   new GReWeightNuXSecCCQEvec   );
   }
 
   ///<Configure the CCRES calculator
   void GENIEReweight::ConfigureCCRes() {
-    std::cout << "Adding CC resonance weight calculator ";
+    mf::LogVerbatim("GENIEReweight") << "Adding CC resonance weight calculator ";
     fWcalc->AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
     if(!fMaCCResShape) {
-      std::cout << "in axial mass (Res) rate+shape mode" << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (Res) rate+shape mode";
       GReWeightNuXSecCCRES * rwccres = dynamic_cast<GReWeightNuXSecCCRES *> (fWcalc->WghtCalc("xsec_ccres")); 
       rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
     }
     else {
-      std::cout << "in axial mass (Res) shape only mode" << std::endl; 
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (Res) shape only mode"; 
     }
   }
 
   ///<Configure the NCRES calculator
   void GENIEReweight::ConfigureNCRes() {
-    std::cout << "Adding NC resonance weight calculator ";
+    mf::LogVerbatim("GENIEReweight") << "Adding NC resonance weight calculator ";
     fWcalc->AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
     if(!fMaNCResShape) {
-      std::cout << "in axial mass (Res) rate+shape mode" << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (Res) rate+shape mode";
       GReWeightNuXSecNCRES * rwncres = dynamic_cast<GReWeightNuXSecNCRES *> (fWcalc->WghtCalc("xsec_ncres")); 
       rwncres->SetMode(GReWeightNuXSecNCRES::kModeMaMv);
     }
     else {
-      std::cout << "in axial mass (Res) shape only mode" << std::endl; 
+      mf::LogVerbatim("GENIEReweight") << "in axial mass (Res) shape only mode"; 
     }
   }
 
   ///<Configure the ResBkg (kno) weight calculator
   void GENIEReweight::ConfigureResBkg() {
-    std::cout << "Adding low Q^2 DIS (KNO) weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding low Q^2 DIS (KNO) weight calculator";
     fWcalc->AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
   }
 
   ///<Configure the ResDecay weight calculator
   void GENIEReweight::ConfgureResDecay() {
-    std::cout << "Adding resonance decay weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding resonance decay weight calculator";
     fWcalc->AdoptWghtCalc( "hadro_res_decay", new GReWeightResonanceDecay  );
   }
 
   ///<Configure the NC weight calculator
   void GENIEReweight::ConfigureNC() {
-    std::cout << "Adding NC total cross section weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding NC total cross section weight calculator";
     fWcalc->AdoptWghtCalc( "xsec_nc", new GReWeightNuXSecNC );
   }
 
   ///<Configure the DIS (Bodek-Yang) weight calculator
   void GENIEReweight::ConfigureDIS() {
-    std::cout << "Adding DIS (Bodek-Yang) weight calculator ";
+    mf::LogVerbatim("GENIEReweight") << "Adding DIS (Bodek-Yang) weight calculator ";
     fWcalc->AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
     if(!fDISshape) {
-      std::cout << "in shape+rate mode" << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "in shape+rate mode";
       GReWeightNuXSecDIS * rwdis = dynamic_cast<GReWeightNuXSecDIS *> (fWcalc->WghtCalc("xsec_dis"));
       rwdis->SetMode(GReWeightNuXSecDIS::kModeABCV12u);
     }
     else {
-      std::cout << "in shape only mode" << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "in shape only mode";
     }
   }
 
   ///<Configure the Coherant model weight calculator
   void GENIEReweight::ConfigureCoh() {
-    std::cout << "Adding coherant interaction model weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding coherant interaction model weight calculator";
     fWcalc->AdoptWghtCalc( "xsec_coh",        new GReWeightNuXSecCOH       );
   }
 
   ///<Configure the hadronization (AGKY) weight calculator
   void GENIEReweight::ConfigureAGKY() {
-    std::cout << "Adding hadronization (AGKY) model weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding hadronization (AGKY) model weight calculator";
     fWcalc->AdoptWghtCalc( "hadro_agky",      new GReWeightAGKY            );
   }
 
   ///<Configure the DIS nuclear model weight calculator
   void GENIEReweight::ConfigureDISNucMod() {
-    std::cout << "Adding DIS nuclear model weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding DIS nuclear model weight calculator";
     fWcalc->AdoptWghtCalc( "nuclear_dis",     new GReWeightDISNuclMod      );
   }
 
   ///<Configure the FG model weight calculator
   void GENIEReweight::ConfigureFGM() {
-    std::cout << "Adding Fermi Gas Model (FGM) weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding Fermi Gas Model (FGM) weight calculator";
     fWcalc->AdoptWghtCalc( "nuclear_qe",      new GReWeightFGM             );
   }
 
   ///<Configure the Formation Zone weight calculator
   void GENIEReweight::ConfigureFZone() {
-    std::cout << "Adding Formation Zone weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding Formation Zone weight calculator";
     fWcalc->AdoptWghtCalc( "hadro_fzone",     new GReWeightFZone           );
   }
 
   ///<Configure the intranuke weight calculator
   void GENIEReweight::ConfigureINuke() {
-    std::cout << "Adding the Intra-Nuke weight calculator" << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "Adding the Intra-Nuke weight calculator";
     fWcalc->AdoptWghtCalc( "hadro_intranuke", new GReWeightINuke           );
   }
 
@@ -765,7 +773,7 @@ namespace rwgt {
   void GENIEReweight::ConfigureParameters() {
     GSystSet & syst = fWcalc->Systematics();
     for(unsigned int i = 0; i < fReWgtParameterName.size(); i++) {
-      std::cout << "Configuring GENIEReweight parameter: " << fReWgtParameterName[i] << " with value: " << fReWgtParameterValue[i] << std::endl;
+      mf::LogVerbatim("GENIEReweight") << "Configuring GENIEReweight parameter: " << fReWgtParameterName[i] << " with value: " << fReWgtParameterValue[i];
       if(fUseSigmaDef) {
 	syst.Set( (GSyst_t)fReWgtParameterName[i], fReWgtParameterValue[i]);
       }
@@ -806,7 +814,7 @@ namespace rwgt {
   double GENIEReweight::CalcWeight(simb::MCTruth truth, simb::GTruth gtruth) {
     genie::EventRecord evr = this->RetrieveGHEP(truth, gtruth);
     double wgt = fWcalc->CalcWeight(evr);
-    std::cout << "New Event Weight is: " << wgt << std::endl;
+    mf::LogVerbatim("GENIEReweight") << "New Event Weight is: " << wgt;
     return wgt;
   }
 
@@ -925,9 +933,9 @@ namespace rwgt {
     //int pdg_code = pdg::IonPdgCode(A, Z);
     //TParticlePDG * p = PDGLibrary::Instance()->Find(pdg_code);
     
-    //std::cerr << "Setting Target Z and A" << std::endl;
-    //std::cerr << "Saved PDG: " << gtruth.ftgtPDG << std::endl;
-    //std::cerr << "Target PDG: " << target123->Pdg() << std::endl;
+    //mf::LogWarning("GENIEReweight") << "Setting Target Z and A";
+    //mf::LogWarning("GENIEReweight") << "Saved PDG: " << gtruth.ftgtPDG;
+    //mf::LogWarning("GENIEReweight") << "Target PDG: " << target123->Pdg();
     target123->SetHitNucPdg(targetNucleon);
     target123->SetHitQrkPdg(struckQuark);
     target123->SetHitSeaQrk(gtruth.fIsSeaQuark);
