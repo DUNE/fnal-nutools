@@ -2,7 +2,7 @@
 /// \file  Particle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
-/// \version $Id: MCParticle.cxx,v 1.11 2012-10-29 16:42:11 brebel Exp $
+/// \version $Id: MCParticle.cxx,v 1.12 2012-11-20 17:39:38 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #include "SimulationBase/simbase.h"
@@ -84,32 +84,6 @@ namespace simb {
   MCParticle::~MCParticle() 
   {
   }
-
-//   //------------------------------------------------------------
-//   // Assignment operator
-//   MCParticle& MCParticle::operator=( const MCParticle& rhs )
-//   {
-//     // Usual test for self-assignment.
-//     if ( this == &rhs ) return *this;
-
-//     // As a trivial exercise, let's make this operator exception-safe:
-
-//     // Copy the non-pointer items.
-//     fstatus       = rhs.fstatus;
-//     ftrackId      = rhs.ftrackId;
-//     fpdgCode      = rhs.fpdgCode;
-//     fmother       = rhs.fmother;
-//     fprocess      = rhs.fprocess;
-//     ftrajectory   = rhs.ftrajectory;
-//     fmass         = rhs.fmass;
-//     fpolarization = rhs.fpolarization;
-//     fdaughters    = rhs.fdaughters;
-//     fWeight       = rhs.fWeight;
-//     fGvtx         = rhs.fGvtx;
-//     frescatter    = rhs.frescatter;
-
-//     return *this;
-//   }
 
   //------------------------------------------------------------
   // Return the "index-th' daughter in the list.

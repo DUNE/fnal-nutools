@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MCParticle.h
 /// \brief Particle class
-/// \version $Id: MCParticle.h,v 1.15 2012-10-16 02:24:19 brebel Exp $
+/// \version $Id: MCParticle.h,v 1.16 2012-11-20 17:39:38 brebel Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -29,18 +29,7 @@ namespace simb {
 
     MCParticle();
 
-    // Standard constructor.  If the mass is not supplied in the
-    // argument, then the PDG mass is used.
-    // status code = 1 means the particle is to be tracked, default it to be tracked
-    // mother = -1 means that this particle has no mother
-    MCParticle(const int trackId, 
-	       const int pdg, 
-	       const std::string process,
-	       const int mother  = -1, 
-	       const double mass = s_uninitialized,
-	       const int status  = 1);
-
-    // Desstructor.
+    // Destructor.
     virtual ~MCParticle();
 
   protected:
@@ -62,6 +51,18 @@ namespace simb {
 
 #ifndef __GCCXML__
   public:
+
+    // Standard constructor.  If the mass is not supplied in the
+    // argument, then the PDG mass is used.
+    // status code = 1 means the particle is to be tracked, default it to be tracked
+    // mother = -1 means that this particle has no mother
+    MCParticle(const int trackId, 
+	       const int pdg, 
+	       const std::string process,
+	       const int mother  = -1, 
+	       const double mass = s_uninitialized,
+	       const int status  = 1);
+
 
     // our own copy and assignment constructors.
     MCParticle(MCParticle const &)            = default; // Copy constructor.

@@ -2,7 +2,7 @@
 /// \file  MCNeutrino.cxx
 /// \brief Simple MC truth class, holds a vector of TParticles
 ///
-/// \version $Id: MCNeutrino.h,v 1.5 2012-10-15 20:36:27 brebel Exp $
+/// \version $Id: MCNeutrino.h,v 1.6 2012-11-20 17:39:38 brebel Exp $
 /// \author  jpaley@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef SIMB_MCNEUTRINO_H
@@ -19,18 +19,6 @@ namespace simb {
   public:
 
     MCNeutrino();
-    MCNeutrino(simb::MCParticle &nu, 
-	       simb::MCParticle &lep, 
-	       int CCNC, 
-	       int mode, 
-	       int interactionType,
-	       int target, 
-	       int nucleon,
-	       int quark, 
-	       double w, 
-	       double x, 
-	       double y, 
-	       double qsqr);
 
   private:
  
@@ -49,6 +37,19 @@ namespace simb {
 
 #ifndef __GCCXML__
   public:
+
+    MCNeutrino(simb::MCParticle &nu, 
+	       simb::MCParticle &lep, 
+	       int CCNC, 
+	       int mode, 
+	       int interactionType,
+	       int target, 
+	       int nucleon,
+	       int quark, 
+	       double w, 
+	       double x, 
+	       double y, 
+	       double qsqr);
 
     const  simb::MCParticle& Nu()              const;
     const  simb::MCParticle& Lepton()          const;
