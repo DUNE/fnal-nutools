@@ -2,7 +2,7 @@
 /// \file  GENIEHelper.h
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
-/// \version $Id: GENIEHelper.cxx,v 1.57 2012-10-19 21:16:00 rhatcher Exp $
+/// \version $Id: GENIEHelper.cxx,v 1.58 2012-11-28 23:04:03 rhatcher Exp $
 /// \author  brebel@fnal.gov
 /// \update 2010/3/4 Sarah Budd added simple_flux
 ////////////////////////////////////////////////////////////////////////
@@ -749,11 +749,16 @@ namespace evgb {
 
     // parse out values
     vector<double> vals;
-    vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]");
+    vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]\t\n\r");
     vector<string>::const_iterator iter = valstrs.begin();
     for ( ; iter != valstrs.end(); ++iter ) {
       const string& valstr1 = *iter;
-      if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
+      if ( valstr1 != "" ) {
+        double aval = atof(valstr1.c_str());
+        mf::LogDebug("GENIEHelper") << "rock value [" << vals.size() << "] "
+                                    << aval;
+        vals.push_back(aval);
+      }
     }
     size_t nvals = vals.size();
 
