@@ -73,9 +73,6 @@
 
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "cetlib/search_path.h"
-#include "cetlib/getenv.h"
-#include "cetlib/split_path.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
