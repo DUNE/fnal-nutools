@@ -2,7 +2,7 @@
 /// \file  DetectorConstruction.cxx
 /// \brief Build Geant4 geometry from GDML
 ///
-/// \version $Id: DetectorConstruction.cxx,v 1.9 2012-10-07 05:05:32 rhatcher Exp $
+/// \version $Id: DetectorConstruction.cxx,v 1.10 2012-12-03 23:29:49 rhatcher Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,9 @@ namespace g4b{
 
   //---------------------------------------------------
   // Constructor
-  DetectorConstruction::DetectorConstruction(std::string const& gdmlFile) 
+  DetectorConstruction::DetectorConstruction(std::string const& gdmlFile,
+                                             bool overlapCheck,
+                                             bool validateSchema)
   {
     if ( gdmlFile.empty() ) {
       throw cet::exception("DetectorConstruction") 
@@ -38,8 +40,8 @@ namespace g4b{
 
     // Use Geant4's GDML parser to convert the geometry to Geant4 format.
     G4GDMLParser parser;
-    //parser.SetOverlapCheck(true);
-    parser.Read( GDMLfile );
+    parser.SetOverlapCheck(overlapCheck);
+    parser.Read(GDMLfile,validateSchema);
 
     // Fetch the world physical volume from the parser.  This contains
     // the entire detector, not just the outline of the experimental

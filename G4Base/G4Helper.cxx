@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: G4Helper.cxx,v 1.19 2012-09-24 15:19:29 brebel Exp $
+/// \version $Id: G4Helper.cxx,v 1.20 2012-12-03 23:29:49 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +58,8 @@ namespace g4b{
     : fG4MacroPath(g4macropath)
     , fG4PhysListName(g4physicslist)
     , fGDMLFile(gdmlFile)
+    , fCheckOverlaps(false)
+    , fValidateGDMLSchema(true)
     , fUIManager(0)
     , fConvertMCTruth(0)
     , fDetector(0)
@@ -309,7 +311,11 @@ namespace g4b{
   void G4Helper::ConstructDetector(std::string const& gdmlFile)
   {
     // Build the Geant4 detector description.
-    fDetector = new DetectorConstruction(gdmlFile);
+    bool checkOverlaps      = fCheckOverlaps;
+    bool validateGDMLSchema = fValidateGDMLSchema;
+    fDetector = new DetectorConstruction(gdmlFile,
+                                         checkOverlaps,
+                                         validateGDMLSchema);
 
     return;
   }

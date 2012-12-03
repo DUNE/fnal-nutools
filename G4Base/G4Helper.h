@@ -2,7 +2,7 @@
 /// \file  G4Helper.h
 /// \brief Use Geant4 to run the detector simulation
 ///
-/// \version $Id: G4Helper.h,v 1.14 2012-09-20 21:47:05 greenc Exp $
+/// \version $Id: G4Helper.h,v 1.15 2012-12-03 23:29:50 rhatcher Exp $
 /// \author  seligman@nevis.columbia.edu, brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +59,10 @@ namespace g4b {
     // parallel worlds.  G4Helper takes over ownership
     void SetParallelWorlds(std::vector<G4VUserParallelWorld*> pworlds);
 
+    // extra control over how GDML is parsed
+    inline void SetOverlapCheck(bool check);
+    inline void SetValidateGDMLSchema(bool validate);
+
     // have to call this before InitMC if you want to control
     // when the detector is constructed, useful if you need to 
     // muck with G4LogicalVolumes
@@ -100,6 +104,9 @@ namespace g4b {
                           	                        ///< to be executed before main MC processing.	 
     std::string           	       fG4PhysListName; ///< Name of physics list to use	
     std::string                        fGDMLFile;       ///< Name of the gdml file containing the detector Geometry
+    bool                               fCheckOverlaps;  ///< Have G4GDML check for overlaps?
+    bool                               fValidateGDMLSchema; ///< Have G4GDML validate geometry schema?
+
     G4RunManager*         	       fRunManager;     ///< Geant4's run manager.		        
     G4UImanager*          	       fUIManager;      ///< Geant4's user-interface manager.		
     ConvertMCTruthToG4*   	       fConvertMCTruth; ///< Converts MCTruth objects; 
@@ -109,5 +116,11 @@ namespace g4b {
   };
 
 } // namespace g4b
+
+#ifndef __GCCXML__
+inline void g4b::G4Helper::SetOverlapCheck(bool check) { fCheckOverlaps = check; }
+inline void g4b::G4Helper::SetValidateGDMLSchema(bool validate) { fValidateGDMLSchema = validate; }
+#endif
+
 
 #endif // G4BASE_G4HELPER_H
