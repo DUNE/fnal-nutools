@@ -3,6 +3,7 @@
 
 /// Data classes required for detector simulation
 namespace simb { }
+
 #include "SimulationBase/MCFlux.h"
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCTruth.h"
