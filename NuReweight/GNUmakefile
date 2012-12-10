@@ -8,7 +8,7 @@ include SoftRelTools/arch_spec_genie.mk
 #include SoftRelTools/arch_spec_cern.mk
 include SoftRelTools/arch_spec_cry.mk
 
-PACKAGE     := Reweight
+PACKAGE     := NuReweight
 LIB_TYPE    := shared
 LIB         := lib$(PACKAGE)
 LIBCXXFILES := $(wildcard *.cxx)
