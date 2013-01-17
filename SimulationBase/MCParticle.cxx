@@ -158,17 +158,18 @@ namespace simb {
     if ( definition != 0 ) output << definition->GetName();
     else output << "PDG=" << pdg;
     
-    output << ", Mother ID=" << particle.Mother()
+    output << ", mass="      << particle.Mass()
+	   << ", Mother ID=" << particle.Mother()
 	   << ", Process="   << particle.Process()
 	   << ", Status="    << particle.StatusCode()
-	   << ", there are " << particle.NumberTrajectoryPoints() << " trajectory points";
+	   << "\nthere are " << particle.NumberTrajectoryPoints() << " trajectory points";
 
     if(particle.NumberTrajectoryPoints() > 0 )
-      output << ", Initial vtx (x,y,z,t)=(" << particle.Vx()
+      output << "\nInitial vtx (x,y,z,t)=(" << particle.Vx()
 	     << "," << particle.Vy()
 	     << "," << particle.Vz()
 	     << "," << particle.T()
-	     << "), Initial mom (Px,Py,Pz,E)=(" << particle.Px()
+	     << "),\n Initial mom (Px,Py,Pz,E)=(" << particle.Px()
 	     << "," << particle.Py()
 	     << "," << particle.Pz()
 	     << "," << particle.E()

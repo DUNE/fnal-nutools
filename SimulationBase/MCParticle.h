@@ -41,7 +41,7 @@ namespace simb {
     int                     fmother;        ///< Mother
     std::string             fprocess;       ///< Detector-simulation physics process that created the particle
     simb::MCTrajectory      ftrajectory;    ///< particle trajectory (position,momentum)
-    double                  fmass;          ///< Mass; from PDG unless overridden
+    double                  fmass;          ///< Mass; from PDG unless overridden Should be in GeV
     TVector3                fpolarization;  ///< Polarization
     daughters_type          fdaughters;     ///< Sorted list of daughters of this particle.
     double                  fWeight;        ///< Assigned weight to this particle for MC tests
