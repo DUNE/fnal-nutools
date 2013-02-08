@@ -43,13 +43,25 @@ namespace g4b{
   {
     // Print out a list of "unknown" PDG codes we saw in the input.
     if ( ! fUnknownPDG.empty() ){
-      mf::LogWarning("ConvertPrimaryToGeant4")
-	<< "   The following unknown PDG codes were present in the simb::MCTruth input."
-	<< "   They were not simulated.";
-      for ( std::map<G4int, G4int>::iterator i = fUnknownPDG.begin(); i != fUnknownPDG.end(); ++i ){
-	mf::LogWarning("ConvertPrimaryToGeant4") << "   Unknown PDG code = " << (*i).first
-						 << ", # times=" << (*i).second;
+      std::ostringstream badtxt;
+      std::map<G4int, G4int>::iterator i = fUnknownPDG.begin();
+      for ( ; i != fUnknownPDG.end(); ++i ){
+        int pdg = (*i).first;
+        badtxt << "\n   Unknown PDG code = " << pdg
+                << ", seen " << (*i).second << " times.";
+
+        const int genieLo = 2000000001;
+        const int genieHi = 2000000202;
+        if ( pdg >= genieLo && pdg <= genieHi ) {
+          badtxt << "  (GENIE specific)";
+        }
       }
+
+      mf::LogWarning("ConvertPrimaryToGeant4")
+	<< "The following unknown PDG codes were present in the "
+        << "simb::MCTruth input.\n"
+	<< "They were not processed by Geant4."
+        << badtxt.str();
     }
 
   }
