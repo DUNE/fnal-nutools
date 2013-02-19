@@ -41,6 +41,8 @@
 #include <cstring>
 #include <sys/stat.h>
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 namespace g4b{
 
   //------------------------------------------------
@@ -310,7 +312,10 @@ namespace g4b{
   //------------------------------------------------
   void G4Helper::SetParallelWorlds(std::vector<G4VUserParallelWorld*> pworlds)
   {
-    for(size_t i = 0; i < pworlds.size(); ++i) fParallelWorlds.push_back(pworlds[i]);
+    for(auto const& pw : pworlds){
+      LOG_DEBUG("G4Helper") << pw->GetName();
+      fParallelWorlds.push_back(pw);
+    }
 
     return;
   }
