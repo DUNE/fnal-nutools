@@ -82,6 +82,13 @@ G4PhysListFactory::AvailablePhysLists() const
   return G4PhysListFactorySingleton::Instance().AvailablePhysLists();
 }
 
+void G4PhysListFactory::PrintAvailablePhysLists() const
+{
+  // print a list of available PhysLists
+  G4PhysListFactorySingleton::Instance().PrintAvailablePhysLists();
+}
+
+
 void G4PhysListFactory::SetDefaultName(const G4String& defname)
 { 
   G4PhysListFactorySingleton::Instance().SetDefaultName(defname);

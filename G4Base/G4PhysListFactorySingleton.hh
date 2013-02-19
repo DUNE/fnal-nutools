@@ -45,6 +45,10 @@
 //   Class header also defines cpp macros for automatically defining
 //   and registering functions mapped to PhysicsList classes.
 //
+//   Special handling is performed for names that include one of:
+//     "_EMV" "_EMX" "_EMY" "_LIV" "_PEN"
+//   which override the base physics list default EM physics
+//
 //----------------------------------------------------------------------------
 //
 #ifndef G4PhysListFactorySingleton_h
@@ -76,8 +80,16 @@ public:
   const std::vector<G4String>& AvailablePhysLists() const;
   // return a list of available PhysLists
 
+  void PrintAvailablePhysLists() const;
+  // print a list of available PhysLists
+
   G4bool RegisterCreator(G4String name, PhysListCtorFuncPtr_t ctorptr, G4bool* ptr);
   // register a new PhysList type by passing pointer to creator function
+
+  G4bool RegisterPhysicsReplacement(G4String key, G4String physics);
+  // register a mapping between a key and a G4PhysicsConstructor
+  // assumes G4PhysicsConstructor is registered w/ 
+  //   G4PhysicsProcessFactorySingleton
 
   void SetDefaultName(const G4String& defname) { defName = defname; }
   const G4String& GetDefaultName() const { return defName; }
@@ -91,6 +103,11 @@ private:
 
   std::map<G4String, G4bool*> fBoolPtrMap;
 
+  std::map<G4String, G4String> fPhysicsReplaceList;
+  // mapping between EM variant key to G4VPhysicsConstructor class
+  //    uses G4PhysicsProcessFactorySingleton to get class 
+  //
+
   G4String defName;
   // name of default in case of unset PHYSLIST
 
@@ -103,6 +120,10 @@ private:
 private:
   G4PhysListFactorySingleton();
   // private ctor, users access via Instance()
+
+  G4String GetBaseName(G4String name, std::vector<G4String>& physicsReplacements, G4bool& allKnown);
+  // strip out physics replacement keys and return base physics list name
+  // update vector with the name of the physics processes to be replaced
 
   virtual ~G4PhysListFactorySingleton();
 

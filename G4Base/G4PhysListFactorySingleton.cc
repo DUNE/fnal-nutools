@@ -39,6 +39,9 @@
 
 #include "G4Base/G4PhysListFactorySingleton.hh"
 
+#include <iomanip>
+#include "G4Base/G4PhysicsProcessFactorySingleton.hh"
+
 // Define static variable which holds the one-and-only instance
 G4PhysListFactorySingleton* G4PhysListFactorySingleton::fgTheInstance;
 
@@ -62,6 +65,15 @@ G4PhysListFactorySingleton& G4PhysListFactorySingleton::Instance()
     // need to create one
     cleaner.UseMe();   // dummy call to quiet compiler warnings
     fgTheInstance = new G4PhysListFactorySingleton();
+
+    // special pre-register some physics overrides (common EM overrides)
+    fgTheInstance->RegisterPhysicsReplacement("_EMV","G4EmStandardPhysics_option1");
+    fgTheInstance->RegisterPhysicsReplacement("_EMX","G4EmStandardPhysics_option2");
+    fgTheInstance->RegisterPhysicsReplacement("_EMY","G4EmStandardPhysics_option3");
+    fgTheInstance->RegisterPhysicsReplacement("_LIV","G4EmLivermorePhysics");
+    fgTheInstance->RegisterPhysicsReplacement("_PEN","G4EmPenelopePhysics");
+
+
   }
   
   return *fgTheInstance;
@@ -121,10 +133,16 @@ G4PhysListFactorySingleton::GetReferencePhysList(const G4String& name)
   else if(name == "Shielding")     {p = new Shielding();}
   */
 
+  // look for key bits that indicate physics to be replaced in a 
+  // base physics list; remove those keys from the physics list name
+  std::vector<G4String> physicsReplacements;
+  G4bool allKnown;
+  G4String nameNoReplace = GetBaseName(name,physicsReplacements,allKnown);
+
   // we don't want map creating an entry if it doesn't exist
   // so use map::find() not map::operator[]
   std::map<G4String, PhysListCtorFuncPtr_t>::iterator itr
-    = fFunctionMap.find(name);
+    = fFunctionMap.find(nameNoReplace);
   if ( fFunctionMap.end() != itr ) { 
     // found an appropriate entry in the list
     PhysListCtorFuncPtr_t foo = itr->second;  // this is the function
@@ -132,20 +150,42 @@ G4PhysListFactorySingleton::GetReferencePhysList(const G4String& name)
   }
   if ( ! p ) {
     G4cout << "### G4PhysListFactorySingleton WARNING: "
-	   << "PhysicsList " << name << " is not known"
+	   << "PhysicsList " << nameNoReplace 
+           << "(originally=\"" << name << "\")"
+           << " is not known"
 	   << G4endl;
+  } else if ( physicsReplacements.size() != 0 ) {
+    //
+    // if there is physics to be replaced, do so now
+    //
+    G4PhysicsProcessFactorySingleton& procFactory =
+      G4PhysicsProcessFactorySingleton::Instance();
+    for (size_t k=0; k<physicsReplacements.size(); ++k) {
+      G4String procName = physicsReplacements[k];
+      if ( ! procFactory.IsKnownPhysicsProcess(procName) ) {
+        G4cout << "### G4PhysListFactorySingleton WARNING: "
+               << "G4PhysicsProcesFactorySingleton had no process \""
+               << procName << "\" registered" << G4endl;        
+      } else {
+        G4cout << "### G4PhysListFactorySingleton: ReplacePhysics("
+               << procName << ")" << G4endl;
+        G4VPhysicsConstructor* pctor = procFactory.GetPhysicsProcess(procName);
+        p->ReplacePhysics(pctor);
+      }
+    }
   }
+
   return p;
 }
   
 G4bool G4PhysListFactorySingleton::IsReferencePhysList(const G4String& name)
 {
-  //  check if we know the name
-  G4bool res = false;
-  std::map<G4String, PhysListCtorFuncPtr_t>::iterator itr
-    = fFunctionMap.find(name);
-  if ( fFunctionMap.end() != itr ) res = true;
-  return res;
+  //  check if we know the name (after stripping off replacement keys)
+  std::vector<G4String> physicsReplacements;
+  G4bool allKnown;
+  G4String nameNoReplace = GetBaseName(name,physicsReplacements,allKnown);
+
+  return allKnown;
 }
 
 const std::vector<G4String>& 
@@ -163,6 +203,42 @@ G4PhysListFactorySingleton::AvailablePhysLists() const
   return listnames;
 }
 
+void G4PhysListFactorySingleton::PrintAvailablePhysLists() const
+{
+  const std::vector<G4String>& list = AvailablePhysLists();
+  G4cout << "G4VModularPhysicsLists in "
+         << "G4PhysicsProcessFactorySingleton are: " 
+         << G4endl;
+  if ( list.empty() ) G4cout << " ... no registered lists" << G4endl;
+  else {
+    for (size_t indx=0; indx < list.size(); ++indx ) {
+      G4cout << " [" << std::setw(2) << indx << "] " 
+             << "\"" << list[indx] << "\"" << G4endl;
+    }
+  }
+  G4cout << "G4PhysicsProcessFactorySingleton supports variants of the above"
+         << G4endl << "with physics process replacements:" << G4endl;
+  if ( fPhysicsReplaceList.empty() ) {
+    G4cout << " ... no registered replacements" << G4endl;
+  } else {
+    G4bool printPhysicsProcesses = false;
+    G4PhysicsProcessFactorySingleton& procFactory =
+      G4PhysicsProcessFactorySingleton::Instance();
+    std::map<G4String, G4String>::const_iterator repitr = 
+      fPhysicsReplaceList.begin();
+    for ( ; repitr != fPhysicsReplaceList.end(); ++repitr ) {
+      G4String key = repitr->first;
+      G4String procName = repitr->second;
+      G4bool known = procFactory.IsKnownPhysicsProcess(procName);
+      if ( ! known ) printPhysicsProcesses = true;
+      G4cout << "  " << std::setw(10) << key << "  ==> "
+             << std::setw(30) << procName << "  "
+             << ( (known)?"known":"*** unknown ***" ) << G4endl;
+    }
+    if ( printPhysicsProcesses ) procFactory.PrintAvailablePhysicsProcesses();
+  }
+}
+
 G4bool G4PhysListFactorySingleton::RegisterCreator(G4String name, 
                                                    PhysListCtorFuncPtr_t foo,
                                                    G4bool* boolptr)
@@ -173,5 +249,54 @@ G4bool G4PhysListFactorySingleton::RegisterCreator(G4String name,
   return true;
 }
 
+G4bool G4PhysListFactorySingleton::RegisterPhysicsReplacement(G4String key,
+                                                              G4String physics)
+{
+  fPhysicsReplaceList[key] = physics;
+  return true;
+}
+
+G4String 
+G4PhysListFactorySingleton::GetBaseName(G4String name, 
+                                        std::vector<G4String>& physicsReplace,
+                                        G4bool& allKnown)
+{
+  allKnown = true;
+  G4String nameNoReplace = name;
+  physicsReplace.clear();
+  G4PhysicsProcessFactorySingleton& procFactory =
+    G4PhysicsProcessFactorySingleton::Instance();
+
+  std::map<G4String, G4String>::iterator repitr = fPhysicsReplaceList.begin();
+  for ( ; repitr != fPhysicsReplaceList.end(); ++repitr ) {
+    G4String key = repitr->first;
+    size_t i = nameNoReplace.find(key);
+    if ( i != std::string::npos ) {
+      // remove key from base physics list name
+      nameNoReplace.erase(i,key.size());
+
+      // add to list of things needing replacement
+      G4String procName = repitr->second;
+      physicsReplace.push_back(procName);
+      if ( ! procFactory.IsKnownPhysicsProcess(procName) ) {
+        G4cout << "G4PhysListFactorySingleton::GetBaseName "
+               << "\"" << key << "\" ==> \"" << procName << "\" not found"
+               << G4endl;
+        //procFactory.PrintAvailablePhysicsProcesses();
+        allKnown = false;
+      }
+    }
+  }
+
+  std::map<G4String, PhysListCtorFuncPtr_t>::iterator itr
+    = fFunctionMap.find(nameNoReplace);
+  if ( fFunctionMap.end() == itr ) allKnown = false;
+
+  return nameNoReplace;
+}
+
 /// !!!!!! register existing classes without disturbing their .cc files (yet)
 #include "G4Base/G4PhysListRegisterOld.icc"
+/// !!!!!! register some existing G4PhysicsConstructor objects w/ G4PhysicsProcessFactorySingleton
+/// !!!!!! so that one can do the "normal" EM overrides
+#include "G4Base/G4PhysicsProcessRegisterOld.icc"

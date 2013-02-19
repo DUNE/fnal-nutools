@@ -26,10 +26,10 @@
 
 #include "Geant4/QGSP_BERT.hh"
 #define TRY_NEW_PL_FACTORY
-#ifdef TRY_NEW_PL_FACTORY
+#ifdef  TRY_NEW_PL_FACTORY
 #include "G4Base/G4PhysListFactory.hh"
 #else
-#include "G4Base/G4PhysListFactory.hh"
+#include "Geant4/G4PhysListFactory.hh"
 #endif
 // 
 #include "G4Base/G4PhysicsProcessFactorySingleton.hh"
@@ -201,6 +201,12 @@ namespace g4b{
 	} else {
 	  // in the case of non-default name
 	  if ( phListName != "" ) {
+	    std::cerr << std::endl << factoryname 
+                      << " failed to find ReferencePhysList \"" 
+                      << phListName << "\"" << std::endl;                      
+#ifdef TRY_NEW_PL_FACTORY
+            factory.PrintAvailablePhysLists();
+#else
 	    std::vector<G4String> list = factory.AvailablePhysLists();
 	    std::cout << "For reference: PhysicsLists in G4PhysListFactory are: " 
 		      << std::endl;
@@ -208,13 +214,15 @@ namespace g4b{
 	      std::cout << " [" << std::setw(2) << indx << "] " 
 			<< "\"" << list[indx] << "\"" << std::endl;
 	    }
+#endif
 	  }
 	} // query factory
       }  // no predetermined user list
 
       if ( ! physics ) {
 	std::cerr << "G4PhysListFactory could not construct \""
-		  << phListName << "\", fall back to using QGSP_BERT"
+		  << phListName << "\"," << std::endl 
+                  << "fall back to using QGSP_BERT"
 		  << std::endl;
 	physics = new QGSP_BERT;
         phListName = "QGSP_BERT";

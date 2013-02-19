@@ -75,6 +75,9 @@ public:
   const std::vector<G4String>& AvailablePhysLists() const;
   // list of available Phys Lists
 
+  void PrintAvailablePhysLists() const;
+  // print a list of available PhysLists
+
   void SetDefaultName(const G4String& defname);
   const G4String& GetDefaultName() const;
 

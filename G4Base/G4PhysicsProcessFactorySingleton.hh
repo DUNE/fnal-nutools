@@ -69,6 +69,9 @@ public:
   const std::vector<G4String>& AvailablePhysicsProcesses() const;
   // return a list of available PhysicsProcess names
 
+  void PrintAvailablePhysicsProcesses() const;
+  // print a list of available PhysicsProcess names
+
   G4bool RegisterCreator(G4String name, PhysProcCtorFuncPtr_t ctorptr, G4bool* ptr);
   // register a new PhysProc type by passing pointer to creator function
 

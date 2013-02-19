@@ -39,6 +39,8 @@
 
 #include "G4Base/G4PhysicsProcessFactorySingleton.hh"
 
+#include <iomanip>
+
 // Define static variable which holds the one-and-only instance
 G4PhysicsProcessFactorySingleton* G4PhysicsProcessFactorySingleton::fgTheInstance;
 
@@ -111,6 +113,22 @@ G4PhysicsProcessFactorySingleton::AvailablePhysicsProcesses() const
     listnames.push_back(itr->first);
 
   return listnames;
+}
+
+void G4PhysicsProcessFactorySingleton::PrintAvailablePhysicsProcesses() const
+{
+  std::vector<G4String> list = AvailablePhysicsProcesses();
+  G4cout << "G4VPhysicsConstructors in "
+         << "G4PhysicsProcessFactorySingleton are: " 
+         << G4endl;
+  if ( list.empty() ) G4cout << " ... no registered processes" << G4endl;
+  else {
+    for (size_t indx=0; indx < list.size(); ++indx ) {
+      G4cout << " [" << std::setw(2) << indx << "] " 
+             << "\"" << list[indx] << "\"" << G4endl;
+    }
+  }
+
 }
 
 G4bool G4PhysicsProcessFactorySingleton::RegisterCreator(G4String name, 
