@@ -115,8 +115,9 @@ PHYSLISTREG(QGSP_FTFP_BERT)
 #include "Geant4/QGS_BIC.hh"
 PHYSLISTREG(QGS_BIC)
 
-#include "Geant4/QGSP_INCL_ABLA.hh"
-PHYSLISTREG(QGSP_INCL_ABLA)
+// not available in Geant 4.9.6 (generally not used in 4.9.5 either)
+//#include "Geant4/QGSP_INCL_ABLA.hh"
+//PHYSLISTREG(QGSP_INCL_ABLA)
 
 #include "Geant4/Shielding.hh"
 PHYSLISTREG(Shielding)
