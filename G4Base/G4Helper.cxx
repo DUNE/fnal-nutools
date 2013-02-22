@@ -253,8 +253,9 @@ namespace g4b{
       for (unsigned int j=0; j < physProcParts.size(); ++j )
         boost::algorithm::trim(physProcParts[j]);
 
-      // element 0 is the physic process name
+      // element 0 is the physics process name
       std::string physProcName = physProcParts[0];
+      if ( physProcName == "" ) continue;  // not real, user has trailing ";"
       G4PhysicsProcessFactorySingleton& procFactory = 
         G4PhysicsProcessFactorySingleton::Instance();
 
