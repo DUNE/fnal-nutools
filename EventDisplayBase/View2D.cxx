@@ -23,20 +23,28 @@ public:
     const double ux1 = gPad->GetUxmin(), uy1 = gPad->GetUymin();
     const double ux2 = gPad->GetUxmax(), uy2 = gPad->GetUymax();
     // Completely outside frame
-    if(fX1 < ux1 && fX2 < ux1) return;
-    if(fX1 > ux2 && fX2 > ux2) return;
-    if(fY1 < uy1 && fY2 < uy1) return;
-    if(fY1 > uy2 && fY2 > uy2) return;
+    if(!gPad->GetLogx()){
+      if(fX1 < ux1 && fX2 < ux1) return;
+      if(fX1 > ux2 && fX2 > ux2) return;
+    }
+    if(!gPad->GetLogy()){
+      if(fY1 < uy1 && fY2 < uy1) return;
+      if(fY1 > uy2 && fY2 > uy2) return;
+    }
 
     // Store the parameters for restoration later
     const double x1 = fX1, y1 = fY1, x2 = fX2, y2 = fY2;
 
     // Clip corners to avoid painting outside of the frame (TBox doesn't do
     // this by default)
-    if(fX1 < ux1) fX1 = ux1;
-    if(fY1 < uy1) fY1 = uy1;
-    if(fX2 > ux2) fX2 = ux2;
-    if(fY2 > uy2) fY2 = uy2;
+    if(!gPad->GetLogx()){
+      if(fX1 < ux1) fX1 = ux1;
+      if(fX2 > ux2) fX2 = ux2;
+    }
+    if(!gPad->GetLogy()){
+      if(fY1 < uy1) fY1 = uy1;
+      if(fY2 > uy2) fY2 = uy2;
+    }
 
     TBox::Paint(option);
 
