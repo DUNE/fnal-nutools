@@ -5,7 +5,7 @@
 /// \version $Id: MCParticle.cxx,v 1.12 2012-11-20 17:39:38 brebel Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
-#include "SimulationBase/simbase.h"
+#include "SimulationBase/MCParticle.h"
 
 #include <TDatabasePDG.h>
 #include <TParticlePDG.h>
