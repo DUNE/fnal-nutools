@@ -7,7 +7,6 @@
 ///
 /// This class assumes that the user has a ROOT TGeoManager defined
 /// 
-/// \version $Id: CRYHelper.h,v 1.9 2012-09-07 22:03:53 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_CRYHELPER_H
