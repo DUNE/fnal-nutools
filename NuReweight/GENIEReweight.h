@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  GENIEReweight.h
-/// \brief Wrapper for reweight neutrino interactions with GENIE
+/// \brief Wrapper for reweight neutrino interactions with GENIE base class
 ///
 /// \author  nathan.mayer@tufts.edu
 ////////////////////////////////////////////////////////////////////////
@@ -11,8 +11,8 @@
 #include <fstream>
 #include "NuReweight/ReweightLabels.h"
 
-namespace simb  { class MCTruth;      }
-namespace simb  { class GTruth;       }
+//namespace simb  { class MCTruth;      }
+//namespace simb  { class GTruth;       }
 
 ///GENIE neutrino interaction simulation
 namespace genie { class EventRecord; }
@@ -37,9 +37,6 @@ namespace rwgt{
     
     void Configure();
     void Reconfigure();
-
-    double CalcWeight(simb::MCTruth truth, simb::GTruth gtruth);
-    
 
     //Simple Configuration Functions. Only one of these should be called per instance of GENIEReweight
     void ReweightNCEL(double ma, double eta);
@@ -85,12 +82,14 @@ namespace rwgt{
     void UseSigmaDef()    {fUseSigmaDef=true;}
     void UseStandardDef() {fUseSigmaDef=false;}
     
-  private:
+  protected:
     
     void SetNominalValues();
     double CalculateSigma(ReweightLabel_t label, double value);
-    
-    genie::EventRecord RetrieveGHEP(simb::MCTruth truth, simb::GTruth gtruth);
+
+    double CalculateWeight(genie::EventRecord evr);
+      
+    //genie::EventRecord RetrieveGHEP(simb::MCTruth truth, simb::GTruth gtruth);
     
     //Functions to configure individual weight calculators
     void ConfigureNCEL();
@@ -134,7 +133,7 @@ namespace rwgt{
     bool fDISshape;
 
     bool fUseSigmaDef;
-    
+       
     std::vector<int> fReWgtParameterName;
     std::vector<double> fReWgtParameterValue;
 
