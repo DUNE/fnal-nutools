@@ -26,10 +26,9 @@ physics:
 
  analyzers:
  {
- ReweightAna: @local::standard_ReweightAna
+  reweightana: @local::standard_reweightana
  }
 
- mcana:     [ReweightAna ]
+ mcana:     [ reweightana ]
  end_paths: [ mcana ]  
 }
-
