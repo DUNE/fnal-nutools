@@ -39,6 +39,6 @@ include SoftRelTools/arch_spec_art.mk
 include SoftRelTools/arch_spec_root.mk
 include SoftRelTools/arch_spec_genie.mk
 #-lEventGeneratorBase
-override LIBLIBS += $(LOADLIBES)  -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lSimulationBase 
+override LIBLIBS += $(LOADLIBES)  -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lSimulationBase -lNuReweight
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
