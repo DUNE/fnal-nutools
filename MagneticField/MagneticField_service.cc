@@ -1,15 +1,108 @@
-////////////////////////////////////////////////////////////////////////
-/// \file MagField_service.cc
+//////////////////////////////////////////////////////////////////////////
+/// \file MagneticField.cxx
 ///
-/// \version $Id: MagneticField_service.cc,v 1.1.1.1 2011-10-20 17:21:50 brebel Exp $
-/// \author  dmckee@phys.ksu.edu
-////////////////////////////////////////////////////////////////////////
-
+/// \version $Id: MagneticField.cxx,v 1.2 2012-03-07 19:01:44 brebel Exp $
+/// \author dmckee@phys.ksu.edu
+//////////////////////////////////////////////////////////////////////////
+/// \class MagneticField MagneticField.h 
+/// The initial implementation will be trivial: simply supporting a
+/// constant field in a named detector volume. In principle we should
+/// read a full field map from an external file of some kind.
+///
+/// We support three FHICL value for now:
+///
+///    - "UseField" a boolean. When false we don't even instantiate a
+///      Magnetic field object
+///    - "Constant Field" a vector< double > which should have three
+///      elements and is interpreted in Tesla
+///    - "MagnetizedVolume" names the G4logical volume to which the
+///      field should be attached
+//////////////////////////////////////////////////////////////////////////
 // Framework includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
-// nutools includes
-#include "MagneticField/MagneticField.h"
+#include <vector>
+#include <string>
+
+// Geant4 includes
+#include "Geant4/G4ThreeVector.hh"
+
+// Framework includes
+#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+
+namespace mag {
+
+  // Specifies the magnetic field over all space
+  //
+  // The default implementation, however, uses a nearly trivial,
+  // non-physical hack.
+  class MagneticField {
+  public:
+    MagneticField(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
+    ~MagneticField(){};
+
+    void reconfigure(fhicl::ParameterSet const& pset);
+
+    bool UseField() const { return fUseField; }
+
+    // return the field at a particular point
+    G4ThreeVector FieldAtPoint(G4ThreeVector p=G4ThreeVector(0)) const;
+
+    // return the outermost affected volume
+    std::string MagnetizedVolume() const { return fVolume; }
+
+  private:
+    // The simplest implmentation has a constant field inside a named
+    // detector volume
+    bool fUseField;       ///< is a field to be used
+    G4ThreeVector fField; ///< the three vector of the field
+    G4String fVolume;     ///< the volume of the field
+
+    ///\todo Need to add ability to read in a field from a database
+  };
+
+}
+
+namespace mag {
+
+  MagneticField::MagneticField(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg)
+  {
+    this->reconfigure(pset);
+  }
+
+  //------------------------------------------------------------
+  void MagneticField::reconfigure(fhicl::ParameterSet const& pset)
+  {
+
+    fUseField  = pset.get< bool       >("UseField");
+    fVolume    = pset.get<std::string >("MagnetizedVolume");
+
+    // These need to be read as types that FHICL know about, but they
+    // are used by Geant, so I store them in Geant4 types.
+    std::vector<double> field = pset.get<std::vector<double> >("ConstantField");
+
+    // Force the dimension of the field definition
+    field.resize(3);
+    for(size_t i = 0; i < 3; ++i) fField[i] = field[i];
+    
+    return;
+  }
+
+  //------------------------------------------------------------
+  G4ThreeVector MagneticField::FieldAtPoint(G4ThreeVector p) const
+  {
+    /// \todo This does not do what it says. Must test to see if the
+    /// \todo point is in the master volume
+    //
+    // But it is enough to let me code the DetectorConstruction bit
+
+    if ( /* is in the magnetized volume */ true ) return fField;
+    return G4ThreeVector(0);
+  }
+
+}// namespace
 
 namespace mag {
 
