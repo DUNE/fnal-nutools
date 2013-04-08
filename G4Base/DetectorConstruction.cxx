@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "G4Base/DetectorConstruction.h"
-#include "MagneticField/mag.h"
+#include "MagneticField/MagneticField.h"
 
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4GDMLParser.hh"
