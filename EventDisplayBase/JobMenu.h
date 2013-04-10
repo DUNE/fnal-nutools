@@ -21,7 +21,7 @@ namespace evdb {
   /// The job pull dow menu
   class JobMenu 
   {
-    RQ_OBJECT("evdb::JobMenu");
+    RQ_OBJECT("evdb::JobMenu")
     
   public:
     JobMenu(TGMenuBar* menubar, TGMainFrame* mf);

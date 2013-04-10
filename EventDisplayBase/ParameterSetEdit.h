@@ -19,7 +19,7 @@ class TGVScrollBar;
 namespace evdb {
   /// Helper class to setup scroll bars in evdb::ParameterSetEdit
   class ParamFrame {
-    RQ_OBJECT("evdb::ParamFrame");
+    RQ_OBJECT("evdb::ParamFrame")
     
   private:
     TGGroupFrame     *fFrame;
@@ -52,7 +52,7 @@ namespace evdb {
   /// Dialog window to edit a parameter set
   class ParameterSetEdit : public TGTransientFrame 
   {
-    RQ_OBJECT("evdb::ParameterSetEdit");
+    RQ_OBJECT("evdb::ParameterSetEdit")
   public:
     ParameterSetEdit(TGMainFrame* mf, 
 		     const std::string& module,

@@ -405,7 +405,7 @@ namespace evdb{
 
 namespace evdb {
 
-  DEFINE_ART_SERVICE(EventDisplay);
+  DEFINE_ART_SERVICE(EventDisplay)
 
 } // namespace evdb
 ////////////////////////////////////////////////////////////////////////

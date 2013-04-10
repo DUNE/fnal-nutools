@@ -118,4 +118,4 @@ namespace rwgt {
 
   } ReweightLabel_t;
 
-};
+} // end rwgt namespace

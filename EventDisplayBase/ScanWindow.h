@@ -39,7 +39,7 @@ namespace evdb{
 
   /// Helper class to setup scroll bars in evdb::ScanWindow
   class ScanFrame {
-    RQ_OBJECT("evdb::ScanFrame");
+    RQ_OBJECT("evdb::ScanFrame")
     
   public:
     ScanFrame(TGCompositeFrame* f);
@@ -84,7 +84,7 @@ namespace evdb {
 
   public:
     
-    RQ_OBJECT("evdb::ScanWindow");
+    RQ_OBJECT("evdb::ScanWindow")
 
   public:
     ScanWindow();

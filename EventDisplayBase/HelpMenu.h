@@ -16,7 +16,7 @@ class TGLayoutHints;
 
 namespace evdb {
   class HelpMenu {
-    RQ_OBJECT("evdb::HelpMenu");
+    RQ_OBJECT("evdb::HelpMenu")
 
   public:
     HelpMenu(TGMenuBar* menubar, TGMainFrame* mf);

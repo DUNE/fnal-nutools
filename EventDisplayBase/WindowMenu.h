@@ -17,7 +17,7 @@ class TGLayoutHints;
 
 namespace evdb {
   class WindowMenu {
-    RQ_OBJECT("evdb::WindowMenu");
+    RQ_OBJECT("evdb::WindowMenu")
     
   public:
     WindowMenu(TGMenuBar* menubar, TGMainFrame* mf);

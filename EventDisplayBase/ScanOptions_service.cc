@@ -34,7 +34,7 @@ namespace evdb {
 
 namespace evdb {
 
-  DEFINE_ART_SERVICE(ScanOptions);
+  DEFINE_ART_SERVICE(ScanOptions)
 
 } // namespace evd
 ////////////////////////////////////////////////////////////////////////

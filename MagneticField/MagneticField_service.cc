@@ -69,6 +69,6 @@ namespace mag {
 
 namespace mag {
 
-  DEFINE_ART_SERVICE(MagneticField);
+  DEFINE_ART_SERVICE(MagneticField)
 
 } // namespace mag
