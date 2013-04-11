@@ -113,9 +113,9 @@ namespace simb {
       // Are all the points in between close enough?
       bool ok = true;
       for(unsigned int midIdx = prevIdx+1; midIdx < nextIdx; ++midIdx){
-	const TVector3 here = at(midIdx).first.Vect();
+	const TVector3 toHere = at(midIdx).first.Vect()-prev;
 	// Perpendicular distance from the line joining prev to next
-	const double impact = (here-prev-dir.Dot(here-prev)*dir).Mag();
+	const double impact = (toHere-dir.Dot(toHere)*dir).Mag();
 	if(impact > margin){ok = false; break;}
       }
 
