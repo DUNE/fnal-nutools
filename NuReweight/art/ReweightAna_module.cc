@@ -224,7 +224,7 @@ namespace rwgt{
 
 namespace rwgt{
 
-  DEFINE_ART_MODULE(ReweightAna);
+  DEFINE_ART_MODULE(ReweightAna)
 
 }
 
