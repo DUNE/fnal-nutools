@@ -228,8 +228,7 @@ add_subdirectory (SimulationBase)
 #add_subdirectory (dk2nu)
 
 # tests
-# NOTE: the code in EventGeneratorBase/test depends on the larsoft Geometry package
-##add_subdirectory (EventGeneratorBase/test)
+add_subdirectory (EventGeneratorBase/test)
 
 # ups - table and config files
 add_subdirectory(ups)
