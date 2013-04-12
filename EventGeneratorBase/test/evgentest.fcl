@@ -1,4 +1,3 @@
-#include "job/Geometry.fcl"
 
 process_name: testGeo
 
@@ -43,8 +42,9 @@ physics:
  {
   evgentest: 
   { 
-   module_type: "EventGeneratorTest" 
-   TopVolume:   "TopVolume"
+   module_type:  "EventGeneratorTest" 
+   TopVolume:    "TopVolume"
+   GeometryFile: "Geometry/gdml/enter_filename_here.gdml"
   }
 
  }

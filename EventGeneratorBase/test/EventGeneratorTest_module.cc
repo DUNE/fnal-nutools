@@ -1,8 +1,4 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: EventGeneratorTest_module.cc,v 1.5 2012-10-30 16:55:57 brebel Exp $
-//
-//
-// geometry unit tests
 //
 // brebel@fnal.gov
 //
@@ -25,23 +21,23 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "cetlib/exception.h"
+#include "cetlib/search_path.h"
 
 #include "SimulationBase/MCTruth.h"
 #include "SimulationBase/GTruth.h"
 #include "SimulationBase/MCFlux.h"
 #include "SimulationBase/MCNeutrino.h"
 #include "SimulationBase/MCParticle.h"
-#include "Geometry/Geometry.h"
 #include "EventGeneratorBase/evgenbase.h"
 
 #include "EventGeneratorBase/CRY/CRYHelper.h"
 #include "EventGeneratorBase/GENIE/GENIEHelper.h"
 
 #include "TStopwatch.h"
+#include "TGeoManager.h"
 
 namespace art  { class Event; }
 namespace simb { class MCParticle; }
@@ -88,6 +84,10 @@ namespace evgen {
            	                         ///< GENIE when in EventsPerSpill mode	 
     double 	fTotalCRYSpills;         ///< number of spills to use when testing CRY
     std::string fTopVolume;              ///< Top Volume used by GENIE
+    std::string fGeometryFile;           ///< location of Geometry GDML file to test
+    double      fCryDetLength;           ///< length of detector to test CRY, units of cm
+    double      fCryDetWidth;            ///< width of detector to test CRY, units of cm
+    double      fCryDetHeight;           ///< height of detector to test CRY, units of cm
   };
 }
 
@@ -99,6 +99,10 @@ namespace evgen {
     , fTotalGENIEInteractions( pset.get< double      >("TotalGENIEInteractions", 100) )
     , fTotalCRYSpills        ( pset.get< double      >("TotalCRYSpills",         1000))
     , fTopVolume             ( pset.get< std::string >("TopVolume"                   ))
+    , fGeometryFile          ( pset.get< std::string >("GeometryFile"                ))
+    , fCryDetLength(1000.)
+    , fCryDetWidth(500.)
+    , fCryDetHeight(500.)
   {  
     /// Create a Art Random Number engine
     int seed = (pset.get< int >("Seed", evgb::GetRandomNumberSeed()));
@@ -205,19 +209,23 @@ namespace evgen {
   //____________________________________________________________________________
   void EventGeneratorTest::GENIETest(fhicl::ParameterSet const& pset)
   {
-    std::cout << "Test GENIE" << std::endl;
+    // use cet::search_path to get the Geometry file path
+    cet::search_path sp("FW_SEARCH_PATH");
+    std::string geometryFile = fGeometryFile;
+    if( !sp.find_file(geometryFile, fGeometryFile) )
+      throw cet::exception("EventGeneratorTest") << "cannot find geometry file:\n " 
+						 << geometryFile
+						 << "\n to test GENIE";
 
-    art::ServiceHandle<geo::Geometry> geo;
+    TGeoManager::Import(geometryFile.c_str());
 
     // make the GENIEHelper object
     evgb::GENIEHelper help(pset,
-			   geo->ROOTGeoManager(),
-			   geo->ROOTFile(),
-			   geo->TotalMass(pset.get< std::string>("TopVolume").c_str()));
+			   gGeoManager,
+			   geometryFile,
+			   gGeoManager->FindVolumeFast(pset.get< std::string>("TopVolume").c_str())->Weight());
     help.Initialize();
 
-    std::cout << "GENIE initialized" << std::endl;
-    
     int interactionCount = 0;
 
     int nspill = 0;
@@ -371,8 +379,6 @@ namespace evgen {
     art::ServiceHandle<art::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-    art::ServiceHandle<geo::Geometry> geo;
-
     // make the CRYHelper
     evgb::CRYHelper help(pset, engine);
 
@@ -386,8 +392,8 @@ namespace evgen {
       simb::MCTruth mct;
       
       help.Sample(mct, 
-		  geo->SurfaceY(),
-		  geo->DetLength(),
+		  1.,
+		  100.,
 		  0);
 
       avPartPerSpill += mct.NParticles();
@@ -427,12 +433,6 @@ namespace evgen {
   bool EventGeneratorTest::IntersectsDetector(simb::MCParticle const& part)
   {
 
-    // get the extent of the detector from the geometry
-    art::ServiceHandle<geo::Geometry> geo;
-    double halfwidth  = geo->DetHalfWidth();
-    double halfheight = geo->DetHalfHeight();
-    double detlength  = geo->DetLength();
-
     // the particle's initial position and momentum
     TLorentzVector pos = part.Position();
     TLorentzVector mom = part.Momentum();
@@ -447,38 +447,38 @@ namespace evgen {
     // Checking intersection with 6 planes
 
     // 1. Check intersection with the y = +halfheight plane
-    this->ProjectToSurface(pos, mom, 1, halfheight, xyz);
+    this->ProjectToSurface(pos, mom, 1, 0.5*fCryDetHeight, xyz);
 
-    if( TMath::Abs(xyz[0]) <= halfwidth 
+    if( TMath::Abs(xyz[0]) <= 0.5*fCryDetWidth 
 	&& xyz[2] > 0.
-	&& TMath::Abs(xyz[2]) <= detlength ) return true;
+	&& TMath::Abs(xyz[2]) <= fCryDetLength ) return true;
       
 
     // 2. Check intersection with the +x plane
-    this->ProjectToSurface(pos, mom, 0, halfwidth, xyz);
+    this->ProjectToSurface(pos, mom, 0, 0.5*fCryDetWidth, xyz);
 
-    if( TMath::Abs(xyz[1]) <= halfheight 
+    if( TMath::Abs(xyz[1]) <= 0.5*fCryDetHeight 
 	&& xyz[2] > 0.
-	&& TMath::Abs(xyz[2]) <= detlength ) return true;
+	&& TMath::Abs(xyz[2]) <= fCryDetLength ) return true;
 
     // 3. Check intersection with the -x plane
-    this->ProjectToSurface(pos, mom, 0, -halfwidth, xyz);
+    this->ProjectToSurface(pos, mom, 0, -0.5*fCryDetWidth, xyz);
 
-    if( TMath::Abs(xyz[1]) <= halfheight 
+    if( TMath::Abs(xyz[1]) <= 0.5*fCryDetHeight 
 	&& xyz[2] > 0.
-	&& TMath::Abs(xyz[2]) <= detlength ) return true;
+	&& TMath::Abs(xyz[2]) <= fCryDetLength ) return true;
 
     // 4. Check intersection with the z=0 plane
     this->ProjectToSurface(pos, mom, 2, 0., xyz);
 
-    if( TMath::Abs(xyz[0]) <= halfwidth 
-	&& TMath::Abs(xyz[1]) <= halfheight ) return true;
+    if( TMath::Abs(xyz[0]) <= 0.5*fCryDetWidth 
+	&& TMath::Abs(xyz[1]) <= 0.5*fCryDetHeight ) return true;
 
     // 5. Check intersection with the z=detlength plane
-    this->ProjectToSurface(pos, mom, 2, detlength, xyz);
+    this->ProjectToSurface(pos, mom, 2, fCryDetLength, xyz);
 
-    if( TMath::Abs(xyz[0]) <= halfwidth 
-	&& TMath::Abs(xyz[1]) <= halfheight ) return true;
+    if( TMath::Abs(xyz[0]) <= 0.5*fCryDetWidth 
+	&& TMath::Abs(xyz[1]) <= 0.5*fCryDetHeight ) return true;
 
     return false;
   }
