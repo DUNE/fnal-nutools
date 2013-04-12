@@ -522,7 +522,7 @@ namespace evgen {
 
 namespace evgen{
 
-  DEFINE_ART_MODULE(EventGeneratorTest);
+  DEFINE_ART_MODULE(EventGeneratorTest)
 
 }
 
