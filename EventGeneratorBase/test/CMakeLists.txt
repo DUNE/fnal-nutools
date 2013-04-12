@@ -70,5 +70,7 @@ art_make( EventGeneratorBasetest
 			${CRY}
  	                )
 
+install_headers()
 install_fhicl()
 install_source()
+install(FILES README DESTINATION ${product}/${version}/source/${CURRENT_SUBDIR} )

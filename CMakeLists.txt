@@ -227,9 +227,6 @@ add_subdirectory (NuReweight)
 add_subdirectory (SimulationBase)
 #add_subdirectory (dk2nu)
 
-# tests
-add_subdirectory (EventGeneratorBase/test)
-
 # ups - table and config files
 add_subdirectory(ups)
 # packaging utility
