@@ -273,7 +273,7 @@ namespace simb{
     double costhetan = rndotp/(rn*p);
   
     //do some checking of the calculation
-    if(fabs(costhetan)>1){
+    if(std::abs(costhetan)>1){
       if(costhetan>0){
 	costhetan = 1;
       }
@@ -351,7 +351,7 @@ namespace simb{
 		   P_dcm_nun[2]*P_pcm_mp[2])/(P_dcm_nun[3]*P_pcm_mp[3]);
       }
     
-      if(fabs(costhn)>1){
+      if(std::abs(costhn)>1){
 	if(costhn>0){
 	  costhn = 1;
 	}
