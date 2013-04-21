@@ -20,7 +20,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 // Framework includes
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 // nutools includes
 #include "MagneticField/MagneticField.h"

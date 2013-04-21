@@ -19,6 +19,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace mag {
 
@@ -53,4 +54,5 @@ namespace mag {
 
 }
 
+DECLARE_ART_SERVICE(mag::MagneticField, LEGACY)
 #endif // MAG_MAGNETICFIELD_H
