@@ -8,59 +8,61 @@
 #include "EventDisplayBase/Printable.h"
 #include <iostream>
 #include <cstdlib>
-using namespace evdb;
 
-static std::map<std::string,evdb::Printable*> gsPrintables;
+namespace evdb{
 
-//......................................................................
+  static std::map<std::string,evdb::Printable*> gsPrintables;
 
-Printable::Printable() { }
+  //......................................................................
 
-//......................................................................
+  Printable::Printable() { }
 
-Printable::~Printable() 
-{
-  Printable::RemoveFromListOfPrintables(this);
-}
+  //......................................................................
 
-//......................................................................
-
-void Printable::AddToListOfPrintables(const char* name, 
-					 Printable* p) 
- {
-  std::string s(name);
-
-  if (gsPrintables[s] == 0) {
-    gsPrintables[s] = p;
+  Printable::~Printable() 
+  {
+    Printable::RemoveFromListOfPrintables(this);
   }
-  else {
-    if (gsPrintables[s] != p) {
-      std::cerr << "Printable: Name " << name << " reused.\n";
-      std::abort();
+
+  //......................................................................
+
+  void Printable::AddToListOfPrintables(const char* name, 
+					Printable* p) 
+  {
+    std::string s(name);
+
+    if (gsPrintables[s] == 0) {
+      gsPrintables[s] = p;
+    }
+    else {
+      if (gsPrintables[s] != p) {
+	std::cerr << "Printable: Name " << name << " reused.\n";
+	std::abort();
+      }
     }
   }
-}
 
-//......................................................................
+  //......................................................................
 
-void Printable::RemoveFromListOfPrintables(Printable* p) 
-{
-  std::map<std::string,Printable*>::iterator itr(gsPrintables.begin());
-  std::map<std::string,Printable*>::iterator itrEnd(gsPrintables.end());
-  for (; itr!=itrEnd; ++itr) {
-    if ( itr->second == p) {
-      gsPrintables.erase(itr);
-      return;
+  void Printable::RemoveFromListOfPrintables(Printable* p) 
+  {
+    std::map<std::string,Printable*>::iterator itr(gsPrintables.begin());
+    std::map<std::string,Printable*>::iterator itrEnd(gsPrintables.end());
+    for (; itr!=itrEnd; ++itr) {
+      if ( itr->second == p) {
+	gsPrintables.erase(itr);
+	return;
+      }
     }
   }
+
+  //......................................................................
+
+  std::map<std::string,evdb::Printable*>& Printable::GetPrintables() 
+  {
+    return gsPrintables;
+  }
+
 }
-
-//......................................................................
-
-std::map<std::string,evdb::Printable*>& Printable::GetPrintables() 
-{
-  return gsPrintables;
-}
-
 ////////////////////////////////////////////////////////////////////////
 

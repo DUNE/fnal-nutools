@@ -20,73 +20,74 @@
 #include <iostream>
 #include <string>
 
-using namespace evdb;
+namespace evdb{
 
-//......................................................................
+  //......................................................................
 
-///
-/// Perform the basic setup for a drawing canvas
-///
-ObjListCanvas::ObjListCanvas(TGMainFrame* mf) 
-{
-  TGDimension sz;     // Size of the main frame
+  ///
+  /// Perform the basic setup for a drawing canvas
+  ///
+  ObjListCanvas::ObjListCanvas(TGMainFrame* mf) 
+  {
+    TGDimension sz;     // Size of the main frame
   
-  sz           = mf->GetSize();
-  fXsize       = sz.fWidth  - 10; // Leave small margin on left and right 
-  fYsize       = sz.fHeight - 58; // Leave small margin on top and bottom
-  fAspectRatio = (float)fYsize/(float)fXsize;
+    sz           = mf->GetSize();
+    fXsize       = sz.fWidth  - 10; // Leave small margin on left and right 
+    fYsize       = sz.fHeight - 58; // Leave small margin on top and bottom
+    fAspectRatio = (float)fYsize/(float)fXsize;
   
-  // This frame is apparently for holding the buttons on the top; it's
-  // not used for anything else.
-  fFrame  = new TGCompositeFrame(mf, 60, 60, kHorizontalFrame); 
+    // This frame is apparently for holding the buttons on the top; it's
+    // not used for anything else.
+    fFrame  = new TGCompositeFrame(mf, 60, 60, kHorizontalFrame); 
 
-  // Define a layout for placing the canvas within the frame.
-  fLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
-                              kLHintsExpandY, 5, 5, 5, 5);
+    // Define a layout for placing the canvas within the frame.
+    fLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
+				kLHintsExpandY, 5, 5, 5, 5);
   
-  // Careful about clashes with root's naming of canvases. Make a name
-  // like "tpcEVDCanvas" using the print tag
-  std::string name(this->PrintTag());
-  name += "evdb::ObjListCanvas";
+    // Careful about clashes with root's naming of canvases. Make a name
+    // like "tpcEVDCanvas" using the print tag
+    std::string name(this->PrintTag());
+    name += "evdb::ObjListCanvas";
 
-  /*
-  // Create the embedded canvas within the main ROOT graphics frame.
-  fEmbCanvas = new TRootEmbeddedCanvas(name.c_str(), mf, fXsize, fYsize,
-				       kSunkenFrame, 0);
-  mf->AddFrame(fEmbCanvas, fLayout);
-  */
-  mf->AddFrame(fFrame);
+    /*
+    // Create the embedded canvas within the main ROOT graphics frame.
+    fEmbCanvas = new TRootEmbeddedCanvas(name.c_str(), mf, fXsize, fYsize,
+    kSunkenFrame, 0);
+    mf->AddFrame(fEmbCanvas, fLayout);
+    */
+    mf->AddFrame(fFrame);
   
-  // Extract the graphical Canvas from the embedded canvas.  The user
-  // will do most of their drawing in this.
-  //  fCanvas = fEmbCanvas->GetCanvas();
+    // Extract the graphical Canvas from the embedded canvas.  The user
+    // will do most of their drawing in this.
+    //  fCanvas = fEmbCanvas->GetCanvas();
 
-  //  this->Update();
-}
+    //  this->Update();
+  }
 
-//......................................................................
+  //......................................................................
 
-void ObjListCanvas::Connect() 
-{
-  // Make connections for drawing and printing
-  // IoModule::Instance()->Connect("NewEvent()",
-  // "evdb::ObjListCanvas",this,"Draw()");
-  Printable::AddToListOfPrintables(this->Description(),this);
-}
+  void ObjListCanvas::Connect() 
+  {
+    // Make connections for drawing and printing
+    // IoModule::Instance()->Connect("NewEvent()",
+    // "evdb::ObjListCanvas",this,"Draw()");
+    Printable::AddToListOfPrintables(this->Description(),this);
+  }
 
-//......................................................................
+  //......................................................................
 
-ObjListCanvas::~ObjListCanvas() 
-{
-  // IoModule::Instance()->Disconnect(0,this,0);
-  //  delete fEmbCanvas;
-  delete fLayout;    
-  delete fFrame;
-}
+  ObjListCanvas::~ObjListCanvas() 
+  {
+    // IoModule::Instance()->Disconnect(0,this,0);
+    //  delete fEmbCanvas;
+    delete fLayout;    
+    delete fFrame;
+  }
 
-//......................................................................
+  //......................................................................
 
-void ObjListCanvas::Print(const char* /*f*/) { /*fCanvas->Print(f);*/ }
+  void ObjListCanvas::Print(const char* /*f*/) { /*fCanvas->Print(f);*/ }
 
+}//namespace
 ////////////////////////////////////////////////////////////////////////
 

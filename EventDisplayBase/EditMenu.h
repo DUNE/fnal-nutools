@@ -26,7 +26,6 @@ namespace evdb {
     void SetWorkers(const std::vector<std::string>& w);
   
     // slots
-    //void HandleMenu(int menu);
     void EditDrawingOptions(int drawopt);
   
   private:

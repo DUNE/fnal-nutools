@@ -12,6 +12,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace art{ 
   class RootInput;
@@ -62,6 +63,7 @@ namespace evdb {
   };
 }
 #endif // __CINT__
+DECLARE_ART_SERVICE(evdb::EventDisplay, LEGACY)
 #endif // EVDB_EVENTDISPLAY_H
 
 ////////////////////////////////////////////////////////////////////////

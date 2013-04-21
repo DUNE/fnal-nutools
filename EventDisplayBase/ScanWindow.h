@@ -121,7 +121,7 @@ namespace evdb {
     ScanFrame*  fScanFrame;
     std::string fOutFileName; ///< Output file name for scan results
 
-    ClassDef(ScanWindow, 0);
+    ClassDef(ScanWindow, 0)
   };
 
 }// namespace

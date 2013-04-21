@@ -11,6 +11,8 @@
 #include "TGDimension.h"
 #include "TGNumberEntry.h"
 #include "TGLabel.h"
+#include "TGScrollBar.h"
+#include "TGCanvas.h"
 #include "TMath.h"
 #include "TString.h"
 #include "TSystem.h"

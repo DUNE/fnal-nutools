@@ -9,6 +9,7 @@
 #define EVDB_FILEMENU_H
 #include "TQObject.h"
 #include "RQ_OBJECT.h"
+
 class TGMainFrame;
 class TGMenuBar;
 class TGPopupMenu;
@@ -23,7 +24,7 @@ namespace evdb {
     virtual ~FileMenu();
   
     // slots
-    void HandleMenu(int menu);
+    void HandleFileMenu(int menu);
   
   private:
     int Open();
@@ -38,7 +39,8 @@ namespace evdb {
     TGMainFrame*   fMainFrame;  ///< Main graphics frame
     TGPopupMenu*   fFileMenu;   ///< The file menu
     TGLayoutHints* fLayout;     ///< How to layout the menu
+
   };
 }
-#endif // EVDFILEMENU_H
+#endif // EVDB_FILEMENU_H
 ////////////////////////////////////////////////////////////////////////

@@ -13,95 +13,80 @@
 #include "TGMenu.h"
 #include "TGLayout.h"
 #include "TThread.h"
+
 #include "EventDisplayBase/evdb.h"
-using namespace evdb;
+#include "EventDisplayBase/EventDisplay.h"
 
-// old code from FMWK - removed cfg namespace to make doxygen happy
-// static Config* gsConfig[1024];
+namespace evdb{
 
-//......................................................................
+  //......................................................................
 
-EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
-  fMainFrame(mf)
-{
-  fEditMenu = new TGPopupMenu(gClient->GetRoot());
-  fLayout   = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+  EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
+    fMainFrame(mf)
+  {
+    fEditMenu = new TGPopupMenu(gClient->GetRoot());
+    fLayout   = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 
-//   fEditMenu->Connect("Activated(Int_t)",
-//  		     "evdb::EditMenu",
-//  		     this,
-//  		     "HandleMenu(int)");
-  
-  // Attach the menu to the menu bar
-  menubar->AddPopup("&Edit",fEditMenu,fLayout);
-}
-
-//......................................................................
-
-EditMenu::~EditMenu() 
-{
-  if (fLayout)   { delete fLayout;   fLayout   = 0; }
-  if (fEditMenu) { delete fEditMenu; fEditMenu = 0; }
-}
-
-//......................................................................
-
-void EditMenu::SetWorkers(const std::vector<std::string>& w)
-{
-  // Wipe out the existing menus and lists
-  for (unsigned int i=0;;++i) {
-    TGMenuEntry* m = fEditMenu->GetEntry(i);
-    if (m) fEditMenu->DeleteEntry(i);
-    else   break;
+    // Attach the menu to the menu bar
+    menubar->AddPopup("&Edit",fEditMenu,fLayout);
   }
-  
-  // Rebuild the list
-  for (unsigned int i=0; i<w.size(); ++i) {
-    fEditMenu->AddEntry(w[i].c_str(), i);
+
+  //......................................................................
+
+  EditMenu::~EditMenu() 
+  {
+    if (fLayout)   { delete fLayout;   fLayout   = 0; }
+    if (fEditMenu) { delete fEditMenu; fEditMenu = 0; }
   }
-  fEditMenu->Connect("Activated(Int_t)",
-		     "evdb::EditMenu",
-		     this,
-		     "EditDrawingOptions(int)");
-}
 
-//......................................................................
+  //......................................................................
 
-// void EditMenu::HandleMenu(int i) 
-// {
-//   switch(i){
-//   default:
-//     this->EditDrawingOptions(i);
-//     break;
-//   }
-// }
+  void EditMenu::SetWorkers(const std::vector<std::string>& w)
+  {
+    // Wipe out the existing menus and lists
+    for (unsigned int i=0;;++i) {
+      TGMenuEntry* m = fEditMenu->GetEntry(i);
+      if (m) fEditMenu->DeleteEntry(i);
+      else   break;
+    }
+  
+    // Rebuild the list
+    for (unsigned int i=0; i<w.size(); ++i) {
+      fEditMenu->AddEntry(w[i].c_str(), i);
+    }
+    fEditMenu->Connect("Activated(Int_t)",
+		       "evdb::EditMenu",
+		       this,
+		       "EditDrawingOptions(int)");
+  }
 
-//......................................................................
-void EditMenu::EditDrawingOptions(int i)
-{
-  art::ServiceHandle<evdb::EventDisplay> evd;
-  evd->EditDrawingOptionParameterSet(i);
-}
+  //......................................................................
+  void EditMenu::EditDrawingOptions(int i)
+  {
+    art::ServiceHandle<evdb::EventDisplay> evd;
+    evd->EditDrawingOptionParameterSet(i);
+  }
 
-//......................................................................
+  //......................................................................
 
-int EditMenu::Preferences() 
-{
-  this->NoImpl("Preferences");
-  return 0;
-}
+  int EditMenu::Preferences() 
+  {
+    this->NoImpl("Preferences");
+    return 0;
+  }
 
-//......................................................................
+  //......................................................................
 
-int EditMenu::NoImpl(const char* method) 
-{
-  std::string s;
-  s = "Sorry action '"; s += method; s+= "' is not implemented.\n";
-  // Why isn't this a memory leak? Dunno, but its seems the TG classes
-  // are all managed by TGClient which takes care of deletion
-  new TGMsgBox(evdb::TopWindow(), fMainFrame,
-	       "No implementation",s.c_str(),kMBIconExclamation);
-  return 0;
-}
+  int EditMenu::NoImpl(const char* method) 
+  {
+    std::string s;
+    s = "Sorry action '"; s += method; s+= "' is not implemented.\n";
+    // Why isn't this a memory leak? Dunno, but its seems the TG classes
+    // are all managed by TGClient which takes care of deletion
+    new TGMsgBox(evdb::TopWindow(), fMainFrame,
+		 "No implementation",s.c_str(),kMBIconExclamation);
+    return 0;
+  }
 
+}// namespace
 ////////////////////////////////////////////////////////////////////////

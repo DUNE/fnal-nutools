@@ -7,6 +7,10 @@
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_SCANOPTIONS_H
 #define EVDB_SCANOPTIONS_H
+
+#include "TGScrollBar.h"
+#include "TGCanvas.h"
+
 #ifndef __CINT__
 #include <string>
 #include <vector>
@@ -14,6 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace evdb {
   class ScanOptions 
@@ -40,5 +45,6 @@ namespace evdb {
   };
 }//namespace
 #endif // __CINT__
+DECLARE_ART_SERVICE(evdb::ScanOptions, LEGACY)
 #endif
 

@@ -5,52 +5,54 @@
 //
 // messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
-#include "EventDisplayBase/MenuBar.h"
 #include <iostream>
 #include "TGLayout.h"
 #include "TGMenu.h"
+
+#include "EventDisplayBase/MenuBar.h"
 #include "EventDisplayBase/FileMenu.h"
 #include "EventDisplayBase/EditMenu.h"
 #include "EventDisplayBase/WindowMenu.h"
 #include "EventDisplayBase/JobMenu.h"
 #include "EventDisplayBase/HelpMenu.h"
-using namespace evdb;
 
-//......................................................................
+namespace evdb{
 
-MenuBar::MenuBar(TGMainFrame* frame) 
-{
-  int padleft   = 0;
-  int padright  = 0;
-  int padtop    = 1;
-  int padbottom = 1;
+  //......................................................................
 
-  // Create the menu bar
-  fMenuBar = new TGMenuBar(frame, 1, 1, kHorizontalFrame);
-  fLayout  = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 
-			       padleft, padright, padtop, padbottom);
+  MenuBar::MenuBar(TGMainFrame* frame) 
+  {
+    int padleft   = 0;
+    int padright  = 0;
+    int padtop    = 1;
+    int padbottom = 1;
+
+    // Create the menu bar
+    fMenuBar = new TGMenuBar(frame, 1, 1, kHorizontalFrame);
+    fLayout  = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 
+				 padleft, padright, padtop, padbottom);
   
-  // Add the menus to it
-  fFileMenu   = new FileMenu  (fMenuBar, frame);
-  fEditMenu   = new EditMenu  (fMenuBar, frame);
-  fWindowMenu = new WindowMenu(fMenuBar, frame);
-  fJobMenu    = new JobMenu   (fMenuBar, frame);
-  fHelpMenu   = new HelpMenu  (fMenuBar, frame);
+    // Add the menus to it
+    fFileMenu   = new FileMenu  (fMenuBar, frame);
+    fEditMenu   = new EditMenu  (fMenuBar, frame);
+    fWindowMenu = new WindowMenu(fMenuBar, frame);
+    fJobMenu    = new JobMenu   (fMenuBar, frame);
+    fHelpMenu   = new HelpMenu  (fMenuBar, frame);
 
-  // Add the menu bar to the main window frame
-  frame->AddFrame(fMenuBar,fLayout);
-}
+    // Add the menu bar to the main window frame
+    frame->AddFrame(fMenuBar,fLayout);
+  }
 
-//......................................................................
+  //......................................................................
 
-MenuBar::~MenuBar() {
-  if (fHelpMenu)   { delete fHelpMenu;   fHelpMenu   = 0; }
-  if (fJobMenu)    { delete fJobMenu;    fJobMenu    = 0; }
-  if (fWindowMenu) { delete fWindowMenu; fWindowMenu = 0; }
-  if (fEditMenu)   { delete fEditMenu;   fEditMenu   = 0; }
-  if (fFileMenu)   { delete fFileMenu;   fFileMenu   = 0; }
-  // if (fLayout)     { delete fLayout;  fLayout  = 0; }
-  // if (fMenuBar)    { delete fMenuBar; fMenuBar = 0; }
-}
-
+  MenuBar::~MenuBar() {
+    if (fHelpMenu)   { delete fHelpMenu;   fHelpMenu   = 0; }
+    if (fJobMenu)    { delete fJobMenu;    fJobMenu    = 0; }
+    if (fWindowMenu) { delete fWindowMenu; fWindowMenu = 0; }
+    if (fEditMenu)   { delete fEditMenu;   fEditMenu   = 0; }
+    if (fFileMenu)   { delete fFileMenu;   fFileMenu   = 0; }
+    // if (fLayout)     { delete fLayout;  fLayout  = 0; }
+    // if (fMenuBar)    { delete fMenuBar; fMenuBar = 0; }
+  }
+}// namespace
 ////////////////////////////////////////////////////////////////////////

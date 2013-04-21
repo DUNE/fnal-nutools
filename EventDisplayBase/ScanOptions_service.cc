@@ -6,7 +6,6 @@
 // \author brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 // Framework includes
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "EventDisplayBase/ScanOptions.h"
 

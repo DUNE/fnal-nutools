@@ -13,9 +13,9 @@
 #pragma link C++ class evdb::DisplayWindow+;
 #pragma link C++ class evdb::Printable-;
 #pragma link C++ class evdb::Canvas-;
-#pragma link C++ class evdb::FileMenu-;
 #pragma link C++ class evdb::PrintDialog+;
 #pragma link C++ class evdb::WindowMenu-;
+#pragma link C++ class evdb::FileMenu-;
 #pragma link C++ class evdb::JobMenu-;
 #pragma link C++ class evdb::EditMenu-;
 #pragma link C++ class evdb::ParameterSetEdit+;

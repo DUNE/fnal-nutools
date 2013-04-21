@@ -21,7 +21,6 @@
 
 // ART includes
 // Framework includes
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/parse.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
@@ -85,10 +84,10 @@ namespace evdb{
 
     this->reconfigure(pset);
 
-    reg.watchPostBeginJob       (this, &EventDisplay::postBeginJob);
-    reg.watchPostBeginJobWorkers(this, &EventDisplay::postBeginJobWorkers);
-    reg.watchPreProcessEvent    (this, &EventDisplay::preProcessEvent);
-    reg.watchPostProcessEvent   (this, &EventDisplay::postProcessEvent);
+    reg.sPostBeginJob.watch       (this, &EventDisplay::postBeginJob);
+    reg.sPostBeginJobWorkers.watch(this, &EventDisplay::postBeginJobWorkers);
+    reg.sPreProcessEvent.watch    (this, &EventDisplay::preProcessEvent);
+    reg.sPostProcessEvent.watch   (this, &EventDisplay::postProcessEvent);
 
   }
 
