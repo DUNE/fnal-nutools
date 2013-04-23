@@ -43,7 +43,8 @@ namespace rwgt{
 
     void ReweightQEMA(double ma);
     void ReweightQEVec(double mv);
-    
+
+    void ReweightResGanged(double ma, double mv=0.0);
     void ReweightCCRes(double ma, double mv=0.0);
     void ReweightNCRes(double ma, double mv=0.0);
     
