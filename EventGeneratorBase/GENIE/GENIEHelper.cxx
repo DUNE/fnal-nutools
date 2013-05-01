@@ -3,8 +3,9 @@
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
 /// \version $Id: GENIEHelper.cxx,v 1.58 2012-11-28 23:04:03 rhatcher Exp $
-/// \author  brebel@fnal.gov
-/// \update 2010/3/4 Sarah Budd added simple_flux
+/// \author  brebel@fnal.gov  rhatcher@fnal.gov
+/// \update 2010-03-04 Sarah Budd added simple_flux
+/// \update 2013-04-24 rhatcher adapt to R-2_8_0 interface; subset flux files
 ////////////////////////////////////////////////////////////////////////
 
 // C/C++ includes
@@ -13,6 +14,10 @@
 #include <cassert>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
+#include <sstream>
+#include <glob.h>
+#include <cstdlib>  // for unsetenv()
 
 //ROOT includes
 #include "TH1.h"
@@ -26,6 +31,8 @@
 #include "TString.h"
 #include "TRandom.h" //needed for gRandom to be defined
 #include "TRegexp.h"
+#include "TMath.h"
+#include "TStopwatch.h"
 
 //GENIE includes
 #include "Conventions/Units.h"
@@ -35,14 +42,16 @@
 #include "FluxDrivers/GCylindTH1Flux.h"
 #include "FluxDrivers/GMonoEnergeticFlux.h"
 #include "FluxDrivers/GNuMIFlux.h"
+#include "FluxDrivers/GSimpleNtpFlux.h"
 #include "FluxDrivers/GBartolAtmoFlux.h"  //for atmo nu generation
 #include "FluxDrivers/GFlukaAtmo3DFlux.h" //for atmo nu generation
 #include "FluxDrivers/GAtmoFlux.h"        //for atmo nu generation
 #include "Conventions/Constants.h" //for calculating event kinematics
-
-#ifndef  MISSING_GSIMPLENTPFLUX
-#include "FluxDrivers/GSimpleNtpFlux.h"
+#ifndef GENIE_USE_ENVVAR
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #endif
+
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Geo/GeomVolSelectorFiducial.h"
 #include "Geo/GeomVolSelectorRockBox.h"
@@ -61,9 +70,7 @@
 #include "FluxDrivers/GFluxBlender.h"
 #include "FluxDrivers/GFlavorMixerI.h"
 #include "FluxDrivers/GFlavorMap.h"
-#ifdef FLAVORMIXERFACTORY
 #include "FluxDrivers/GFlavorMixerFactory.h"
-#endif
 
 //NuTools includes
 #include "EventGeneratorBase/evgenbase.h"
@@ -104,84 +111,50 @@ namespace evgb {
     , fFluxD             (0)
     , fFluxD2GMCJD       (0)
     , fDriver            (0)
+    , fHelperRandom      (0)
     , fFluxType          (pset.get< std::string              >("FluxType")               )
+    , fFluxFilePatterns  (pset.get< std::vector<std::string> >("FluxFiles"))
+    , fMaxFluxFileMB     (pset.get< int                      >("MaxFluxFileMB",    2000) ) // 2GB max default
     , fBeamName          (pset.get< std::string              >("BeamName")               )
     , fTopVolume         (pset.get< std::string              >("TopVolume")              )
     , fWorldVolume       ("volWorld")         
-    , fDetLocation       (pset.get< std::string              >("DetectorLocation"     )  )
-    , fFluxUpstreamZ     (pset.get< double                   >("FluxUpstreamZ",   -2.e30))
-    , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",   0)    )
-    , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",      5.e13))
+    , fDetLocation       (pset.get< std::string              >("DetectorLocation")       )
+    , fFluxUpstreamZ     (pset.get< double                   >("FluxUpstreamZ",  -2.e30) )
+    , fEventsPerSpill    (pset.get< double                   >("EventsPerSpill",      0) )
+    , fPOTPerSpill       (pset.get< double                   >("POTPerSpill",     5.e13) )
     , fHistEventsPerSpill(0.)
     , fSpillEvents       (0)
     , fSpillExposure     (0.)
     , fTotalExposure     (0.)
-    , fMonoEnergy        (pset.get< double                   >("MonoEnergy",       2.0)  )
-    , fBeamRadius        (pset.get< double                   >("BeamRadius",       3.0)  )
+    , fMonoEnergy        (pset.get< double                   >("MonoEnergy",        2.0) )
+    , fBeamRadius        (pset.get< double                   >("BeamRadius",        3.0) )
     , fDetectorMass      (detectorMass)
-    , fSurroundingMass   (pset.get< double                   >("SurroundingMass",  0.)   )
+    , fSurroundingMass   (pset.get< double                   >("SurroundingMass",    0.) )
     , fGlobalTimeOffset  (pset.get< double                   >("GlobalTimeOffset", 1.e4) )
     , fRandomTimeOffset  (pset.get< double                   >("RandomTimeOffset", 1.e4) )
-    , fAtmoEmin          (pset.get< double                   >("AtmoEmin",         0.1)  )
+    , fGenFlavors        (pset.get< std::vector<int>         >("GenFlavors")             )
+    , fAtmoEmin          (pset.get< double                   >("AtmoEmin",          0.1) )
     , fAtmoEmax          (pset.get< double                   >("AtmoEmax",         10.0) )
     , fAtmoRl            (pset.get< double                   >("Rl",               20.0) )
     , fAtmoRt            (pset.get< double                   >("Rt",               20.0) )
     , fEnvironment       (pset.get< std::vector<std::string> >("Environment")            )
-    , fMixerConfig       (pset.get< std::string              >("MixerConfig",     "none"))
-    , fMixerBaseline     (pset.get< double                   >("MixerBaseline",    0.)   )
-    , fFiducialCut       (pset.get< std::string              >("FiducialCut",     "none"))
-    , fGeomScan          (pset.get< std::string              >("GeomScan",        "default"))
-    , fDebugFlags        (pset.get< unsigned int             >("DebugFlags",       0)    ) 
+    , fXSecTable         (pset.get< std::string              >("XSecTable",          "") ) //e.g. "gxspl-NuMIsmall.xml"
+    , fEventGeneratorList(pset.get< std::string              >("EventGeneratorList", "") ) // "Default"
+    , fGXMLPATH          (pset.get< std::string              >("GXMLPATH",           "") )
+    , fGMSGLAYOUT        (pset.get< std::string              >("GMSGLAYOUT",         "") ) // [BASIC] or SIMPLE
+    , fGENIEMsgThresholds(pset.get< std::string              >("GENIEMsgThresholds", "") ) // : separate list of files
+    , fGHepPrintLevel    (pset.get< int                      >("GHepPrintLevel",     -1) ) // see GHepRecord::SetPrintLevel() -1=no-print
+    , fMixerConfig       (pset.get< std::string              >("MixerConfig",    "none") )
+    , fMixerBaseline     (pset.get< double                   >("MixerBaseline",      0.) )
+    , fFiducialCut       (pset.get< std::string              >("FiducialCut",    "none") )
+    , fGeomScan          (pset.get< std::string              >("GeomScan",    "default") )
+    , fDebugFlags        (pset.get< unsigned int             >("DebugFlags",          0) ) 
   {
 
     std::vector<double> beamCenter   (pset.get< std::vector<double> >("BeamCenter")   );
     std::vector<double> beamDirection(pset.get< std::vector<double> >("BeamDirection"));
     fBeamCenter.SetXYZ(beamCenter[0], beamCenter[1], beamCenter[2]);
     fBeamDirection.SetXYZ(beamDirection[0], beamDirection[1], beamDirection[2]);
-    
-    std::vector<std::string> fluxFiles (pset.get< std::vector<std::string> >("FluxFiles"));
-    std::vector<int> genFlavors        (pset.get< std::vector<int> >("GenFlavors"));
-
-    for (unsigned int i = 0; i < genFlavors.size(); ++i) fGenFlavors.insert(genFlavors[i]);
-
-    // need to find the right alternative in FW_SEARCH_PATH to find 
-    // the flux files without attempting to expand any actual wildcard
-    // that might be in the name; the cet::search_path class seemed
-    // like it could help in this.  In the end, it can't deal with
-    // wildcarding in the way we want.
-    /* was:
-       cet::search_path sp("FW_SEARCH_PATH");
-
-       sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
-    */
-
-    cet::search_path sp("FW_SEARCH_PATH");
-
-    std::string fileName;
-    for(unsigned int i = 0; i < fluxFiles.size(); i++){
-      if ( fluxFiles[i].find_first_of("*?[]") != std::string::npos ) {
-        // wildcards involved
-        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " "
-                                    << fluxFiles[i] << " use FindFluxPath";
-        FindFluxPath(fluxFiles[i]);
-        continue;
-      }
-      sp.find_file(fluxFiles[i], fileName);
-      if ( fileName != "" ) {
-        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
-                                    << fluxFiles[i] << " found as " << fileName;
-        fFluxFiles.insert(fileName);
-      } else if ( fluxFiles[i][0] == '/' ) {
-        // cet::search_path doesn't return files that start out as
-        // absolute paths
-        mf::LogDebug("GENIEHelper") << "ctor() i=" << i << " " 
-                                    << fluxFiles[i] << " has /";
-        fFluxFiles.insert(fluxFiles[i]);
-      }
-    }
-
-    // set the environment, the vector should come in pairs 
-    // of variable name, then value
 
     // special processing of GSEED (GENIE's random seed)... priority:
     //    if set in .fcl file RandomSeed variable, use that
@@ -190,84 +163,93 @@ namespace evgb {
     int dfltseed;
     const char* gseedstr = std::getenv("GSEED");
     if ( gseedstr ) {
-      //dfltseed = atoi(gseedstr);
       dfltseed = strtol(gseedstr,NULL,0);
     } else {
       dfltseed = evgb::GetRandomNumberSeed();
     }
-    TString junk = "";
-    junk += pset.get< int >("RandomSeed", dfltseed);
-    std::string seed(junk);
+    int seedval = pset.get< int >("RandomSeed", dfltseed);
+    // initialize random # generator for use within GENIEHelper
+    fHelperRandom = new TRandom3(seedval);
+
+    /// Determine which flux files to use
+    /// Do this after random number seed initialization for stability
+
+    // for "ntuple" and "simple_flux" squeeze the patterns so there 
+    // are no duplicates; for the others we want to preserve order
+    if ( fFluxType.compare("ntuple")      == 0 ||
+         fFluxType.compare("simple_flux") == 0    ) {
+      // convert vector<> to a set<> and back to vector<>
+      // to avoid having duplicate patterns in the list
+      std::set<std::string> fluxpattset(fFluxFilePatterns.begin(),fFluxFilePatterns.end());
+      //// if we weren't initializing from ctor we could do
+      //std::copy(fFluxFilePatterns.begin(),fFluxFilePatterns.end(),std::inserter(fluxpattset,fluxpattset.begin()));
+      fFluxFilePatterns.clear(); // clear vector, copy unique set back
+      std::copy(fluxpattset.begin(),fluxpattset.end(),
+                std::back_inserter(fFluxFilePatterns));
+    }
+    ExpandFluxFilePatterns();
+
+    /// Set the GENIE environment
+    /// if using entries in the fEvironment vector
+    //    they should come in pairs of variable name key, then value
+
+    // Process GXMLPATH extensions first, so they are available
+    // when GENIE starts to get initialized; these might be
+    // alternative locations for configurations (including
+    // the GENIE Messenger system).
+    SetGXMLPATH();
+
+    // Also set GENIE log4cpp Messenger layout format before 
+    // initializing GENIE (can't be changed after singleton is created)
+    SetGMSGLAYOUT();
+
+    // Now initialize GENIE Messenger service
+    StartGENIEMessenger(pset.get<std::string>("ProductionMode","false"));
+
+    // Determine EventGeneratorList to use
+    FindEventGeneratorList();
+
+    // Figure out which cross section file to use
+    // post R-2_8_0 this actually triggers reading the file
+    ReadXSecTable();
+
+#ifndef GENIE_USE_ENVVAR
+    // In case we're printing the event record, how verbose should it be
+    genie::GHepRecord::SetPrintLevel(fGHepPrintLevel);
+
+    // Set GENIE's random # seed
+    genie::utils::app_init::RandGen(seedval);
+#else
+    // pre GENIE R-2_8_0 needs random # seed GSEED set in the environment
+    // determined the seed to use above, now make sure it is set externally
+    std::string seedstr = std::to_string(seedval); // part of C++11 <string>
     fEnvironment.push_back("GSEED");
-    fEnvironment.push_back(seed);
+    fEnvironment.push_back(seedstr);
 
-    // GXMLPATH is where GENIE will look for alternative configurations
-    // (fcl file paths):(existing user environment):(FW_SEARCH_PATH)
-    std::string gxmlpathadd = "";
-    const char* gxmlpath_env = std::getenv("GXMLPATH");
-    if ( gxmlpath_env ) {
-      gxmlpathadd += gxmlpath_env;
+    // pre R-2_8_0 uses environment variables to configure how GENIE runs
+    std::ostringstream envlisttext;
+    envlisttext << "setting GENIE environment: "; 
+    for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+      std::string& key = fEnvironment[i];
+      std::string& val = fEnvironment[i+1];
+      gSystem->Setenv(key.c_str(), val.c_str());
+      envlisttext << "\n   " << key  << " to \"" << val <<"\"";                                 
     }
-    const char* fwpath_env = std::getenv("FW_SEARCH_PATH");
-    if ( fwpath_env ) {
-      if ( gxmlpathadd != "" ) gxmlpathadd += ":";
-      gxmlpathadd += fwpath_env;
-    }
-    int indxGXMLPATH = -1;
-    for (unsigned int i = 0; i < fEnvironment.size(); i += 2) {
-      if ( fEnvironment[i].compare("GXMLPATH") == 0 ) {
-        indxGXMLPATH = i;
-        break;
-      }
-    }
-    if ( indxGXMLPATH < 0 ) {
-      // nothing in fcl parameters
-      indxGXMLPATH=fEnvironment.size();
-      fEnvironment.push_back("GXMLPATH");
-      fEnvironment.push_back(gxmlpathadd);
-    } else {
-      // append additonal paths to env value
-      fEnvironment[indxGXMLPATH+1] += ":";
-      fEnvironment[indxGXMLPATH+1] += gxmlpathadd;
-    }
+    mf::LogInfo("GENIEHelper") << envlisttext.str(); 
+#endif
 
-    for(unsigned int i = 0; i < fEnvironment.size(); i += 2){
-
-      if(fEnvironment[i].compare("GSPLOAD") == 0){
-        // currently GENIE doesn't internally use GXMLPATH when looking for
-        // spline files, but instead wants a fully expanded path.
-        // Do the expansion here using the extended GXMLPATH list
-        // of locations (which included $FW_SEARCH_PATH)
-        cet::search_path spGXML(fEnvironment[indxGXMLPATH+1]);
-        std::string fullpath;
-        mf::LogDebug("GENIEHelper") << "GSPLOAD as originally set: " 
-                                    << fEnvironment[i+1]; 
-        spGXML.find_file(fEnvironment[i+1], fullpath);
-        if ( fullpath == "" ) {
-          mf::LogError("GENIEHelper") 
-            << "could not resolve fulll path for spline file GSPLOAD " 
-            << "\"" << fEnvironment[i+1] << "\" using: " 
-            << fEnvironment[indxGXMLPATH+1];
-          throw cet::exception("UnresolvedGSPLOAD")
-            << "can't find GSPLOAD file";
-        }
-        fEnvironment[i+1] = fullpath;
-      }
+    if ( fFluxType.compare("atmo") == 0 ) {
       
-      gSystem->Setenv(fEnvironment[i].c_str(), fEnvironment[i+1].c_str());
-      mf::LogInfo("GENIEHelper") << "setting GENIE environment " 
-                                 << fEnvironment[i] << " to \"" 
-                                 << fEnvironment[i+1] <<"\"";
-    }
-
-    //For Atmo flux
-    if(fFluxType.find("atmo") != std::string::npos){
-      
-      if(genFlavors.size() != fFluxFiles.size()){
+      if(fGenFlavors.size() != fSelectedFluxFiles.size()){
         mf::LogInfo("GENIEHelper") <<  "ERROR: The number of generated neutrino flavors (" 
-                                   << genFlavors.size() << ") doesn't correspond to the number of files (" 
-                                   << fFluxFiles.size() << ")!!!";
+                                   << fGenFlavors.size() << ") doesn't correspond to the number of files (" 
+                                   << fSelectedFluxFiles.size() << ")!!!";
         exit(1);
+      } else {
+        for (size_t indx=0; indx < fGenFlavors.size(); ++indx ) {
+          mf::LogInfo("GENIEHelper")
+            <<  "atmo flux assignment : " << fGenFlavors[indx] << " " << fSelectedFluxFiles[indx];
+        }
       }
 
       if(fEventsPerSpill !=1){
@@ -307,10 +289,10 @@ namespace evgb {
     
       fFluxHistograms.clear();
 
-      TFile tf((*fFluxFiles.begin()).c_str());
+      TFile tf((*fSelectedFluxFiles.begin()).c_str());
       tf.ls();
 
-      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
+      for(std::vector<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
         if(*flvitr ==  12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nue")));
         if(*flvitr == -12) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("nuebar")));
         if(*flvitr ==  14) fFluxHistograms.push_back(dynamic_cast<TH1D *>(tf.Get("numu")));
@@ -330,7 +312,7 @@ namespace evgb {
     }//end if getting fluxes from histograms
 
     std::string flvlist;
-    for(std::set<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++)
+    for ( std::vector<int>::iterator itr = fGenFlavors.begin(); itr != fGenFlavors.end(); itr++ )
       flvlist += Form(" %d",*itr);
 
     if(fFluxType.compare("mono")==0){
@@ -343,13 +325,13 @@ namespace evgb {
     else{
 
       std::string fileliststr;
-      if ( fFluxFiles.empty() ) {
+      if ( fSelectedFluxFiles.empty() ) {
         fileliststr = "NO FLUX FILES FOUND!";
         mf::LogWarning("GENIEHelper")  << fileliststr;
       }
       else {
-        std::set<std::string>::iterator sitr = fFluxFiles.begin();
-        for ( ; sitr != fFluxFiles.end(); sitr++) {
+        std::vector<std::string>::iterator sitr = fSelectedFluxFiles.begin();
+        for ( ; sitr != fSelectedFluxFiles.end(); sitr++) {
           fileliststr +=  "\n\t";
           fileliststr += *sitr;
         }
@@ -381,12 +363,7 @@ namespace evgb {
       mf::LogInfo("GENIEHelper") 
         << "Saving MaxPathLengths as: \"" << filename << "\"";
 
-      const genie::PathLengthList& maxpath = 
-#ifdef GENIE_MISSING_GETMAXPL
-        rgeom->ComputeMaxPathLengths(); // re-compute max pathlengths
-#else
-        rgeom->GetMaxPathLengths();
-#endif
+      const genie::PathLengthList& maxpath = rgeom->GetMaxPathLengths();
 
       maxpath.SaveAsXml(filename);
       // append extra info to file
@@ -417,13 +394,11 @@ namespace evgb {
         rawpots = numiFlux->UsedPOTs();
         numiFlux->PrintConfig();
       }
-#ifndef MISSING_GSIMPLENTPFLUX
       else if ( fFluxType.compare("simple_flux")==0 ) {
         genie::flux::GSimpleNtpFlux* simpleFlux = dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD);
         rawpots = simpleFlux->UsedPOTs();
         simpleFlux->PrintConfig();
       }
-#endif
       mf::LogInfo("GENIEHelper") 
         << " Total Exposure " << fTotalExposure
         << " GMCJDriver GlobProbScale " << probscale 
@@ -434,6 +409,7 @@ namespace evgb {
     // clean up owned genie object (other genie obj are ref ptrs)
     delete fGenieEventRecord;
     delete fDriver;
+    delete fHelperRandom;
   }
 
   //--------------------------------------------------
@@ -450,6 +426,10 @@ namespace evgb {
   void GENIEHelper::Initialize()
   {
     fDriver = new genie::GMCJDriver(); // needs to be before ConfigGeomScan
+#ifndef GENIE_USE_ENVVAR
+    // this configuration happened via $GEVGL beore R-2_8_0
+    fDriver->SetEventGeneratorList(fEventGeneratorList);
+#endif
 
     // initialize the Geometry and Flux drivers
     InitializeGeometry();
@@ -479,7 +459,7 @@ namespace evgb {
       mf::LogInfo("GENIEHelper") << "Number of events per spill will be based on poisson mean of "
                                  << fXSecMassPOT*fTotalHistFlux;
 
-      fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
+      fHistEventsPerSpill = fHelperRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     }
 
     // set the pot/event counters to zero
@@ -808,20 +788,22 @@ namespace evgb {
 
       genie::flux::GNuMIFlux* numiFlux = new genie::flux::GNuMIFlux();
 
-#ifndef GFLUX_TAKES_SETORVECTOR
-      if ( fFluxFiles.empty() ) fFluxFiles.insert("empty-fluxfile-set");
-      if ( fFluxFiles.size() > 1 )
-        mf::LogWarning("GENIEHelper") << "had " << fFluxFiles.size()
-                                      << " patterns, only used first";
-      std::set<string>::iterator fluxfileitrntuple = fFluxFiles.begin();
-      numiFlux->LoadBeamSimData(*fluxfileitrntuple, fDetLocation);
+#ifndef GFLUX_MISSING_SETORVECTOR
+      mf::LogDebug("GENIEHelper") << "LoadBeamSimData w/ vector of size " << fSelectedFluxFiles.size();
+      numiFlux->LoadBeamSimData(fSelectedFluxFiles,fDetLocation);
 #else
-      numiFlux->LoadBeamSimData(fFluxFiles,fDetLocation);
+      // older code can only take one file name (wildcard pattern)
+      if ( fSelectedFluxFiles.empty() ) fSelectedFluxFiles.push_back("empty-fluxfile-set");
+      if ( fSelectedFluxFiles.size() > 1 )
+        mf::LogWarning("GENIEHelper")
+          << "LoadBeamSimData could use only first of " 
+          << fSelectedFluxFiles.size() << " patterns";
+      numiFlux->LoadBeamSimData(fSelectedFluxFiles[0], fDetLocation);
 #endif
 
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
-      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++)
+      for ( std::vector<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++ )
         probes.push_back(*flvitr);
       numiFlux->SetFluxParticles(probes);
 
@@ -839,34 +821,31 @@ namespace evgb {
     } //end if using ntuple flux files
     else if(fFluxType.compare("simple_flux")==0){
 
-#ifdef MISSING_GSIMPLENTPFLUX
-      mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
-      assert(0);
-#else
       genie::flux::GSimpleNtpFlux* simpleFlux = 
         new genie::flux::GSimpleNtpFlux();
 
-#ifndef GFLUX_TAKES_SETORVECTOR
-      if ( fFluxFiles.empty() ) fFluxFiles.insert("empty-fluxfile-set");
-      if ( fFluxFiles.size() > 1 )
-        mf::LogWarning("GENIEHelper") << "had " << fFluxFiles.size()
-                                   << " patterns, only used first";
-      std::set<string>::iterator fluxfileitrsimple = fFluxFiles.begin();
-      simpleFlux->LoadBeamSimData(*fluxfileitrsimple, fDetLocation);
+#ifndef GFLUX_MISSING_SETORVECTOR
+      mf::LogDebug("GENIEHelper") << "LoadBeamSimData w/ vector of size " << fSelectedFluxFiles.size();
+      simpleFlux->LoadBeamSimData(fSelectedFluxFiles,fDetLocation);
 #else
-      simpleFlux->LoadBeamSimData(fFluxFiles,fDetLocation);
+      // older code can only take one file name (wildcard pattern)
+      if ( fSelectedFluxFiles.empty() ) fSelectedFluxFiles.push_back("empty-fluxfile-set");
+      if ( fSelectedFluxFiles.size() > 1 )
+        mf::LogWarning("GENIEHelper")
+          << "LoadBeamSimData could use only first of " 
+          << fSelectedFluxFiles.size() << " patterns";
+      simpleFlux->LoadBeamSimData(fSelectedFluxFiles[0], fDetLocation);
 #endif
 
       // initialize to only use neutrino flavors requested by user
       genie::PDGCodeList probes;
-      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++)
+      for ( std::vector<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++ )
         probes.push_back(*flvitr);
       simpleFlux->SetFluxParticles(probes);
 
       if ( TMath::Abs(fFluxUpstreamZ) < 1.0e30 ) simpleFlux->SetUpstreamZ(fFluxUpstreamZ);
 
       fFluxD = simpleFlux; // dynamic_cast<genie::GFluxI *>(simpleFlux);
-#endif    
     
     } //end if using simple_flux flux files
     else if(fFluxType.compare("histogram") == 0){
@@ -876,7 +855,7 @@ namespace evgb {
       // now add the different fluxes - fluxes were added to the vector in the same 
       // order that the flavors appear in fGenFlavors
       int ctr = 0;
-      for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
+      for ( std::vector<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++ ) {
         histFlux->AddEnergySpectrum(*i, fFluxHistograms[ctr]);
         ++ctr;
       } //end loop to add flux histograms to driver
@@ -893,7 +872,7 @@ namespace evgb {
       double weight = 1./(1.*fGenFlavors.size());
       //make a map of pdg to weight codes
       std::map<int, double> pdgwmap;
-      for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++)
+      for ( std::vector<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++ )
         pdgwmap[*i] = weight;
 
       genie::flux::GMonoEnergeticFlux *monoflux = new genie::flux::GMonoEnergeticFlux(fMonoEnergy, pdgwmap);
@@ -921,19 +900,13 @@ namespace evgb {
       atmo_flux_driver->ForceMinEnergy(fAtmoEmin);
       atmo_flux_driver->ForceMaxEnergy(fAtmoEmax);
       
-      int ctrfv = 0;
-      int ctrff = 0;
-      for(std::set<int>::iterator flvitr = fGenFlavors.begin(); flvitr != fGenFlavors.end(); flvitr++){
-        for(std::set<string>::iterator ffitr = fFluxFiles.begin(); ffitr != fFluxFiles.end(); ffitr++){
-          if(ctrfv == ctrff){
-            mf::LogInfo("GENIEHelper") << "FLAVOR: " << *flvitr << "  FLUX FILE: " <<  *ffitr;
+      for ( size_t j = 0; j < fGenFlavors.size(); ++j ) {
+        int         flavor  = fGenFlavors[j];
+        std::string flxfile = fSelectedFluxFiles[j];
+        mf::LogInfo("GENIEHelper") << "FLAVOR: " << flavor << "  FLUX FILE: " <<  flxfile;
 
-            atmo_flux_driver->SetFluxFile(*flvitr, *ffitr);
-            ctrff++;
-          } 
-          ctrfv++;
-        }
-      }    
+        atmo_flux_driver->SetFluxFile(flavor,flxfile);
+      }
       
       atmo_flux_driver->LoadFluxData();
       
@@ -941,7 +914,7 @@ namespace evgb {
       atmo_flux_driver->SetRadii(fAtmoRl, fAtmoRt);
             
       fFluxD = atmo_flux_driver;//dynamic_cast<genie::GFluxI *>(atmo_flux_driver);
-    }//end if using atmospheric fluxes
+    } //end if using atmospheric fluxes
 
 
     //
@@ -958,7 +931,6 @@ namespace evgb {
       // first is a special case that is part of GENIE proper
       if ( keyword == "map" || keyword == "swap" || keyword == "fixedfrac" )
         mixer = new genie::flux::GFlavorMap();
-#ifdef FLAVORMIXERFACTORY
       // if it wasn't one of the predefined known mixers then
       // see if the factory knows about it and can create one
       // assuming the keyword (first token) is the class name
@@ -983,7 +955,6 @@ namespace evgb {
           }
         }
       }
-#endif
       // configure the mixer
       if ( mixer ) mixer->Config(fMixerConfig);
       else {
@@ -1121,8 +1092,8 @@ namespace evgb {
     fMaxPathOutInfo += "   FluxType:     " + fFluxType + "\n";
     fMaxPathOutInfo += "   BeamName:     " + fBeamName + "\n";
     fMaxPathOutInfo += "   FluxFiles:    ";
-    std::set<string>::iterator ffitr = fFluxFiles.begin();
-    for ( ; ffitr != fFluxFiles.end() ; ++ffitr )
+    std::vector<string>::iterator ffitr = fSelectedFluxFiles.begin();
+    for ( ; ffitr != fSelectedFluxFiles.end() ; ++ffitr )
       fMaxPathOutInfo += "\n         " + *ffitr;
     fMaxPathOutInfo += "\n";
     fMaxPathOutInfo += "   DetLocation:  " + fDetLocation + "\n";
@@ -1186,7 +1157,7 @@ namespace evgb {
 
     fSpillEvents   = 0;
     fSpillExposure = 0.;
-    fHistEventsPerSpill = gRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
+    fHistEventsPerSpill = fHelperRandom->Poisson(fXSecMassPOT*fTotalHistFlux);
     return true;
   }
 
@@ -1212,15 +1183,9 @@ namespace evgb {
       flux.fFluxType = simb::kNtuple;
       PackNuMIFlux(flux);
     }
-    else if ( fFluxType.compare("simple_flux")==0 ) {
- 
-#ifdef MISSING_GSIMPLENTPFLUX
-      mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
-      assert(0);
-#else
+    else if ( fFluxType.compare("simple_flux")==0 ) { 
       // pack the flux information
       fSpillExposure = (dynamic_cast<genie::flux::GSimpleNtpFlux *>(fFluxD)->UsedPOTs()/fDriver->GlobProbScale() - fTotalExposure);
-#endif
       flux.fFluxType = simb::kSimple_Flux;
       PackSimpleFlux(flux);
     }
@@ -1253,7 +1218,7 @@ namespace evgb {
       int ctr = 0;
       int bin = fFluxHistograms[0]->FindBin(truth.GetNeutrino().Nu().E());
       std::vector<double> fluxes(6, 0.);
-      for(std::set<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
+      for(std::vector<int>::iterator i = fGenFlavors.begin(); i != fGenFlavors.end(); i++){
         if(*i ==  12) fluxes[kNue]      = fFluxHistograms[ctr]->GetBinContent(bin);
         if(*i == -12) fluxes[kNueBar]   = fFluxHistograms[ctr]->GetBinContent(bin);
         if(*i ==  14) fluxes[kNuMu]     = fFluxHistograms[ctr]->GetBinContent(bin);
@@ -1305,6 +1270,9 @@ namespace evgb {
                                  << nuray_pos.Y() << "," << nuray_pos.Z() << std::endl
                                  << " ray2vtx = " << flux.fgen2vtx
                                  << " dk2ray = " << flux.fdk2gen;
+    }
+    if ( fGHepPrintLevel >= 0 ) {
+      std::cout << *fGenieEventRecord;
     }
 
     // set the top volume of the geometry back to the world volume
@@ -1420,7 +1388,7 @@ namespace evgb {
 
     //choose a spill time (ns) to shift the vertex times by:
 
-    double spillTime = fGlobalTimeOffset + gRandom->Uniform()*fRandomTimeOffset;
+    double spillTime = fGlobalTimeOffset + fHelperRandom->Uniform()*fRandomTimeOffset;
 
     // add the particles from the interaction
     TIter partitr(record);
@@ -1582,10 +1550,6 @@ namespace evgb {
   //----------------------------------------------------------------------
   void GENIEHelper::PackSimpleFlux(simb::MCFlux &flux)
   {
-#ifdef MISSING_GSIMPLENTPFLUX
-    mf::LogError("GENIEHelper") << "Not built with GSimpleNtpFlux enabled";
-    assert(0);
-#else
     flux.Reset();
 
     // cast the fFluxD pointer to be of the right type
@@ -1608,13 +1572,11 @@ namespace evgb {
       flux.ftpy      = nflux_numi->tpy;
       flux.ftpz      = nflux_numi->tpz;
       flux.ftptype   = nflux_numi->tptype;   // converted to PDG
-#ifndef GSIMPLE_NUMI_V1
       flux.fvx       = nflux_numi->vx;
       flux.fvy       = nflux_numi->vy;
       flux.fvz       = nflux_numi->vz;
       flux.fndecay   = nflux_numi->ndecay;
       flux.fppmedium = nflux_numi->ppmedium;
-#endif
     }
     //   flux.fndxdz    = nflux.ndxdz;
     //   flux.fndydz    = nflux.ndydz;
@@ -1672,7 +1634,6 @@ namespace evgb {
     //   flux.fbeampx   = nflux.beampx;
     //   flux.fbeampy   = nflux.beampy;
     //   flux.fbeampz   = nflux.beampz; 
-#endif
     
     flux.fdk2gen   = gsf->GetDecayDist();
 
@@ -1680,104 +1641,471 @@ namespace evgb {
   }
 
   //---------------------------------------------------------
-  void GENIEHelper::FindFluxPath(std::string userpattern)
+  void GENIEHelper::ExpandFluxFilePatterns()
   {
     // Using the the FW_SEARCH_PATH list of directories, apply the
     // user supplied pattern as a suffix to find the flux files.
     // The userpattern might include simple wildcard globs (in contrast 
-    // to proper regexp patterns) for the filename part, but not any
-    // part of the directory path.  If files are found in more than
-    // one FW_SEARCH_PATH alternative take the one with the most files.
+    // to proper regexp patterns).
 
-    /* was (but only works for single files):
-       cet::search_path sp("FW_SEARCH_PATH");
-       sp.find_file(pset.get< std::string>("FluxFile"), fFluxFile);
-    */
+    // After expanding the list to individual files, randomize them
+    // and start selecting until a size limit is about to be
+    // exceeded (though a minimum there needs to be one file, not
+    // matter the limit).
+
+    // older GENIE (pre r3669) can't handle vectors/sets of file names
+    // but an only accept a pattern that will resolve to files.  This
+    // collection could exceed the desired size threshold, but for
+    // pick the collection that expands to the largest list
+
+#ifndef GFLUX_MISSING_SETORVECTOR
+    // no extra handling if we can pass a list 
+#else
+    // need to keep track of patterns that that resolve, and who has most
+    std::vector<std::string> patternsWithFiles;
+    std::vector<int>         nfilesForPattern;
+    int nfilesSoFar = 0;
+#endif
 
     std::vector<std::string> dirs;
     cet::split_path(cet::getenv("FW_SEARCH_PATH"),dirs);
     if ( dirs.empty() ) dirs.push_back(std::string()); // at least null string 
 
-    // count the number files in each of the distinct alternative paths
-    std::map<std::string,size_t> path2n;
+    glob_t g;
+    int flags = GLOB_TILDE;   // expand ~ home directories
 
-    std::vector<std::string>::const_iterator ditr = dirs.begin();
-    for ( ; ditr != dirs.end(); ++ditr ) {
-      std::string dalt = *ditr;
-      // if non-null, does it end with a "/"?  if not add one
-      size_t len = dalt.size();
-      if ( len > 0 && dalt.rfind('/') != len-1 ) dalt.append("/");
+    std::ostringstream patterntext;  // for info/error messages
+    std::ostringstream dirstext;     // for info/error messages
 
-      // GENIE uses 'glob' style wildcards not true regex, i.e. "*" vs ".*"
+    std::vector<std::string>::const_iterator uitr = fFluxFilePatterns.begin();
+    int ipatt = 0;
 
-      std::string filepatt = dalt + userpattern;
+    for ( ; uitr != fFluxFilePatterns.end(); ++uitr, ++ipatt ) {
+      std::string userpattern = *uitr;
+      patterntext << "\n\t" << userpattern;
 
-      // !WILDCARD only works for file name ... NOT directory                       
-      string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
-      size_t slashpos = filepatt.find_last_of("/");
-      size_t fbegin;
-      if ( slashpos != std::string::npos ) {
-        dirname = filepatt.substr(0,slashpos);
-        fbegin = slashpos + 1;
-      } else { fbegin = 0; }
-      
-      const char* epath = gSystem->ExpandPathName(dirname.c_str());
-      void* dirp = gSystem->OpenDirectory(epath);
-      delete [] epath;
-      if ( dirp ) {
-        std::string basename = filepatt.substr(fbegin,filepatt.size()-fbegin);
-        TRegexp re(basename.c_str(),kTRUE);
-        const char* onefile;
-        while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
-          TString afile = onefile;
-          if ( afile=="." || afile==".." ) continue;
-          if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
-          //std::string fullname = dirname + "/" + afile.Data();
-          path2n[filepatt]++;  // found one in this directory
+      std::vector<std::string>::const_iterator ditr = dirs.begin();
+      for ( ; ditr != dirs.end(); ++ditr ) {
+        std::string dalt = *ditr;
+        // if non-null, does it end with a "/"?  if not add one
+        size_t len = dalt.size();
+        if ( len > 0 && dalt.rfind('/') != len-1 ) dalt.append("/");
+        if ( uitr == fFluxFilePatterns.begin() ) dirstext << "\n\t" << dalt;
+
+        std::string filepatt = dalt + userpattern;
+
+        glob(filepatt.c_str(),flags,NULL,&g);
+        if ( g.gl_pathc > 0 ) flags |= GLOB_APPEND; // next glob() will append to list
+
+#ifndef GFLUX_MISSING_SETORVECTOR
+        // nothing special since we can use any files we want
+#else
+        // keep track of pattern with most files ... we'll use that
+        int nresolved = g.gl_pathc - nfilesSoFar;
+        nfilesSoFar = g.gl_pathc;
+        if ( nresolved > 0 ) {
+          patternsWithFiles.push_back(filepatt);
+          nfilesForPattern.push_back(nresolved);
         }
-        gSystem->FreeDirectory(dirp);
-      } // open directory
-    } // loop over alternative prefixes 
+#endif
 
-    // find the path with the maximum # of files in it
-    std::map<std::string,size_t>::const_iterator mitr = path2n.begin();
-    size_t nfmax = 0, nftot = 0;
-    std::string pathmax;
-    for ( ; mitr != path2n.end(); ++mitr) {
-      nftot += mitr->second;
-      if ( mitr->second > nfmax ) {
-        pathmax = mitr->first;
-        nfmax = mitr->second;
-      }
+      }  // loop over FW_SEARCH_PATH dirs
+    }  // loop over user patterns 
+
+    std::ostringstream flisttext;
+
+#ifndef GFLUX_MISSING_SETORVECTOR
+    int nfiles = g.gl_pathc;
+    std::ostringstream paretext;
+    if ( nfiles > 0 ) {
+      paretext << "\n  will pare list down to " << fMaxFluxFileMB << " MB";
     }
+    mf::LogInfo("GENIEHelper") 
+      << "ExpandFluxFilePatterns initially found " << nfiles
+      << " files for user patterns:"
+      << patterntext.str() << "\n  using FW_SEARCH_PATH of: "
+      << dirstext.str() <<  paretext.str();
+      //<< "\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
+
+    // now pull from the list randomly
+    // do this by assigning a random number to each;
+    // ordering that list; and pulling in that order
+
+    if ( nfiles > 0 ) {
+      double* order = new double[nfiles];
+      int* indices  = new int[nfiles];
+      fHelperRandom->RndmArray(nfiles,order);
+      // assign random # for their relative order
+
+      TMath::Sort(nfiles,order,indices,false);
+      
+      int sumBytes = 0; // accumulated size in bytes
+      int maxBytes = fMaxFluxFileMB * 1024 * 1024;
+
+      FileStat_t fstat;
+      for (int i=0; i<nfiles; ++i) {
+        int indx = indices[i];
+        std::string afile(g.gl_pathv[indx]);
+        bool keep = true;
+        
+        gSystem->GetPathInfo(afile.c_str(),fstat);
+        sumBytes += fstat.fSize;
+        // skip those that would push sum above total
+        // but always accept at least one (the first)
+        if ( sumBytes > maxBytes && indx != 0 ) keep = false;
+
+        if ( keep ) fSelectedFluxFiles.push_back(afile);
+        //else break;  // <voice name=Scotty> Captain, she can't take any more</voice>
+
+        flisttext << "[" << setw(3) << i << "] "
+                  << "=> g[" << setw(3) << indx << "] " 
+                  << ((keep)?"keep":"skip") << " " 
+                  << setw(6) << (sumBytes/(1024*1024)) << " "
+                  << afile << "\n";
+
+      }
+      delete [] indices;
+    }
+#else
+    // This version of GENIE can't handle a list of files, 
+    // so only pass it patterns.  Later code will pick the first 
+    // in the list, so list them in decreasing order of # of files
+    int  npatt = patternsWithFiles.size();
+    if ( npatt > 0 ) {
+      flisttext << "ExpandFluxFilePatterns: " << npatt
+                << " user patterns resolved to files:\n";
+      // std::vector is contiguous, so take address of 0-th element
+      const int* nf = &(nfilesForPattern[0]);
+      int* indices  = new int[npatt];
+      TMath::Sort(npatt,nf,indices,true);  // descending order
+      for (int i=0; i<npatt; ++i) {
+        int indx = indices[i];
+        flisttext  << "[" << i << "] " << nfilesForPattern[indx]
+                   << " files in " << patternsWithFiles[indx] << "\n";
+        fSelectedFluxFiles.push_back(patternsWithFiles[indx]);
+      }
+      delete [] indices;
+    }
+#endif
+    mf::LogDebug("GENIEHelper") << "\n" << flisttext.str();
+
+    // done with glob list
+    globfree(&g);
 
     // no null path allowed for at least these
     if ( fFluxType.compare("ntuple")      == 0 ||
          fFluxType.compare("simple_flux") == 0    ) {
-      if ( pathmax == "" || nftot == 0 ) {
+      size_t nfiles = fSelectedFluxFiles.size();
+      if ( nfiles == 0 ) {
         mf::LogError("GENIEHelper") 
-          << "For \"ntuple\" or \"simple_flux\" specification must resolve to at least one file" 
-          << "\n none were found for \"" << userpattern << "\" using FW_SERARCH_PATH of \"" << cet::getenv("FW_SEARCH_PATH");
-        assert( pathmax != "" && nftot > 0 );  
+          << "For \"ntuple\" or \"simple_flux\", specification "
+          << "must resolve to at least one file" 
+          << "\n  none were found user pattern: " 
+          << patterntext.str()
+          << "\n  using FW_SEARCH_PATH of: "
+          << dirstext.str();
+        //\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
+        throw cet::exception("NoFluxFiles")
+          << "no flux files found for: " << patterntext.str();
+
+      }
+    }
+    
+  } // ExpandFluxFilePatterns
+
+  //---------------------------------------------------------
+  void GENIEHelper::SetGXMLPATH()
+  {
+    /// GXMLPATH is where GENIE will look for alternative 
+    ///    XML configurations (including message service threshold files)
+
+    // priority order
+    //   (fcl file paths):(existing user environment):(FW_SEARCH_PATH)
+    //
+    //  fcl parameters might be the explicit GXMLPATH value
+    //     or a pair in the fEnvironment vector
+    //  but the final "official result" should the fGXMLPATH
+
+    // start with fGXMLPATH set from pset "GXMLPATH" value
+
+    // find it in the vector, if it exists
+    size_t indxGXMLPATH = -1;
+    for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+      if ( fEnvironment[i].compare("GXMLPATH") == 0 ) {
+        if ( fGXMLPATH != "" ) fGXMLPATH += ":";
+        fGXMLPATH += fEnvironment[i+1];
+        indxGXMLPATH = i;
+        break;
       }
     }
 
-    // print something out about what we found
-    size_t npath = path2n.size();
-    if ( npath > 1 ) {
-      mf::LogInfo("GENIEHelper") 
-        << " found " << nftot << " files in " << npath << " distinct paths";
-      mitr = path2n.begin();
-      for ( ; mitr != path2n.end(); ++mitr) {
-        mf::LogInfo("GENIEHelper") << mitr->second << " files at: "
-                                   << mitr->first;
+    const char* gxmlpath_env = std::getenv("GXMLPATH");
+    if ( gxmlpath_env ) {
+      if ( fGXMLPATH != "" ) fGXMLPATH += ":";
+      fGXMLPATH += gxmlpath_env;
+    }
+    const char* fwpath_env = std::getenv("FW_SEARCH_PATH");
+    if ( fwpath_env ) {
+      if ( fGXMLPATH != "" ) fGXMLPATH += ":";
+      fGXMLPATH += fwpath_env;
+    }
+
+    // refresh fEnvironment (in case fEnvironment is still being used)
+    if ( indxGXMLPATH < 0 ) {
+       // nothing in fcl parameters
+      indxGXMLPATH=fEnvironment.size();
+      fEnvironment.push_back("GXMLPATH");
+      fEnvironment.push_back(fGXMLPATH);
+    } else {
+      // update value
+      fEnvironment[indxGXMLPATH+1] = fGXMLPATH;
+    }
+
+    // now set it externally for use by GENIE
+    gSystem->Setenv("GXMLPATH",fGXMLPATH.c_str());
+
+  }
+
+  //---------------------------------------------------------
+  void GENIEHelper::SetGMSGLAYOUT()
+  {
+    /// GMSGLAYOUT ([BASIC}|SIMPLE) control GENIE's layout of log4cpp message
+    ///    SIMPLE lacks the timestamp; this must be set in the environment
+    ///    at the time the log4cpp Messenger singleton is created
+
+    // start with GMSGLAYOUT set from pset "GMSGLAYOUT" value
+
+    // find it in the vector, if it exists
+    // this will override the top level fcl value
+    for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+      if ( fEnvironment[i].compare("GMSGLAYOUT") == 0 ) {
+        fGMSGLAYOUT = fEnvironment[i+1];
+        break;
       }
     }
-      
-    fFluxFiles.insert(pathmax);
 
-    return;
-  } // FindFluxPath
+    // now set it externally, if we have a value
+    if ( fGMSGLAYOUT != "" ) {
+      gSystem->Setenv("GMSGLAYOUT",fGMSGLAYOUT.c_str());
+    }
+  }
+
+  //---------------------------------------------------------
+  void GENIEHelper::StartGENIEMessenger(std::string prodmodestr)
+  {
+    /// start with fGENIEMsgThresholds from pset "GENIEMsgThresholds" value
+    /// allow fEnvironment $GMSGCONF and $GPRODMODE to expand it
+    /// function arg might also trigger addition of Messenger_productions.xml
+
+    /// $GPRODMODE used to trigger Messenger_production.xml
+    /// with R-2_8_0 one must add it explicitly to $GMSGCONF
+    
+    int indxGPRODMODE = -1;
+    int indxGMSGCONF  = -1;
+    
+    for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+      if ( fEnvironment[i].compare("GPRODMODE") == 0 ) {
+        indxGPRODMODE = i;
+        continue;
+      }
+      if ( fEnvironment[i].compare("GMSGCONF") == 0 ) {
+        indxGMSGCONF = i;
+        continue;
+      }
+    } 
+    // GMSGCONF set in fEnvironment tack it on to current setting
+    if ( indxGMSGCONF >= 0 ) {
+      if ( fGENIEMsgThresholds != "" ) fGENIEMsgThresholds += ":"; 
+      fGENIEMsgThresholds += fEnvironment[indxGMSGCONF+1];
+    } else {
+      // nothing in fcl parameters, make a placeholder
+      indxGMSGCONF = fEnvironment.size();
+      fEnvironment.push_back("GMSGCONF");
+      fEnvironment.push_back("");
+    }
+    
+    bool prodmode = StringToBool(prodmodestr);
+    if ( indxGPRODMODE >= 0 ) {
+      // user tried to set GPRODMODE via Environment fcl values
+      prodmode |= StringToBool(fEnvironment[indxGPRODMODE+1]);
+    }
+
+    if ( prodmode ) {
+      // okay they really meant it
+      // PREpend "Messenger_production.xml" to existing value
+      // don't forget the colon if necessary
+      std::string newval = "Messenger_production.xml";
+      if ( fGENIEMsgThresholds != "" ) {
+        newval += ":";
+        newval += fGENIEMsgThresholds;
+      }
+      fGENIEMsgThresholds = newval;
+    }
+
+    // update fEnvironment value
+    if ( indxGMSGCONF >= 0 ) {
+      fEnvironment[indxGMSGCONF+1] = fGENIEMsgThresholds;
+    }
+
+    mf::LogInfo("GENIEHelper") 
+      << "StartGENIEMessenger ProdMode=" << ((prodmode)?"yes":"no")
+      << " read from: " << fGENIEMsgThresholds;
+#ifndef GENIE_USE_ENVVAR
+    genie::utils::app_init::MesgThresholds(fGENIEMsgThresholds);
+#else
+    gSystem->Setenv("GMSGCONF",fGENIEMsgThresholds.c_str());
+    if ( prodmode ) gSystem->Setenv("GPRODMODE","YES");
+#endif
+
+  }
+
+  //---------------------------------------------------------
+  void GENIEHelper::FindEventGeneratorList()
+  {
+    /// Determine EventGeneratorList 
+    //  new location, fcl parameter "EventGeneratorList"
+    //  old location  fEvironment  key="GEVGL"  (if unset by direct pset value)
+    //  if neither then use "Default"
+    
+    if ( fEventGeneratorList == "" ) {
+      // find GEVGL in the vector, if it exists
+      for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+        if ( fEnvironment[i].compare("GEVGL") == 0 ) {
+          fEventGeneratorList = fEnvironment[i+1];
+          break;
+        }
+      }
+    }
+    if ( fEventGeneratorList == "" ) fEventGeneratorList = "Default";
+
+    mf::LogInfo("GENIEHelper") << "GENIE EventGeneratorList using \""
+                               << fEventGeneratorList << "\"";
+#ifndef GENIE_USE_ENVVAR
+    // just save it away because post R-2_8_0 this needs to get
+    // passed to the GMCJDriver explicitly
+#else
+    gSystem->Setenv("GEVGL",fEventGeneratorList.c_str());
+#endif
+
+  }
+
+  //---------------------------------------------------------
+  void GENIEHelper::ReadXSecTable()
+  {
+    /// determine which cross section table to use
+    /// fully expand the path
+
+    // priority order:
+    //    fcl fEnvironment GSPLOAD
+    //    fcl XSecTable
+    //    $GSPLOAD in environment
+    //    default 'gxspl-NuMIsmall.xml'
+
+    if ( fXSecTable == "" ) {
+      // stand-alone value is not set
+      const char* gspload_alt = std::getenv("GSPLOAD");
+      if ( ! gspload_alt ) {
+        const char* gspload_dflt = "gxspl-NuMIsmall.xml";  // fall back
+        gspload_alt = gspload_dflt;
+      }
+      fXSecTable = std::string(gspload_alt);
+    }
+
+    // find GSPLOAD in the vector, if it exists
+    int indxGSPLOAD   = -1;
+    for (size_t i = 0; i < fEnvironment.size(); i += 2) {
+      if ( fEnvironment[i].compare("GSPLOAD") == 0 ) {
+        indxGSPLOAD = i;
+        continue;
+      }
+    }
+
+    if ( indxGSPLOAD < 0 ) {
+      // nothing in fcl parameters
+      indxGSPLOAD=fEnvironment.size();
+      fEnvironment.push_back("GSPLOAD");
+      fEnvironment.push_back(fXSecTable);
+    } else {
+      fXSecTable = fEnvironment[indxGSPLOAD+1];  // get two in sync
+    }
+    
+    // currently GENIE doesn't internally use GXMLPATH when looking for
+    // spline files, but instead wants a fully expanded path.
+    // Do the expansion here using the extended GXMLPATH list
+    // of locations (which included $FW_SEARCH_PATH)
+    mf::LogDebug("GENIEHelper") << "GSPLOAD as originally: " << fXSecTable; 
+
+    // RWH cet::search_path returns "" if the input string is actually
+    // the full path to the file .. this is not really what one wants,
+    // one just wan't the full path to the file; seems to work if
+    // "/" is made to be another possible PATH
+    cet::search_path spGXML( "/:" + fGXMLPATH );
+    std::string fullpath;
+    spGXML.find_file(fXSecTable, fullpath);
+
+    if ( fullpath == "" ) {
+      mf::LogError("GENIEHelper") 
+        << "could not resolve full path for spline file XSecTable/GSPLOAD " 
+        << "\"" << fXSecTable << "\" using: " 
+        << fGXMLPATH;
+      throw cet::exception("UnresolvedGSPLOAD")
+        << "can't find XSecTable/GSPLOAD file: " << fXSecTable;
+    }
+    fXSecTable = fullpath;
+    fEnvironment[indxGSPLOAD+1] = fXSecTable;  // get two in sync
+
+    mf::LogInfo("GENIEHelper") 
+      << "XSecTable/GSPLOAD full path \"" << fXSecTable << "\"";
+
+#ifndef GENIE_USE_ENVVAR
+    TStopwatch xtime;
+    xtime.Start();
+
+    // can't use gSystem->Unsetenv() as it is really gSystem->Setenv(name,"")
+    unsetenv("GSPLOAD");  // MUST!!! ensure that it isn't set externally
+    genie::utils::app_init::XSecTable(fXSecTable,true);
+
+    xtime.Stop();
+    mf::LogInfo("GENIEHelper") 
+      << "Time to read GENIE XSecTable: " 
+      << " Real " << xtime.RealTime() << " s,"
+      << " CPU " << xtime.CpuTime() << " s"
+      << " from " << fXSecTable;
+#else
+    // pre R-2_8_0 uses $GSPLOAD to indicate x-sec table
+    gSystem->Setenv("GSPLOAD", fXSecTable.c_str());
+#endif
+
+  }
+
+  //---------------------------------------------------------
+  bool GENIEHelper::StringToBool(std::string v)
+  {
+    if (v == "true")   return true;  // C++ style
+    if (v == "false")  return false;
+    if (v == "kTRUE")  return true;  // ROOT style
+    if (v == "kFALSE") return false;
+    if (v == "TRUE")   return true;  // Some other reasonable variations...
+    if (v == "FALSE")  return false;
+    if (v == "True")   return true;
+    if (v == "False")  return false;
+    if (v == "on")     return true;
+    if (v == "off")    return false;
+    if (v == "On")     return true;
+    if (v == "Off")    return false;
+    if (v == "ON")     return true;
+    if (v == "OFF")    return false;
+    if (v == "YES")    return true;
+    if (v == "NO")     return false;
+    if (v == "Yes")    return true;
+    if (v == "No")     return false;
+    if (v == "yes")    return true;
+    if (v == "no")     return false;
+    if (v == "1")      return true;
+    if (v == "0")      return false;
+
+    return false;  // by default invalid strings are false
+  }
 
 } // namespace evgb
 

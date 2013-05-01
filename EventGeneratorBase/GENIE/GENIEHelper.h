@@ -3,7 +3,7 @@
 /// \brief Wrapper for generating neutrino interactions with GENIE
 ///
 /// \version $Id: GENIEHelper.h,v 1.25 2012-09-07 21:35:26 brebel Exp $
-/// \author  brebel@fnal.gov
+/// \author  brebel@fnal.gov rhatcher@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef EVGB_GENIEHELPER_H
 #define EVGB_GENIEHELPER_H
@@ -19,6 +19,7 @@
 
 class TH1D;
 class TH2D;
+class TRandom3;
 
 ///parameter set interface
 namespace fhicl {
@@ -81,7 +82,14 @@ namespace evgb{
     void PackMCTruth(genie::EventRecord *record, simb::MCTruth &truth);
     void PackGTruth(genie::EventRecord *record, simb::GTruth &truth);
 
-    void FindFluxPath(std::string userpattern);
+    void ExpandFluxFilePatterns();
+    bool StringToBool(std::string v);
+
+    void SetGXMLPATH();
+    void SetGMSGLAYOUT();
+    void StartGENIEMessenger(std::string prodmode);
+    void FindEventGeneratorList();
+    void ReadXSecTable();
 
     TGeoManager*             fGeoManager;        ///< pointer to ROOT TGeoManager
     std::string              fGeoFile;           ///< name of file containing the Geometry description
@@ -92,8 +100,12 @@ namespace evgb{
     genie::GFluxI*           fFluxD2GMCJD;       ///< flux driver passed to genie GMCJDriver, might be GFluxBlender
     genie::GMCJDriver*       fDriver;
 
+    TRandom3*                fHelperRandom;      ///< random # generator for GENIEHelper
+
     std::string              fFluxType;          ///< histogram or ntuple or atmo_FLUKA or atmo_BARTOL
-    std::set<std::string>    fFluxFiles;          ///< names of files containing histograms or ntuples, or txt
+    std::vector<std::string> fFluxFilePatterns;  ///< wildcard patterns files containing histograms or ntuples, or txt
+    std::vector<std::string> fSelectedFluxFiles; ///< flux files selected after wildcard expansion and subset selection
+    int                      fMaxFluxFileMB;     ///< maximum size of flux files (MB)
     std::string              fBeamName;          ///< name of the beam we are simulating
     std::string              fTopVolume;         ///< top volume in the ROOT geometry in which to generate events
     std::string              fWorldVolume;       ///< name of the world volume in the ROOT geometry
@@ -119,13 +131,19 @@ namespace evgb{
                                                  ///< the cylinder for the histogram flux in kg
     double                   fGlobalTimeOffset;  ///< overall time shift (ns) added to every particle time
     double                   fRandomTimeOffset;  ///< additional random time shift (ns) added to every particle time 
-    std::set<int>            fGenFlavors;        ///< pdg codes for flavors to generate
+    std::vector<int>         fGenFlavors;        ///< pdg codes for flavors to generate
     double                   fAtmoEmin;          ///< atmo: Minimum energy of neutrinos in GeV
     double                   fAtmoEmax;          ///< atmo: Maximum energy of neutrinos in GeV
     double                   fAtmoRl;            ///< atmo: radius of the sphere on where the neutrinos are generated
     double                   fAtmoRt;            ///< atmo: radius of the transvere (perpendicular) area on the sphere 
                                                  ///< where the neutrinos are generated
     std::vector<std::string> fEnvironment;       ///< environmental variables and settings used by genie
+    std::string              fXSecTable;         ///< cross section file (was $GSPLOAD)
+    std::string              fEventGeneratorList;///< control over event topologies, was $GEVGL [Default]
+    std::string              fGXMLPATH;          ///< locations for GENIE XML files
+    std::string              fGMSGLAYOUT;        ///< format for GENIE log message [BASIC]|SIMPLE (SIMPLE=no timestamps)
+    std::string              fGENIEMsgThresholds;///< additional XML file setting Messager level thresholds (":" separated)
+    int                      fGHepPrintLevel;    ///< GHepRecord::SetPrintLevel(), -1=no-print
     std::string              fMixerConfig;       ///< configuration string for genie GFlavorMixerI
     double                   fMixerBaseline;     ///< baseline distance if genie flux can't calculate it
     std::string              fFiducialCut;       ///< configuration for geometry selector

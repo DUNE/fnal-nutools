@@ -17,31 +17,23 @@ JOBFILES    := $(wildcard *.fcl)
 # this makefile (and package code) assumes GENIE r3208 or later
 #
 
+# older versions of GENIE use $ENV variables to set parameters
+ifeq ($(shell /bin/ls \${GENIE}/src/Utils/RunOpt.h 2> /dev/null ),)
+  override CPPFLAGS += -DGENIE_USE_ENVVAR
+  $(warning GENIE still uses environment variables)
+#else
+## genie is has the new code (circa r3747) ... no longer use $ENV variables
+#  $(warning GENIE/RunOpt.h means GENIE no longer uses environment variables)
+endif
+
 # take advantage of new GENIE flux driver interfaces
-ifneq ($(shell /bin/grep \<set\> \${GENIE}/src/FluxDrivers/GSimpleNtpFlux.h 2> /dev/null ),)
-# genie is has the new code (r3669) ... can use the method
-#  $(warning GENIE/ROOTGeomAnalyzer haves new LoadBeamSimData set/vector methods)
-  override CPPFLAGS += -DGFLUX_TAKES_SETORVECTOR
+ifeq ($(shell /bin/grep \<set\> \${GENIE}/src/FluxDrivers/GSimpleNtpFlux.h 2> /dev/null ),)
+  $(warning GENIE/ROOTGeomAnalyzer missing LoadBeamSimData set/vector methods)
+  override CPPFLAGS += -DGFLUX_MISSING_SETORVECTOR
+#else
+## genie has new code (r3669) ... use the method
+#  $(warning GENIE/ROOTGeomAnalyzer use LoadBeamSimData set/vector methods)
 endif
-
-ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFlavorMixerFactory.h 2> /dev/null ),)
-# genie has the new code (r3663)... we can use it
-  override CPPFLAGS += -DFLAVORMIXERFACTORY
-endif
-
-# remain compatible w/ older GENIE version by using inefficient method
-ifeq ($(shell /bin/grep GetMaxPathLength \${GENIE}/src/Geo/ROOTGeomAnalyzer.h 2> /dev/null ),)
-# genie is missing the new code (r3318) ... can't use the method
-#  $(warning GENIE/ROOTGeomAnalyzer does not have GetMaxPathLengths method)
-  override CPPFLAGS += -DGENIE_MISSING_GETMAXPL
-endif
-
-ifeq ($(shell /bin/grep ppmedium \${GENIE}/src/FluxDrivers/GSimpleNtpFlux.h 2> /dev/null ),)
-   override CPPFLAGS += -DGSIMPLE_NUMI_V1
-#     vx, vy,vz, ndecay, ppmedium was added (r3068)
-#     $(warning Hey we have GSimpleNtpFlux but no ppmedium)
-endif
-
 
 ########################################################################
 include SoftRelTools/standard.mk
