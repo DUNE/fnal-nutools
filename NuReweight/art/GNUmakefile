@@ -18,16 +18,13 @@ LIB         := lib$(PACKAGE)Art
 LIBCXXFILES := $(wildcard *.cxx)
 JOBFILES    := $(wildcard *.fcl)
 
-ifneq ($(shell /bin/ls \${GENIE}/src/FluxDrivers/GFlavorMixerFactory.h 2> /dev/null ),)
-  # genie has the new code (r3663)... we can use it
-  override CPPFLAGS += -DFLAVORMIXERFACTORY
-  #$(warning Hey we have GFlavorMixerFactory)
+ifneq ($(shell grep KinePhaseSpace_t \${GENIE}/src/GHEP/GHepRecord.h 2> /dev/null ),)
+  # genie post R-2_8_0 SetDiffXSec() takes 2 args
+  # 2nd is a KinePhaseSpace_t 
+  #$(warning GHepRecord SetDiffXSec takes two args)
 else
-  # class isn't available ... don't try to build code that relies on it
-  skipfiles = GFlavorOsc.cxx
-  skiphead  = $(skipfiles:.cxx=.h)
-  override LIBCXXFILES := $(filter-out $(skipfiles), $(LIBCXXFILES))
-  #$(warning Drat we are missing GFlavorMixerFactory no oscillations for you)
+  override CPPFLAGS += -DSETDIFFXSEC_1ARG
+  #$(warning GHepRecord SetDiffXSec takes only one arg)
 endif
 
 LIBLINK    := -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -l$(PACKAGE)Art

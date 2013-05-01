@@ -92,7 +92,27 @@ namespace rwgt {
     newEvent.SetWeight(gtruth.fweight);
     newEvent.SetProbability(gtruth.fprobability);
     newEvent.SetXSec(gtruth.fXsec);
+#ifndef SETDIFFXSEC_1ARG
+    genie::KinePhaseSpace_t space = genie::kPSNull; // kPSQ2fE; // ????
+    // dsig/dQ2, dsig/dQ2dW, dsig/dxdy ...
+
+    newEvent.SetDiffXSec(gtruth.fDiffXsec,space);
+
+    // TODO:  we don't know currently know what to use ... 
+    // for now just to get things to compile ... Nate needs to look at this
+    static int nmsg = 10;
+    if ( nmsg > 0 ) {
+      std::cerr << "RetrieveGHEP(simb::MCTruth,simb::GTruth) is not correctly setting KinePhaseSpace_t in SetDiffXSec()\n"
+                << "At the time of the conversion to R-2_8_0 (2013-05-01) this is not critical\n"
+                << "But it should be fixed" << std::endl;
+      --nmsg;
+      if ( nmsg == 0 ) std::cerr << "... last of such messages" << std::endl;
+    }
+    //assert(0);
+
+#else
     newEvent.SetDiffXSec(gtruth.fDiffXsec);
+#endif
     TLorentzVector vtx = gtruth.fVertex;
     newEvent.SetVertex(vtx);
 
