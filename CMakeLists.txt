@@ -57,6 +57,10 @@ find_ups_product( sqlite v3_07_08_00 )
 find_ups_root( v5_34_00 )
 find_ups_boost( v1_47_0 )
 
+message(STATUS "ROOTSYS is ${ROOTSYS}")
+set( ROOT_INC ${ROOTSYS}/include )
+message(STATUS "ROOT_INC is ${ROOT_INC}")
+
 cet_check_gcc()
 
 ## find_library directives
