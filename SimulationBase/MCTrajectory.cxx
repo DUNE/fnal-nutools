@@ -9,10 +9,11 @@
 
 #include <TLorentzVector.h>
 
+#include <cassert>
+#include <cmath>
+#include <deque>
 #include <iterator>
 #include <vector>
-#include <iostream>
-#include <cmath>
 
 namespace simb {
 
@@ -93,46 +94,92 @@ namespace simb {
   //----------------------------------------------------------------------------
   void MCTrajectory::Sparsify(double margin)
   {
+    // This is a divide-and-conquer algorithm. If the straight line between two
+    // points is close enough to all the intermediate points, then just keep
+    // the endpoints. Otherwise, divide the range in two and try again.
+
+    // We keep the ranges that need checking in "toCheck". If a range is good
+    // as-is, we put just the starting point in "done". The end-point will be
+    // taken care of by the next range.
+
     // Need at least three points to think of removing one
     if(size() <= 2) return;
 
-    // Always keep the first point
-    list_type newTraj;
-    newTraj.push_back(*begin());
+    // Deal in terms of distance-squared to save some sqrts
+    margin *= margin;
 
-    // We keep the last point we kept, and then next point we're planning to
-    // keep. Keep scanning the next point forwards until we go outside margin.
-    unsigned int prevIdx = 0;
-    unsigned int nextIdx = 1;
+    // Deque because we add things still to check on the end, and pop things
+    // we've checked from the front.
+    std::deque<std::pair<int, int> > toCheck;
+    // Start off by trying to replace the whole trajectory with just the
+    // endpoints.
+    toCheck.push_back(std::make_pair(0, size()-1));
 
-    do{
-      const TVector3 prev = at(prevIdx).first.Vect();
-      const TVector3 next = at(nextIdx).first.Vect();
+    std::vector<int> done;
 
-      const TVector3 dir = (next-prev).Unit();
+    while(!toCheck.empty()){
+      const int loIdx = toCheck.front().first;
+      const int hiIdx = toCheck.front().second;
+      toCheck.pop_front();
+
+      // Should never have been given a degenerate range
+      assert(hiIdx >= loIdx+2);
+
+      const TVector3 loVec = at(loIdx).first.Vect();
+      const TVector3 hiVec = at(hiIdx).first.Vect();
+
+      const TVector3 dir = (hiVec-loVec).Unit();
+
       // Are all the points in between close enough?
       bool ok = true;
-      for(unsigned int midIdx = prevIdx+1; midIdx < nextIdx; ++midIdx){
-	const TVector3 toHere = at(midIdx).first.Vect()-prev;
-	// Perpendicular distance from the line joining prev to next
-	const double impact = (toHere-dir.Dot(toHere)*dir).Mag();
+      for(int i = loIdx+1; i < hiIdx; ++i){
+	const TVector3 toHere = at(i).first.Vect()-loVec;
+	// Perpendicular distance^2 from the line joining loVec to hiVec
+	const double impact = (toHere-dir.Dot(toHere)*dir).Mag2();
 	if(impact > margin){ok = false; break;}
       }
 
       if(ok){
-	// All the points in between were OK, try skipping one more
-	++nextIdx;
+        // These points adequately represent this range
+        done.push_back(loIdx);
       }
       else{
-	// Not OK. Go back one point to where we know it worked and save that
-	// one. Call that prev and keep searching for the next point.
-	newTraj.push_back(at(nextIdx-1));
-	prevIdx = nextIdx-1;
-      }
-      // If we ran off the end of the list then stop.
-    } while(nextIdx < size());
+        // Split in half
+        const int midIdx = (loIdx+hiIdx)/2;
+        // Should never have a range this small
+        assert(midIdx != loIdx);
+        assert(midIdx != hiIdx);
 
-    // Always keep the last point
+        // The range can be small enough that upon splitting, the new ranges
+        // are degenerate, and should just be written out straight away. Check
+        // for those cases.
+
+        if(midIdx == loIdx+1){
+          done.push_back(loIdx);
+        }
+        else{
+          toCheck.push_back(std::make_pair(loIdx, midIdx));
+        }
+
+        if(midIdx == hiIdx-1){
+          done.push_back(midIdx);
+        }
+        else{
+          toCheck.push_back(std::make_pair(midIdx, hiIdx));
+        }
+      }
+    } // end while
+
+    // We end up with them in a somewhat-randomized order
+    std::sort(done.begin(), done.end());
+
+    // Look up the trajectory points at the stored indices, write them to a new
+    // trajectory
+    const unsigned int I = done.size();
+    list_type newTraj;
+    newTraj.reserve(I+1);
+    for(unsigned int i = 0; i < I; ++i) newTraj.push_back(at(done[i]));
+    // Remember to add the very last point in
     newTraj.push_back(*rbegin());
 
     // Replace trajectory with new version
