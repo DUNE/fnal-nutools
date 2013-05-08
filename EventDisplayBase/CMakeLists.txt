@@ -55,6 +55,13 @@ set( EVD_CXX_MACROS -D_POSIX_SOURCE
 		    -D_SVID_SOURCE
 		    -D_BSD_SOURCE
 		    -D_POSIX_C_SOURCE=2
+		-D_XOPEN_SOURCE                    
+		-DUNIX  
+		-DLINUX  
+		-D__UNIX__  
+		-D__LINUX__  
+		-DDATAREP_LITTLE_IEEE  
+		-DDATAREP_LITTLE_ENDIAN  
 		    -DDEFECT_NO_IOSTREAM_NAMESPACES
 		    -DDEFECT_NO_JZEXT
 		    -DDEFECT_NO_INTHEX
@@ -70,8 +77,9 @@ message(STATUS "EventDisplayBase: running ${ROOTCINT} and using headers in ${ROO
 add_custom_command(
    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/EventDisplayBaseCint.cc
           ${CMAKE_CURRENT_BINARY_DIR}/EventDisplayBaseCint.h
-   COMMAND ${ROOTCINT} -v -f ${CMAKE_CURRENT_BINARY_DIR}/EventDisplayBaseCint.cc
+   COMMAND ${ROOTCINT} -f ${CMAKE_CURRENT_BINARY_DIR}/EventDisplayBaseCint.cc
                        -c -p ${EVD_CXX_MACROS}
+		       -I.
 		       -I${CMAKE_SOURCE_DIR}
 		       -I${CMAKE_CURRENT_SOURCE_DIR}
 		       -DUSE_ROOT -I${ROOT_INC}
