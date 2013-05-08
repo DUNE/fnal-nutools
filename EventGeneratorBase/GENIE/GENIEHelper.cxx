@@ -1410,7 +1410,7 @@ namespace evgb {
       double vtx[4] = {part->Vx(), part->Vy(), part->Vz(), part->Vt()};
       tpart.SetGvtx(vtx);
       tpart.SetRescatter(part->RescatterCode());
-      //std::cerr << "Nate's Modification to particle loop done" << std::endl;
+
       // set the vertex location for the neutrino, nucleus and everything
       // that is to be tracked.  vertex returns values in meters.
       if(part->Status() == 0 || part->Status() == 1){
@@ -1443,7 +1443,6 @@ namespace evgb {
     else if(procInfo.IsCoherent()) mode = simb::kCoh;
     
     int itype = simb::kNuanceOffset + genie::utils::ghep::NuanceReactionCode(record);
-
    
     // set the neutrino information in MCTruth
     truth.SetOrigin(simb::kBeamNeutrino);
