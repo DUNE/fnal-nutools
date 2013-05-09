@@ -137,6 +137,7 @@ include(ArtMake)
 ##include(CetMake)
 include(ArtDictionary)
 include(BuildPlugins)
+include(CetRootCint)
 
 # include search path
 include_directories ( $ENV{LIBSIGCPP_INC}/sigc++-2.0 )
