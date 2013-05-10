@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent nutools      v0_02_00
+parent nutools      v0_03_00
 defaultqual     e2
 
 # These optional lines define the installed directories where
@@ -20,7 +20,7 @@ bindir      fq_dir      bin
 product         version
 gcc		v4_7_1
 art		v1_06_00
-genie		v3665c
+genie		v2_8_0
 cry		v1_7
 
 # list products required ONLY for the build

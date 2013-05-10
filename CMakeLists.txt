@@ -40,7 +40,7 @@ cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( art v1_06_00 )
-find_ups_product( genie v3665 )
+find_ups_product( genie v2_8_0 )
 find_ups_product( cetbuildtools v3_03_00 )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")

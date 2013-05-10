@@ -1,6 +1,4 @@
 
-cet_add_compiler_flags(CXX -DSETDIFFXSEC_1ARG )
-
 art_make( LIBRARY_NAME NuReweightArt
           LIB_LIBRARIES SimulationBase
 	                NuReweight 
