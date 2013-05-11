@@ -13,7 +13,6 @@
 #include "EventDisplayBase/FileMenu.h"
 #include "EventDisplayBase/EditMenu.h"
 #include "EventDisplayBase/WindowMenu.h"
-#include "EventDisplayBase/JobMenu.h"
 #include "EventDisplayBase/HelpMenu.h"
 
 namespace evdb{
@@ -36,7 +35,6 @@ namespace evdb{
     fFileMenu   = new FileMenu  (fMenuBar, frame);
     fEditMenu   = new EditMenu  (fMenuBar, frame);
     fWindowMenu = new WindowMenu(fMenuBar, frame);
-    fJobMenu    = new JobMenu   (fMenuBar, frame);
     fHelpMenu   = new HelpMenu  (fMenuBar, frame);
 
     // Add the menu bar to the main window frame
@@ -47,12 +45,9 @@ namespace evdb{
 
   MenuBar::~MenuBar() {
     if (fHelpMenu)   { delete fHelpMenu;   fHelpMenu   = 0; }
-    if (fJobMenu)    { delete fJobMenu;    fJobMenu    = 0; }
     if (fWindowMenu) { delete fWindowMenu; fWindowMenu = 0; }
     if (fEditMenu)   { delete fEditMenu;   fEditMenu   = 0; }
     if (fFileMenu)   { delete fFileMenu;   fFileMenu   = 0; }
-    // if (fLayout)     { delete fLayout;  fLayout  = 0; }
-    // if (fMenuBar)    { delete fMenuBar; fMenuBar = 0; }
   }
 }// namespace
 ////////////////////////////////////////////////////////////////////////

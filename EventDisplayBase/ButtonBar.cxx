@@ -17,6 +17,8 @@
 #include "TGTextEntry.h"
 #include "TGPicture.h"
 #include "TGMsgBox.h"
+// ART Framework includes
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 // Local includes
 #include "EventDisplayBase/EventDisplay.h"
 #include "EventDisplayBase/evdb.h"

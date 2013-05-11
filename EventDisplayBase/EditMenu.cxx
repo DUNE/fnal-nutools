@@ -1,33 +1,28 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  EditMenu.cxx
-/// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.cxx,v 1.7 2011-04-17 14:55:31 brebel Exp $
-/// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+/// \file   EditMenu.cxx
+/// \brief  The edit pull down menu
+/// \author messier@indiana.edu
+///
 #include "EventDisplayBase/EditMenu.h"
-#include <cstdlib>
-#include <string>
-#include <iostream>
-#include "TGMsgBox.h"
 #include "TGMenu.h"
-#include "TGLayout.h"
-#include "TThread.h"
+#include "EventDisplayBase/ServiceTable.h"
 
-#include "EventDisplayBase/evdb.h"
-#include "EventDisplayBase/EventDisplay.h"
-
-namespace evdb{
-
-  //......................................................................
-
-  EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf) :
-    fMainFrame(mf)
+namespace evdb 
+{
+  EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf)
   {
     fEditMenu = new TGPopupMenu(gClient->GetRoot());
-    fLayout   = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 
-    // Attach the menu to the menu bar
+    fDrawingMenu = new TGPopupMenu();
+    fExpMenu     = new TGPopupMenu();
+    fARTMenu     = new TGPopupMenu();
+    
+    fEditMenu->AddPopup("Configure &Drawing",             fDrawingMenu);
+    fEditMenu->AddPopup("Configure &Experiment Services", fExpMenu);
+    fEditMenu->AddPopup("Configure &Art Services",        fARTMenu);
+
+    fLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+
     menubar->AddPopup("&Edit",fEditMenu,fLayout);
   }
 
@@ -35,58 +30,60 @@ namespace evdb{
 
   EditMenu::~EditMenu() 
   {
-    if (fLayout)   { delete fLayout;   fLayout   = 0; }
-    if (fEditMenu) { delete fEditMenu; fEditMenu = 0; }
+    if (fLayout)      { delete fLayout;      fLayout      = 0; }
+    if (fEditMenu)    { delete fEditMenu;    fEditMenu    = 0; }
+    if (fARTMenu)     { delete fARTMenu;     fARTMenu     = 0; }
+    if (fExpMenu)     { delete fExpMenu;     fExpMenu     = 0; }
+    if (fDrawingMenu) { delete fDrawingMenu; fDrawingMenu = 0; }
   }
 
-  //......................................................................
-
-  void EditMenu::SetWorkers(const std::vector<std::string>& w)
-  {
-    // Wipe out the existing menus and lists
-    for (unsigned int i=0;;++i) {
-      TGMenuEntry* m = fEditMenu->GetEntry(i);
-      if (m) fEditMenu->DeleteEntry(i);
-      else   break;
-    }
+  //....................................................................
   
-    // Rebuild the list
-    for (unsigned int i=0; i<w.size(); ++i) {
-      fEditMenu->AddEntry(w[i].c_str(), i);
+  void EditMenu::WipeMenu(TGPopupMenu* m) 
+  {
+    for (unsigned int i=0;;++i) {
+      TGMenuEntry* me = m->GetEntry(i);
+      if (me) m->DeleteEntry(i);
+      else break;
     }
-    fEditMenu->Connect("Activated(Int_t)",
-		       "evdb::EditMenu",
-		       this,
-		       "EditDrawingOptions(int)");
+  }
+
+  //....................................................................
+  
+  void EditMenu::SetServices()
+  {
+    this->WipeMenu(fDrawingMenu);
+    this->WipeMenu(fExpMenu);
+    this->WipeMenu(fARTMenu);
+    
+    const ServiceTable& st = ServiceTable::Instance();
+    
+    unsigned int i;
+    for (i=0; i<st.fServices.size(); ++i) {
+      const ServiceTableEntry& ste = st.fServices[i];
+      if (ste.fCategory==kDRAWING_SERVICE) {
+	fDrawingMenu->AddEntry(ste.fName.c_str(), i);
+      }
+      else if (ste.fCategory==kEXPERIMENT_SERVICE) {
+	fExpMenu->AddEntry(ste.fName.c_str(), i);
+      }
+      else if (ste.fCategory==kART_SERVICE) {
+	fARTMenu->AddEntry(ste.fName.c_str(), i);
+      }
+      
+      fEditMenu->Connect("Activated(Int_t)",
+			 "evdb::EditMenu",
+			 this,
+			 "MenuSelect(int)");
+    }
   }
 
   //......................................................................
-  void EditMenu::EditDrawingOptions(int i)
+
+  void EditMenu::MenuSelect(int i) 
   {
-    art::ServiceHandle<evdb::EventDisplay> evd;
-    evd->EditDrawingOptionParameterSet(i);
+    ServiceTable::Instance().Edit(i);
   }
-
-  //......................................................................
-
-  int EditMenu::Preferences() 
-  {
-    this->NoImpl("Preferences");
-    return 0;
-  }
-
-  //......................................................................
-
-  int EditMenu::NoImpl(const char* method) 
-  {
-    std::string s;
-    s = "Sorry action '"; s += method; s+= "' is not implemented.\n";
-    // Why isn't this a memory leak? Dunno, but its seems the TG classes
-    // are all managed by TGClient which takes care of deletion
-    new TGMsgBox(evdb::TopWindow(), fMainFrame,
-		 "No implementation",s.c_str(),kMBIconExclamation);
-    return 0;
-  }
-
+  
 }// namespace
 ////////////////////////////////////////////////////////////////////////

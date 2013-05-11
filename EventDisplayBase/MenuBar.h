@@ -35,7 +35,6 @@ namespace evdb {
     FileMenu*      fFileMenu;   ///< File menu
     EditMenu*      fEditMenu;   ///< Edit menu
     WindowMenu*    fWindowMenu; ///< Window menu
-    JobMenu*       fJobMenu;    ///< Job options
     HelpMenu*      fHelpMenu;   ///< Help menu
   };
 }

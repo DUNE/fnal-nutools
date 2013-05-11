@@ -137,8 +137,8 @@ namespace evdb{
   {  
     // make sure to subtract off the offset used to distinguish between
     // module and service configs
-    art::ServiceHandle<evdb::EventDisplay> evd;
-    evd->EditWorkerParameterSet(i-kM_JOB_EDITCONFIG);
+    // art::ServiceHandle<evdb::EventDisplay> evd;
+    // evd->EditWorkerParameterSet(i-kM_JOB_EDITCONFIG);
   }
 
   //......................................................................
@@ -147,8 +147,8 @@ namespace evdb{
   {  
     // make sure to subtract off the offset used to distinguish between
     // module and service configs
-    art::ServiceHandle<evdb::EventDisplay> evd;
-    evd->EditServiceParameterSet(i-kM_JOB_EDITSERVICE);
+    // art::ServiceHandle<evdb::EventDisplay> evd;
+    // evd->EditServiceParameterSet(i-kM_JOB_EDITSERVICE);
   }
 
   //......................................................................

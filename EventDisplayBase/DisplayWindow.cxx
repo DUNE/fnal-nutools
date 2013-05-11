@@ -21,7 +21,6 @@
 #include "EventDisplayBase/FileMenu.h"
 #include "EventDisplayBase/EditMenu.h"
 #include "EventDisplayBase/MenuBar.h"
-#include "EventDisplayBase/JobMenu.h"
 #include "EventDisplayBase/ButtonBar.h"
 #include "EventDisplayBase/Canvas.h"
 #include "EventDisplayBase/StatusBar.h"
@@ -55,34 +54,6 @@ namespace evdb{
 
   //......................................................................
 
-  void DisplayWindow::SetWorkersAll(const std::vector<std::string>& w)
-  {
-    for (size_t i=0; i<gsWindows.size(); ++i) {
-      if (gsWindows[i]!=0) gsWindows[i]->SetWorkers(w);
-    }
-  }
-
-
-  //......................................................................
-
-  void DisplayWindow::SetDrawingOptionsAll(const std::vector<std::string>& dopt)
-  {
-    for (size_t i=0; i<gsWindows.size(); ++i) {
-      if (gsWindows[i]!=0) gsWindows[i]->SetDrawingOptions(dopt);
-    }
-  }
-
-  //......................................................................
-
-  void DisplayWindow::SetServicesAll(const std::vector<std::string>& s)
-  {
-    for (size_t i=0; i<gsWindows.size(); ++i) {
-      if (gsWindows[i]!=0) gsWindows[i]->SetServices(s);
-    }
-  }
-
-  //......................................................................
-
   void DisplayWindow::DrawAll(const char* opt)
   {
     for (size_t i=0; i<gsWindows.size(); ++i) {
@@ -98,24 +69,19 @@ namespace evdb{
   }
 
   //......................................................................
-
-  void DisplayWindow::SetWorkers(const std::vector<std::string>& w) 
+  
+  void DisplayWindow::SetServicesAll()
   {
-    fMenuBar->fJobMenu->SetWorkers(w);
+    for (size_t i=0; i<gsWindows.size(); ++i) {
+      if (gsWindows[i]!=0) gsWindows[i]->SetServices();
+    }      
   }
-
+  
   //......................................................................
 
-  void DisplayWindow::SetDrawingOptions(const std::vector<std::string>& dopt) 
+  void DisplayWindow::SetServices()
   {
-    fMenuBar->fEditMenu->SetWorkers(dopt);
-  }
-
-  //......................................................................
-
-  void DisplayWindow::SetServices(const std::vector<std::string>& s) 
-  {
-    fMenuBar->fJobMenu->SetServices(s);
+    fMenuBar->fEditMenu->SetServices();
   }
 
   //......................................................................

@@ -1,10 +1,8 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  EditMenu.h
-/// \brief The edit pull down menu
 ///
-/// \version $Id: EditMenu.h,v 1.4 2011-04-17 14:55:31 brebel Exp $
+/// \file    EditMenu.h
+/// \brief   The edit pull down menu
 /// \author  messier@indiana.edu
-////////////////////////////////////////////////////////////////////////
+///
 #ifndef EVDB_EDITMENU_H
 #define EVDB_EDITMENU_H
 #include "TQObject.h"
@@ -15,7 +13,9 @@ class TGPopupMenu;
 class TGLayoutHints;
 
 namespace evdb {
-  /// The edit pull down menu
+  ///
+  /// \brief The edit pull down menu
+  ///
   class EditMenu {
     RQ_OBJECT("evdb::EditMenu")
       
@@ -23,19 +23,18 @@ namespace evdb {
     EditMenu(TGMenuBar* menubar, TGMainFrame* mf);
     virtual ~EditMenu();
 
-    void SetWorkers(const std::vector<std::string>& w);
-  
-    // slots
-    void EditDrawingOptions(int drawopt);
+    void SetServices();
+    
+    void MenuSelect(int which);
+    void WipeMenu(TGPopupMenu* m);
   
   private:
-    int Preferences();
-    int NoImpl(const char* m);
-
-  private:
-    TGMainFrame*   fMainFrame;          ///< Main graphics frame
-    TGPopupMenu*   fEditMenu;           ///< The file menu
-    TGLayoutHints* fLayout;             ///< How to layout the menu
+    TGMainFrame*   fMainFrame;   ///< Main graphics frame
+    TGPopupMenu*   fEditMenu;    ///< The file menu
+    TGPopupMenu*   fDrawingMenu; ///< Drawing options
+    TGPopupMenu*   fExpMenu;     ///< Experiment services
+    TGPopupMenu*   fARTMenu;     ///< ART services
+    TGLayoutHints* fLayout;      ///< How to layout the menu
   };
 }
 
