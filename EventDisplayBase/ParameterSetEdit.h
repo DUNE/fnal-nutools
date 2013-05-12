@@ -69,6 +69,7 @@ namespace evdb {
     void CloseWindow();
 
     void HandleTab();
+
   private:
     TGCompositeFrame*         fF1;
     ParamFrame*               fParam;

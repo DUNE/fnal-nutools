@@ -18,6 +18,9 @@
 #pragma link C++ class evdb::FileMenu-;
 #pragma link C++ class evdb::JobMenu-;
 #pragma link C++ class evdb::EditMenu-;
+#pragma link C++ class evdb::ParameterSetEditRow-;
+#pragma link C++ class evdb::ParameterSetEditFrame-;
+#pragma link C++ class evdb::ParameterSetEditDialog-;
 #pragma link C++ class evdb::ParameterSetEdit+;
 #pragma link C++ class evdb::ParamFrame-;
 #pragma link C++ class evdb::ScanWindow+;

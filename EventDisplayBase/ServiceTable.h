@@ -7,6 +7,7 @@
 #define EVDB_SERVICETABLE_H
 #include <vector>
 #include <string>
+namespace fhicl { class ParameterSet; }
 
 namespace evdb {
   static const int kDRAWING_SERVICE    = 1;
@@ -30,7 +31,7 @@ namespace evdb {
   class ServiceTable {
   public:
     static ServiceTable& Instance();
-    
+
     void Discover();
     
     static bool IsNoneService   (const std::string& s);
@@ -39,6 +40,8 @@ namespace evdb {
     
     void Edit(unsigned int i);
     void ApplyEdits();
+    
+    const fhicl::ParameterSet GetParameterSet(unsigned int i) const;
 
   public:
     std::vector<ServiceTableEntry> fServices;

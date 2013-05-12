@@ -10,6 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 
 #include "EventDisplayBase/ParameterSetEdit.h"
+#include "EventDisplayBase/ParameterSetEditDialog.h"
 
 using namespace evdb;
 
@@ -113,6 +114,7 @@ void ServiceTable::Edit(unsigned int i)
       (psets[j].get<std::string>("service_type", "none").
        compare(fServices[i].fName)==0);
     if (ismatch) {
+      /* new ParameterSetEditDialog(fServices[i].fCategory); */
       new ParameterSetEdit(0,
 			   "Service",
 			   fServices[i].fName,
@@ -165,9 +167,31 @@ void ServiceTable::ApplyEdits()
 
 //......................................................................
 
+const fhicl::ParameterSet ServiceTable::GetParameterSet(unsigned int id) const
+{
+  unsigned int i;
+  art::ServiceRegistry& sr = art::ServiceRegistry::instance();
+  
+  std::vector< fhicl::ParameterSet > pset;
+  sr.presentToken().getParameterSets(pset);
+  
+  for (i=0; i<pset.size(); ++i) {
+    std::string t = pset[i].get<std::string>("service_type","none");
+    if (t==fServices[id].fName) return pset[i];
+  }
+  //
+  // Fall through to here only on errors
+  //
+  std::cerr << __FILE__ << ":" << __LINE__ 
+            << " Parameter set " 
+	    << fServices[i].fName
+	    << " not found " << std::endl;
+  static fhicl::ParameterSet empty;
+  return empty;
+}
+
+//......................................................................
+
 ServiceTable::ServiceTable() {}
 
 ////////////////////////////////////////////////////////////////////////
-
-
-
