@@ -114,12 +114,14 @@ void ServiceTable::Edit(unsigned int i)
       (psets[j].get<std::string>("service_type", "none").
        compare(fServices[i].fName)==0);
     if (ismatch) {
-      /* new ParameterSetEditDialog(fServices[i].fCategory); */
+      new ParameterSetEditDialog(i);
+      /*
       new ParameterSetEdit(0,
 			   "Service",
 			   fServices[i].fName,
 			   psets[j].to_string(),
 			   &fServices[i].fParamSet);
+      */
     }
   }
 }
@@ -140,6 +142,12 @@ void ServiceTable::ApplyEdits()
       bool ismatch = 
 	(fServices[i].fName.
 	 compare(psets[ps].get<std::string>("service_type","none"))==0);
+      
+      if (ismatch) {
+	std::cout << "FOUND UPDATE FOR " << fServices[i].fName << std::endl;
+	std::cout << fServices[i].fParamSet << std::endl;
+      }
+
       if (ismatch) {
 	try {
 	  fhicl::ParameterSet pset;

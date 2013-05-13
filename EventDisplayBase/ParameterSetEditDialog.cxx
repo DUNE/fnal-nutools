@@ -5,6 +5,7 @@
 ///
 #include "EventDisplayBase/ParameterSetEditDialog.h"
 #include <iostream>
+#include <sstream>
 #include "TGTab.h"
 #include "TGButton.h"
 #include "TGCanvas.h"
@@ -15,14 +16,15 @@
 #include "TGListBox.h"
 #include "TGDoubleSlider.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "EventDisplayBase/NavState.h"
 #include "EventDisplayBase/ServiceTable.h"
 using namespace evdb;
 
 // Window and row sizes in units of pixels
-static const unsigned int kWidth  = 500;
-static const unsigned int kHeight = 650;
-static const unsigned int kRowW = 348;
-static const unsigned int kRowH = 18;
+static const unsigned int kWidth  = 600;
+static const unsigned int kHeight = 700;
+static const unsigned int kRowW   = 300;
+static const unsigned int kRowH   = 18;
 
 //
 // Flags to help us decide what sort of parameter we need to build a
@@ -59,14 +61,17 @@ static const std::vector<std::string> gsGUITAG = {
 //
 // ParameterSetEditRow methods
 //
-ParameterSetEditRow::ParameterSetEditRow(TGHorizontalFrame* lhs,
+ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
+					 TGHorizontalFrame* lhs,
 					 TGHorizontalFrame* rhs,
 					 const fhicl::ParameterSet& ps,
 					 const std::string& key) :
+  fFrame(frame),
   fLabel(0),
   fTextEntry(0),
   fListBox(0),
-  fSlider(0)
+  fSlider(0),
+  fKEY(key)
 {
   //
   // Extract information about the parameter for which we are building
@@ -74,8 +79,7 @@ ParameterSetEditRow::ParameterSetEditRow(TGHorizontalFrame* lhs,
   //
   std::string              tag;    // What sort of frame to build?
   std::vector<std::string> values; // What is the current value?
-  std::string              doc;    // Documentation string
-  this->UnpackParameter(ps, key, fParamFlags, tag, fChoice, values, doc);
+  this->UnpackParameter(ps, key, fParamFlags, tag, fChoice, values, fGUI, fDOC);
 
   if (fParamFlags&kVECTOR_PARAM) {
     fValue = "[";
@@ -99,7 +103,7 @@ ParameterSetEditRow::ParameterSetEditRow(TGHorizontalFrame* lhs,
 			    TGTextButton::GetDefaultFontStruct(),
 			    0);
   lhs->AddFrame(fLabel);
-  fLabel->SetToolTipText(doc.c_str());
+  fLabel->SetToolTipText(fDOC.c_str());
   fLabel->SetTextJustify(kTextRight);
   
   if (tag==kTEXT_ENTRY) {
@@ -126,6 +130,19 @@ ParameterSetEditRow::ParameterSetEditRow(TGHorizontalFrame* lhs,
 
 ParameterSetEditRow::~ParameterSetEditRow() 
 {
+  unsigned int i;
+  for (i=0; i<fCheckButton.size(); ++i) {
+    if (fCheckButton[i]) delete fCheckButton[i];
+  }
+  for (i=0; i<fRadioButton.size(); ++i) {
+    if (fRadioButton[i]) delete fRadioButton[i];
+  }
+  if (fSlider)    delete fSlider;
+  if (fListBox)   delete fListBox;
+  if (fTextEntry) delete fTextEntry;
+  if (fLeftLH)    delete fLeftLH;
+  if (fRightLH)   delete fRightLH;
+  if (fLabel)     delete fLabel;
 }
 
 //......................................................................
@@ -136,6 +153,7 @@ void ParameterSetEditRow::UnpackParameter(const fhicl::ParameterSet& p,
 					  std::string&               tag,
 					  std::vector<std::string>&  choice,
 					  std::vector<std::string>&  value,
+					  std::string&               gui,
 					  std::string&               doc)
 {
   std::string guikey = key; guikey += ".gui";
@@ -146,7 +164,6 @@ void ParameterSetEditRow::UnpackParameter(const fhicl::ParameterSet& p,
   //
   // Try to extract GUI tags
   //
-  std::string gui;
   try {
     gui = p.get< std::string >(guikey);
     doc = p.get< std::string >(dockey);
@@ -200,15 +217,38 @@ void ParameterSetEditRow::UnpackParameter(const fhicl::ParameterSet& p,
       try {
 	std::vector< std::vector <std::string> > vv;
 	vv = p.get<std::vector<std::vector<std::string> > >(valkey);
-	flag |= kVECTOR_OF_VECTOR_PARAM;
-	if (value.size()==0) value.push_back("");
+	//
+	// Vectors of vectors are treated as vectors of
+	// std::strings. The strings assigned to the values are
+	// strings that FHICL will parse as vectors. So, this:
+	//
+	// [ [0,0], [1,1] ]
+	//
+	// is represented as:
+	//
+	// value.size()=2, value[0]="[0,0]", value[1]="[1,1]"
+	//
+	unsigned int i, j;
+	flag |= kVECTOR_PARAM;
+	for (i=0; i<vv.size(); ++i) {
+	  std::string s;
+	  s += "[";
+	  for (j=0; j<vv[i].size(); ++j) {
+	    s += vv[i][j];
+	    if (j+2<vv[i].size()) s += ",";
+	    else s += "]";
+	  }
+	  value.push_back(s);
+	}
+	if (vv.size()==0) value.push_back("[[]]");
       }
       catch (...) {
 	//
-	// If that fails we are very stuck. Abort to ensure the problem
-	// gets fixed
+	// If that fails we are very stuck. Abort to ensure the
+	// problem gets fixed
 	//
 	std::cerr << "Failed to parse " << key << std::endl;
+	abort();
       }
     }
   }
@@ -297,12 +337,11 @@ void ParameterSetEditRow::SetupListBox(TGCompositeFrame* f,
   
   for (size_t i=0; i<choice.size(); ++i) {
     fListBox->AddEntry(choice[i].c_str(), i);
+    for (size_t j=0; j<value.size(); ++j) {
+      if (value[j]==choice[i]) fListBox->Select(i);
+    }
   }
-  for (size_t i=0; i<value.size(); ++i) {
-    TGLBEntry* e = fListBox->FindEntry(value[i].c_str());
-    if (e) e->Activate(true);
-  }
-  
+
   fListBox->Connect("SelectionChanged()",
                     "evdb::ParameterSetEditRow",
                     this,
@@ -311,7 +350,7 @@ void ParameterSetEditRow::SetupListBox(TGCompositeFrame* f,
                     "evdb::ParameterSetEditRow",
                     this,
                     "ListBoxSelected(int)");
-  
+
   size_t h = kRowH*choice.size();
   if (h>3*kRowH) h = 3*kRowH;
   fListBox->Resize(kRowW,h);
@@ -325,6 +364,8 @@ SetupRadioButtons(TGCompositeFrame* f,
                   const std::vector<std::string>& choice,
                   const std::vector<std::string>& value)
 {
+  unsigned int v = atoi(value[0].c_str());
+  
   for (size_t i=0; i<choice.size(); ++i) {
     TGRadioButton* b = new TGRadioButton(f, choice[i].c_str(), i);
     f->AddFrame(b);
@@ -335,11 +376,7 @@ SetupRadioButtons(TGCompositeFrame* f,
                this,
                "RadioButtonClicked()");
     
-    for (size_t j=0; j<value.size(); ++j) {
-      if (value[j] == choice[i]) {
-	b->SetState(kButtonDown);
-      }
-    }
+    if (i==v) b->SetState(kButtonDown);
     
     fRadioButton.push_back(b);
   }
@@ -353,6 +390,8 @@ SetupCheckButton(TGCompositeFrame* f,
 		 const std::vector<std::string>& choice,
 		 const std::vector<std::string>& value)
 {
+  unsigned int mask;
+  unsigned int v = atoi(value[0].c_str());
   for (size_t i=0; i<choice.size(); ++i) {
     TGCheckButton* b = new TGCheckButton(f, choice[i].c_str(), i);
     f->AddFrame(b);
@@ -361,12 +400,9 @@ SetupCheckButton(TGCompositeFrame* f,
                this,
                "CheckButtonClicked()");
     
-    for (size_t j=0; j<value.size(); ++j) {
-      if (value[j] == choice[i]) {
-        b->SetState(kButtonDown);
-      }
-    }
-    
+    mask = (0x1)<<i;
+    if (v&mask) b->SetState(kButtonDown);
+
     fCheckButton.push_back(b);
   }
 }
@@ -441,8 +477,8 @@ void ParameterSetEditRow::TextEntryReturnPressed()
     }
     fSlider->SetPosition(f1, f2);
   }
-  
   fValue = text;
+  fFrame->Modified();
 }
 
 //......................................................................
@@ -468,6 +504,7 @@ void ParameterSetEditRow::ListBoxSelectionChanged()
     isfirst = false;
   }    
   fValue += "]";
+  fFrame->Modified();
 }
 
 //......................................................................
@@ -478,38 +515,40 @@ void ParameterSetEditRow::ListBoxSelected(int id)
   // Only handle single selection list boxes here
   //
   if (fListBox->GetMultipleSelections()) return;
-  
   fValue = fChoice[id];
+  fFrame->Modified();
 }
 //......................................................................
 
 void ParameterSetEditRow::RadioButtonClicked() 
 {
+  unsigned int value;
   TGButton* b = (TGButton*)gTQSender;
   int id = b->WidgetId();
   for (size_t i=0; i<fRadioButton.size(); ++i) {
     if (fRadioButton[i]->WidgetId() != id) {
       fRadioButton[i]->SetState(kButtonUp);
     }
-    else fValue = fChoice[i];
+    else value = i;
   }
+  char buff[256];
+  sprintf(buff, "%d", value);
+  fValue = buff;
+  fFrame->Modified();
 }
 
 //......................................................................
 
 void ParameterSetEditRow::CheckButtonClicked() 
 {
-  fValue = "[";
-  
-  bool isfirst = true;
+  int value = 0;
   for (unsigned int i=0; i<fCheckButton.size(); ++i) {
-    if (fCheckButton[i]->IsDown()) {
-      if (!isfirst) fValue += ",";
-      fValue += fChoice[i];
-      isfirst = false;
-    }
+    if (fCheckButton[i]->IsDown()) value |= 1<<i;
   }
-  fValue += "]";
+  char buff[256];
+  sprintf(buff, "%d", value);
+  fValue = buff;
+  fFrame->Modified();
 }
 
 //......................................................................
@@ -528,6 +567,26 @@ void ParameterSetEditRow::SliderPositionChanged()
   } 
   fTextEntry->SetText(buff);
   fValue = buff;
+  fFrame->Modified();
+}
+
+//......................................................................
+
+std::string ParameterSetEditRow::AsFHICL() const
+{
+  std::ostringstream s;
+  if (fParamFlags & kNO_GUI_TAGS) {
+    s << fKEY << ":" << fValue << " ";
+  }
+  else {
+    s << fKEY 
+      << ": { "
+      << "val:" << fValue << " "
+      << "gui:\"" << fGUI << "\" "
+      << "doc:\"" << fDOC << "\" "
+      << "}";
+  }
+  return s.str();
 }
 
 //======================================================================
@@ -535,53 +594,113 @@ void ParameterSetEditRow::SliderPositionChanged()
 // ParameterSetEditFrame methods
 //
 ParameterSetEditFrame::ParameterSetEditFrame(TGCompositeFrame* mother,
-					     unsigned int psetid)
+					     unsigned int psetid) :
+  fParameterSetID(psetid),
+  fIsModified(false)
 {
-  fCanvas  = new TGCanvas(mother, kWidth-16, kHeight-16);
+  unsigned int i, j;
+
+  fCanvas  = new TGCanvas(mother, kWidth-25, kHeight-50);
   fCanvasH = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY);
   mother->AddFrame(fCanvas, fCanvasH);
   
   fContainer = new TGCompositeFrame(fCanvas->GetViewPort());
   fCanvas->SetContainer(fContainer);
-
+  
+  //
+  // Location the parameter set connected to this frame
+  //
   const ServiceTable& st = ServiceTable::Instance();
   const fhicl::ParameterSet& pset = st.GetParameterSet(psetid);
   std::vector<std::string>   key  = pset.get_keys();
   unsigned int               nkey = key.size();
-    
-  fLayout = new TGTableLayout(fContainer, nkey, 2);
-  fContainer->SetLayoutManager(fLayout);
-
-  fLHS.     resize(nkey);
-  fRHS.     resize(nkey);
-  fLHSHints.resize(nkey);
-  fRHSHints.resize(nkey);
-  fRow.     resize(nkey);
-
-  unsigned int i;
+  
+  //
+  // Count the number of "non system" parameters - each of these will
+  // need an row in the dialog window.
+  //
+  unsigned int nparam = 0;
   for (i=0; i<nkey; ++i) {
     if (!((key[i]=="service_type") ||
 	  (key[i]=="module_type")  ||
 	  (key[i]=="module_label"))) {
-      
-      fLHS[i]      = new TGHorizontalFrame(fContainer);
-      fLHSHints[i] = new TGTableLayoutHints(0,1,i,i+1);
-      fContainer->AddFrame(fLHS[i], fLHSHints[i]);
-      
-      fRHS[i]      = new TGHorizontalFrame(fContainer);
-      fRHSHints[i] = new TGTableLayoutHints(1,2,i,i+1);
-      fContainer->AddFrame(fRHS[i], fRHSHints[i]);
-      
-      fRow[i] = new ParameterSetEditRow(fLHS[i], fRHS[i], pset, key[i]);
+      ++nparam;
     }
   }
+  
+  //
+  // Build the layout
+  //
+  fLayout = new TGTableLayout(fContainer, nparam, 2);
+  fContainer->SetLayoutManager(fLayout);
+
+  for (i=0, j=0; i<nkey; ++i) {
+    if (!((key[i]=="service_type") ||
+	  (key[i]=="module_type")  ||
+	  (key[i]=="module_label"))) {
+      
+      TGHorizontalFrame*  lhs  = new TGHorizontalFrame(fContainer);
+      TGHorizontalFrame*  rhs  = new TGHorizontalFrame(fContainer);
+
+      TGTableLayoutHints* lhsh = new TGTableLayoutHints(0,1,j,j+1);
+      TGTableLayoutHints* rhsh = new TGTableLayoutHints(1,2,j,j+1);
+      
+      fContainer->AddFrame(lhs, lhsh);
+      fContainer->AddFrame(rhs, rhsh);
+      
+      fLHS.     push_back(lhs);
+      fRHS.     push_back(rhs);
+      fLHSHints.push_back(lhsh);
+      fRHSHints.push_back(rhsh);
+      
+      fRow.push_back(new ParameterSetEditRow(this, lhs, rhs, pset, key[i]));
+      ++j;
+    }
+  }
+  fCanvas->Resize();
+}
+
+//......................................................................
+
+ParameterSetEditFrame::~ParameterSetEditFrame() 
+{
+  unsigned int i;
+  for (i=0; i<fRow.size(); ++i)      delete fRow[i];
+  for (i=0; i<fRHSHints.size(); ++i) delete fRHSHints[i];
+  for (i=0; i<fLHSHints.size(); ++i) delete fLHSHints[i];
+  for (i=0; i<fRHS.size(); ++i)      delete fRHS[i];
+  for (i=0; i<fLHS.size(); ++i)      delete fLHS[i];
+  delete fLayout;
+  //
+  // Parent takes care of delete for fContainer, I think. Anyhow,
+  // trying to delete it causes a seg fault.
+  //
+  // delete fContainer;
+  delete fCanvasH;
+  delete fCanvas;
+}
+
+//......................................................................
+
+void ParameterSetEditFrame::Modified() { fIsModified = true; }
+
+//......................................................................
+
+std::string ParameterSetEditFrame::AsFHICL() const
+{
+  unsigned int i;
+  std::ostringstream s;
+  for (i=0; i<fRow.size(); ++i) {
+    s << fRow[i]->AsFHICL() << "\n";
+  }
+  return s.str();
 }
 
 //======================================================================
 //
 // ParameterSetEditDialog methods
 //
-ParameterSetEditDialog::ParameterSetEditDialog(int which) :
+ParameterSetEditDialog::ParameterSetEditDialog(unsigned int psetid) :
   TGTransientFrame(gClient->GetRoot(), gClient->GetRoot(), 4, 4)
 {
   fTGTab = new TGTab(this);
@@ -606,14 +725,20 @@ ParameterSetEditDialog::ParameterSetEditDialog(int which) :
   // Loop over all the parameter sets and build tabs for them
   //
   const ServiceTable& st = ServiceTable::Instance();
+  int which = st.fServices[psetid].fCategory;
+
   unsigned int i;
+  unsigned int top=0, indx=0;
   for (i=0; i<st.fServices.size(); ++i) {
     if (st.fServices[i].fCategory==which) {
+      if (i==psetid) top = indx;
       std::string tabnm = this->TabName(st.fServices[i].fName);
       TGCompositeFrame* f = fTGTab->AddTab(tabnm.c_str());
-      new ParameterSetEditFrame(f, i);
+      fFrames.push_back(new ParameterSetEditFrame(f, i));
+      ++indx;
     }
   }
+  fTGTab->SetTab(top);
   
   switch (which) {
   case kDRAWING_SERVICE:
@@ -636,12 +761,60 @@ ParameterSetEditDialog::ParameterSetEditDialog(int which) :
 
 //......................................................................
 
-ParameterSetEditDialog::~ParameterSetEditDialog() {}
+ParameterSetEditDialog::~ParameterSetEditDialog() 
+{
+  unsigned int i;
+  for (i=0; i<fFrames.size(); ++i) delete fFrames[i];
+  delete fDone;
+  delete fCancel;
+  delete fApply;
+  delete fButtons;
+  delete fTGTab;
+}
 
-void ParameterSetEditDialog::Apply() {}
-void ParameterSetEditDialog::Cancel() {}
-void ParameterSetEditDialog::Done() {}
-void ParameterSetEditDialog::CloseWindow() {}
+//......................................................................
+
+void ParameterSetEditDialog::Apply() 
+{
+  //
+  // We're not in control of the event loop so what we can do is write
+  // the new configuration to the ServiceTable. The main driver will
+  // pick it up, apply it, and wipe it clean when a reload / next
+  // event is triggered.
+  //
+  unsigned int i;
+  ServiceTable& st = ServiceTable::Instance();
+  for (i=0; i<fFrames.size(); ++i) {
+    if (fFrames[i]->fIsModified) {
+      unsigned int psetid = fFrames[i]->fParameterSetID;
+
+      std::string p = fFrames[i]->AsFHICL();
+      
+      p += "service_type:";
+      p += st.fServices[psetid].fName;
+      
+      st.fServices[psetid].fParamSet = p;
+
+    }
+  }
+  NavState::Set(kRELOAD_EVENT);
+}
+
+//......................................................................
+
+void ParameterSetEditDialog::Cancel() { this->SendCloseMessage(); }
+
+//......................................................................
+
+void ParameterSetEditDialog::Done() 
+{
+  this->Apply();
+  this->SendCloseMessage();
+}
+
+//......................................................................
+
+void ParameterSetEditDialog::CloseWindow() { delete this; }
 
 //......................................................................
 //
@@ -658,4 +831,3 @@ std::string ParameterSetEditDialog::TabName(const std::string& s)
 }
 
 ////////////////////////////////////////////////////////////////////////
-
