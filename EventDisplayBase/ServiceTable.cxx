@@ -144,6 +144,13 @@ void ServiceTable::ApplyEdits()
 	(fServices[i].fName.
 	 compare(psets[ps].get<std::string>("service_type","none"))==0);
       
+      /*
+      if (ismatch) {
+	std::cout << "Applying edits for " << fServices[i].fName << std::endl;
+	std::cout << fServices[i].fParamSet << std::endl;
+      }
+      */
+      
       if (ismatch) {
 	try {
 	  fhicl::ParameterSet pset;

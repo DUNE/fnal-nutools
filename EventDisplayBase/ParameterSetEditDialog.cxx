@@ -6,6 +6,7 @@
 #include "EventDisplayBase/ParameterSetEditDialog.h"
 #include <iostream>
 #include <sstream>
+#include "TROOT.h"
 #include "TGTab.h"
 #include "TGButton.h"
 #include "TGCanvas.h"
@@ -304,9 +305,12 @@ void ParameterSetEditRow::SetupTextEntry(TGCompositeFrame* f,
                                         unsigned int flags,
                                         const std::vector<std::string>& value)
 {
+  static TColor* c = gROOT->GetColor(41);
+
   fTextEntry = new TGTextEntry(f);
   f->AddFrame(fTextEntry);
-  
+  fTextEntry->SetTextColor(c);
+
   fTextEntry->Connect("ReturnPressed()",
                       "evdb::ParameterSetEditRow",
                       this,
@@ -461,8 +465,13 @@ void ParameterSetEditRow::SetupSlider(TGCompositeFrame* f,
 
 void ParameterSetEditRow::TextEntryReturnPressed()
 {
+  if (fTextEntry==0) return;
+  
   const char* text = fTextEntry->GetBuffer()->GetString();
   
+  static TColor* c = gROOT->GetColor(1);
+  fTextEntry->SetTextColor(c);
+
   //
   // If we also have a slider connected to this frame, make sure its
   // state is updated
