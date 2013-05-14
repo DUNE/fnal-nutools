@@ -139,15 +139,11 @@ void ServiceTable::ApplyEdits()
   for(size_t ps = 0; ps < psets.size(); ++ps){    
     for (unsigned int i=0; i<fServices.size(); ++i) {
       if (fServices[i].fParamSet.empty()) continue;
+
       bool ismatch = 
 	(fServices[i].fName.
 	 compare(psets[ps].get<std::string>("service_type","none"))==0);
       
-      if (ismatch) {
-	std::cout << "FOUND UPDATE FOR " << fServices[i].fName << std::endl;
-	std::cout << fServices[i].fParamSet << std::endl;
-      }
-
       if (ismatch) {
 	try {
 	  fhicl::ParameterSet pset;
