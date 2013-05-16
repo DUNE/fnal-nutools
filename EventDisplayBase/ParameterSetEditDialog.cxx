@@ -22,20 +22,21 @@
 using namespace evdb;
 
 // Window and row sizes in units of pixels
-static const unsigned int kWidth  = 600;
-static const unsigned int kHeight = 700;
-static const unsigned int kRowW   = 300;
+static const unsigned int kWidth  = 500*11/10;
+static const unsigned int kHeight = 700*11/10;
+static const unsigned int kRowW   = kWidth-150;
 static const unsigned int kRowH   = 18;
 
 //
 // Flags to help us decide what sort of parameter we need to build a
 // GUI for.
 //
-static const int kSINGLE_VALUED_PARAM    = 0x01; // Expect single value
-static const int kVECTOR_PARAM           = 0x02; // Expect multiple values
-static const int kVECTOR_OF_VECTOR_PARAM = 0x04; // Expect multiple values
-static const int kHAVE_GUI_TAGS          = 0x10; // GUI tags are present
-static const int kNO_GUI_TAGS            = 0x20; // GUI tags are not present
+static const int kSINGLE_VALUED_PARAM    = 1<<0; // Expect single value
+static const int kVECTOR_PARAM           = 1<<1; // Expect multiple values
+static const int kVECTOR_OF_VECTOR_PARAM = 1<<2; // Expect multiple values
+static const int kHAVE_GUI_TAGS          = 1<<3; // GUI tags are present
+static const int kNO_GUI_TAGS            = 1<<4; // GUI tags are not present
+static const int kINTEGER_PARAM          = 1<<5; // Force the value to be int
 
 //
 // The short letter codes for the various GUI objects supported. Also
@@ -48,6 +49,7 @@ GUITAG kLIST_BOX_MULTI  = "lbm"; // A list box, multuiple choices allowed
 GUITAG kRADIO_BUTTONS   = "rb";  // Radio buttons
 GUITAG kCHECK_BOX       = "cb";  // Check boxes
 GUITAG kSLIDER          = "sl";  // Slider bar
+GUITAG kSLIDER_INT      = "sli"; // Slider bar, limit to integers
 #undef GUITAG
 static const std::vector<std::string> gsGUITAG = {
   kTEXT_ENTRY,
@@ -55,7 +57,8 @@ static const std::vector<std::string> gsGUITAG = {
   kLIST_BOX_MULTI,
   kRADIO_BUTTONS,
   kCHECK_BOX,
-  kSLIDER
+  kSLIDER,
+  kSLIDER_INT
 };
 
 //======================================================================
@@ -123,6 +126,10 @@ ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
     this->SetupCheckButton(rhs, fParamFlags, fChoice, values);
   }
   if (tag==kSLIDER) {
+    this->SetupSlider(rhs, fParamFlags, fChoice, values);
+  }
+  if (tag==kSLIDER_INT) {
+    fParamFlags |= kINTEGER_PARAM;
     this->SetupSlider(rhs, fParamFlags, fChoice, values);
   }
 }
@@ -245,11 +252,9 @@ void ParameterSetEditRow::UnpackParameter(const fhicl::ParameterSet& p,
       }
       catch (...) {
 	//
-	// If that fails we are very stuck. Abort to ensure the
-	// problem gets fixed
+	// If that fails we are very stuck. Print a message and fail.
 	//
 	std::cerr << "Failed to parse " << key << std::endl;
-	abort();
       }
     }
   }
@@ -457,8 +462,8 @@ void ParameterSetEditRow::SetupSlider(TGCompositeFrame* f,
                    this,
                    "SliderPositionChanged()");
   
-  fTextEntry->Resize(kRowW*1/4,   kRowH);
-  fSlider->   Resize(kRowW*3/4,10*kRowH);
+  fTextEntry->Resize(kRowW*1/5,   kRowH);
+  fSlider->   Resize(kRowW*4/5,10*kRowH);
 }
 
 //......................................................................
@@ -565,18 +570,44 @@ void ParameterSetEditRow::CheckButtonClicked()
 void ParameterSetEditRow::SliderPositionChanged() 
 {
   char buff[1024];
-  float mn, mx;
+  float mn, mx, ave;
   fSlider->GetPosition(mn, mx);
   
-  if (fParamFlags & kVECTOR_PARAM) {
-    sprintf(buff, "[%.1f, %.1f]",mn,mx);
+  ave = 0.5*(mn+mx);
+
+  if (fParamFlags & kINTEGER_PARAM) {  
+    int mni  = rint(mn);
+    int mxi  = rint(mx);
+    int avei = rint(ave);
+    if (fParamFlags & kVECTOR_PARAM) {
+      sprintf(buff, "[%d, %d]",mni,mxi);
+    }
+    else {
+      sprintf(buff, "%d",avei);
+    }
   }
   else {
-    sprintf(buff, "%.1f",0.5*(mn+mx));
-  } 
+    if (fParamFlags & kVECTOR_PARAM) {
+      sprintf(buff, "[%.1f, %.1f]",mn,mx);
+    }
+    else {
+      sprintf(buff, "%.1f",ave);
+    }
+  }
   fTextEntry->SetText(buff);
   fValue = buff;
   fFrame->Modified();
+}
+
+//......................................................................
+
+void ParameterSetEditRow::Finalize() 
+{
+  if (fTextEntry) {
+    if (fValue != fTextEntry->GetBuffer()->GetString()) {
+      this->TextEntryReturnPressed();
+    }
+  }
 }
 
 //......................................................................
@@ -609,7 +640,7 @@ ParameterSetEditFrame::ParameterSetEditFrame(TGCompositeFrame* mother,
 {
   unsigned int i, j;
 
-  fCanvas  = new TGCanvas(mother, kWidth-25, kHeight-50);
+  fCanvas  = new TGCanvas(mother, kWidth-6, kHeight-50);
   fCanvasH = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY);
   mother->AddFrame(fCanvas, fCanvasH);
   
@@ -692,6 +723,14 @@ ParameterSetEditFrame::~ParameterSetEditFrame()
 //......................................................................
 
 void ParameterSetEditFrame::Modified() { fIsModified = true; }
+
+//......................................................................
+
+void ParameterSetEditFrame::Finalize() 
+{
+  unsigned int i;
+  for (i=0; i<fRow.size(); ++i) fRow[i]->Finalize();
+}
 
 //......................................................................
 
@@ -797,6 +836,7 @@ void ParameterSetEditDialog::Apply()
     if (fFrames[i]->fIsModified) {
       unsigned int psetid = fFrames[i]->fParameterSetID;
 
+      fFrames[i]->Finalize();
       std::string p = fFrames[i]->AsFHICL();
       
       p += "service_type:";

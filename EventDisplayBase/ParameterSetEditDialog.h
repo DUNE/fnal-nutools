@@ -33,6 +33,7 @@
 /// gui:"rb:opt1,opt2,opt3"  : A set of radio buttons
 /// gui:"cb:opt1,opt2,opt3"  : A set of check boxes
 /// gui:"sl:v1,v2            : A slider to choose values between v1 and v2
+/// gui:"sli:v1,v2           : A slider for int values between v1 and v2
 ///
 /// When retreiving parameters note that:
 ///
@@ -92,6 +93,7 @@ namespace evdb
 			const std::string& key);
     ~ParameterSetEditRow();
     
+    void Finalize();
     std::string AsFHICL() const;
     
     void TextEntryReturnPressed();
@@ -176,6 +178,7 @@ namespace evdb
     ~ParameterSetEditFrame();
     std::string AsFHICL() const;
     void Modified();
+    void Finalize();
   public:
     TGCompositeFrame* fTopFrame;
     TGCanvas*         fCanvas;
