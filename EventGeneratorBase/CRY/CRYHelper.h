@@ -31,10 +31,11 @@ namespace evgb {
 		       std::string             const& worldVol="vWorld");
     ~CRYHelper();
 
-    void Sample(simb::MCTruth& mctruth, 
+    double Sample(simb::MCTruth& mctruth, 
 		double       const& surfaceY,
 		double       const& detectorLength,
-		double*             w);
+		double*             w,
+		double             rantime=0);
     
   private:
 
@@ -63,9 +64,11 @@ namespace evgb {
     std::string                fSubBoxL;    ///< Length of subbox (m) need space after value
     double                     fBoxDelta;   ///< Adjustment to the size of the world box in 
                                             ///< each dimension to avoid G4 rounding errors
+    bool                       fSingleEventMode;
   };
 
   // The following stuff is for the random number gererator
+
   template<class T> class RNGWrapper {
   public:
     static void set(T* object, double (T::*func)(void));

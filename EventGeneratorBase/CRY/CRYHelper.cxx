@@ -49,6 +49,8 @@ namespace evgb{
     , fAltitude   (pset.get< std::string >("Altitude")       	  )
     , fSubBoxL    (pset.get< std::string >("SubBoxLength")    	  )
     , fBoxDelta   (pset.get< double      >("WorldBoxDelta", 1.e-5))
+    , fSingleEventMode (pset.get< bool >("GenSingleEvents", false)          )
+
   {    
     // Construct the CRY generator
     std::string config("date 1-1-2014 "
@@ -80,6 +82,7 @@ namespace evgb{
     fSetup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
 
     fGen = new CRYGenerator(fSetup);
+
   }  
 
   //......................................................................
@@ -90,14 +93,16 @@ namespace evgb{
   }
 
   //......................................................................
-  void CRYHelper::Sample(simb::MCTruth&      mctruth, 
+  double CRYHelper::Sample(simb::MCTruth&      mctruth, 
 			 double       const& surfaceY,
 			 double       const& detectorLength,
-			 double*             w)
+			 double*             w, 
+			 double              rantime)
   {
     // Generator time at start of sample
     double tstart = fGen->timeSimulated();
     int    idctr = 1;
+    bool particlespushed=false;
     while (1) {
       std::vector<CRYParticle*> parts;
       fGen->genEvent(&parts);
@@ -140,7 +145,9 @@ namespace evgb{
 	double vy = cryp->z()*100.0 + surfaceY;
 	double vz = cryp->x()*100.0 + 0.5*detectorLength;
 	double t  = cryp->t()-tstart + fToffset; // seconds
-
+	if(fSingleEventMode){
+	  t  = cryp->t()-tstart + fToffset + fSampleTime*rantime; // seconds
+	}
 	// Project backward to edge of world volume
 	double xyz[3]  = { vx,  vy,  vz};
 	double xyzo[3];
@@ -171,6 +178,7 @@ namespace evgb{
 	// Push the particle onto the stack
 	std::string primary("primary");
 
+	particlespushed=true;
 	simb::MCParticle p(idctr,
 			   pdg,
 			   primary,
@@ -186,14 +194,15 @@ namespace evgb{
       } // Loop on particles in event
     
       // Check if we're done with this time sample
-      if (fGen->timeSimulated()-tstart > fSampleTime) break;
-    
+      if (fGen->timeSimulated()-tstart > fSampleTime || (fSingleEventMode&&particlespushed) ) break;    
     } // Loop on events simulated
 
     mctruth.SetOrigin(simb::kCosmicRay);
 
     /// \todo Check if this time slice passes selection criteria
     if (w) *w = 1.0;
+    return fGen->timeSimulated()-tstart;
+
   }
 
   ///----------------------------------------------------------------
