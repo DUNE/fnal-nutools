@@ -35,7 +35,7 @@ namespace evgb {
 		double       const& surfaceY,
 		double       const& detectorLength,
 		double*             w,
-		double             rantime=0);
+		double              rantime=0);
     
   private:
 
@@ -53,22 +53,21 @@ namespace evgb {
 			  double &zlo, double &zhi,
 			  double xyzout[]);
 
-    CRYSetup*                  fSetup;      ///< CRY configuration
-    CRYGenerator*              fGen;        ///< The CRY generator
-    double                     fSampleTime; ///< Amount of time to sample (seconds)
-    double                     fToffset;    ///< Shift in time of particles (s)
-    double                     fEthresh;    ///< Cut on kinetic energy (GeV)
-    std::string                fWorldVolume;///< Name of the world volume
-    std::string                fLatitude;   ///< Latitude of detector need space after value
-    std::string                fAltitude;   ///< Altitude of detector need space after value
-    std::string                fSubBoxL;    ///< Length of subbox (m) need space after value
-    double                     fBoxDelta;   ///< Adjustment to the size of the world box in 
-                                            ///< each dimension to avoid G4 rounding errors
-    bool                       fSingleEventMode;
+    CRYSetup*      fSetup;           ///< CRY configuration				 
+    CRYGenerator*  fGen;             ///< The CRY generator				 
+    double         fSampleTime;      ///< Amount of time to sample (seconds)		 
+    double         fToffset;         ///< Shift in time of particles (s)		 
+    double         fEthresh;         ///< Cut on kinetic energy (GeV)		 
+    std::string    fWorldVolume;     ///< Name of the world volume			 
+    std::string    fLatitude;        ///< Latitude of detector need space after value 
+    std::string    fAltitude;        ///< Altitude of detector need space after value 
+    std::string    fSubBoxL;         ///< Length of subbox (m) need space after value 
+    double         fBoxDelta;        ///< Adjustment to the size of the world box in  
+                                     ///< each dimension to avoid G4 rounding errors  
+    bool           fSingleEventMode; ///< flag to turn on producing only a single cosmic ray
   };
 
   // The following stuff is for the random number gererator
-
   template<class T> class RNGWrapper {
   public:
     static void set(T* object, double (T::*func)(void));

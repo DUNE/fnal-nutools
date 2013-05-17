@@ -41,15 +41,15 @@ namespace evgb{
   CRYHelper::CRYHelper(fhicl::ParameterSet     const& pset, 
 		       CLHEP::HepRandomEngine&        engine,
 		       std::string             const& worldVol)
-    : fSampleTime (pset.get< double      >("SampleTime")          )
-    , fToffset    (pset.get< double      >("TimeOffset")     	  )
-    , fEthresh    (pset.get< double      >("EnergyThreshold")	  )
-    , fWorldVolume(worldVol) 
-    , fLatitude   (pset.get< std::string >("Latitude")       	  )
-    , fAltitude   (pset.get< std::string >("Altitude")       	  )
-    , fSubBoxL    (pset.get< std::string >("SubBoxLength")    	  )
-    , fBoxDelta   (pset.get< double      >("WorldBoxDelta", 1.e-5))
-    , fSingleEventMode (pset.get< bool >("GenSingleEvents", false)          )
+    : fSampleTime     (pset.get< double      >("SampleTime")            )
+    , fToffset        (pset.get< double      >("TimeOffset")            )
+    , fEthresh        (pset.get< double      >("EnergyThreshold")       )
+    , fWorldVolume    (worldVol) 					   
+    , fLatitude       (pset.get< std::string >("Latitude")              )
+    , fAltitude       (pset.get< std::string >("Altitude")              )
+    , fSubBoxL        (pset.get< std::string >("SubBoxLength")          )
+    , fBoxDelta       (pset.get< double      >("WorldBoxDelta", 1.e-5)  )
+    , fSingleEventMode(pset.get< bool        >("GenSingleEvents", false))
 
   {    
     // Construct the CRY generator
@@ -94,15 +94,15 @@ namespace evgb{
 
   //......................................................................
   double CRYHelper::Sample(simb::MCTruth&      mctruth, 
-			 double       const& surfaceY,
-			 double       const& detectorLength,
-			 double*             w, 
-			 double              rantime)
+			   double       const& surfaceY,
+			   double       const& detectorLength,
+			   double*             w, 
+			   double              rantime)
   {
     // Generator time at start of sample
     double tstart = fGen->timeSimulated();
     int    idctr = 1;
-    bool particlespushed=false;
+    bool particlespushed = false;
     while (1) {
       std::vector<CRYParticle*> parts;
       fGen->genEvent(&parts);
@@ -178,7 +178,7 @@ namespace evgb{
 	// Push the particle onto the stack
 	std::string primary("primary");
 
-	particlespushed=true;
+	particlespushed = true;
 	simb::MCParticle p(idctr,
 			   pdg,
 			   primary,
@@ -194,7 +194,8 @@ namespace evgb{
       } // Loop on particles in event
     
       // Check if we're done with this time sample
-      if (fGen->timeSimulated()-tstart > fSampleTime || (fSingleEventMode&&particlespushed) ) break;    
+      if (fGen->timeSimulated()-tstart > fSampleTime || 
+	  (fSingleEventMode && particlespushed) ) break;    
     } // Loop on events simulated
 
     mctruth.SetOrigin(simb::kCosmicRay);
