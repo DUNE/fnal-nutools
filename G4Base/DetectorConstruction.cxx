@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "cetlib/exception.h"
+
 #include "G4Base/DetectorConstruction.h"
 #include "MagneticField/MagneticField.h"
 
@@ -16,8 +18,6 @@
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4UniformMagField.hh"
 #include "Geant4/G4FieldManager.hh"
-
-#include "cetlib/exception.h"
 
 namespace g4b{
 
@@ -32,9 +32,8 @@ namespace g4b{
                                              bool validateSchema)
   {
     if ( gdmlFile.empty() ) {
-      throw cet::exception("DetectorConstruction") 
-        << "Supplied GDML filename is empty\n"
-        << __FILE__ << ":" << __LINE__ << "\n";
+      throw cet::exception("DetectorConstruction") << "Supplied GDML filename is empty\n"
+						   << __FILE__ << ":" << __LINE__ << "\n";
     }
     // Get the path to the GDML file from the Geometry interface.
     const G4String GDMLfile = static_cast<const G4String>( gdmlFile );
@@ -85,11 +84,10 @@ namespace g4b{
       break; 
     } // case mag::kConstantBFieldMode
     default: // Complain if the user asks for something not handled
-      mf::LogError("DetectorConstruction") 
-	<< "Unknown or illegal Magneticfield mode specified: " 
-	<< bField->UseField()					   
-	<< ". Note that AutomaticBFieldMode is reserved for "
-	<< "specifing the ElectronDriftAlg behavior.";
+      mf::LogError("DetectorConstruction") << "Unknown or illegal Magneticfield "
+					   << "mode specified: " 
+					   << bField->UseField()
+					   << ". Note that AutomaticBFieldMode is reserved.";
       break;
     }
     return fWorld;
