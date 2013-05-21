@@ -6,6 +6,7 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "G4Base/DetectorConstruction.h"
 #include "MagneticField/MagneticField.h"
 
@@ -60,28 +61,37 @@ namespace g4b{
   {
     // Setup the magnetic field situation 
     art::ServiceHandle<mag::MagneticField> bField;
-    if (bField->UseField()) {
+    switch (bField->UseField()) {
+    case mag::kNoBFieldMode: 
+      /* NOP */
+      break;
+    case mag::kConstantBFieldMode: {
       // Define the basic field
       G4UniformMagField* magField = new G4UniformMagField( bField->FieldAtPoint() * tesla );
       fFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
       fFieldMgr->SetDetectorField(magField);
       fFieldMgr->CreateChordFinder(magField);
-
+      
       // Reset the chord finding accuracy
       // fFieldMgr->GetChordFinder()->SetDeltaChord(1.0 * cm);
-
+      
       // Attach this to the magnetized volume only
-      //
       /// \todo This isn't the Right (tm) thing to do, but it will do
-      /// \todo for now.
-      /// \todo Get pointer to the logical volume store 
       G4LogicalVolumeStore *lvs  = G4LogicalVolumeStore::GetInstance();
       G4LogicalVolume      *bvol = lvs->GetVolume(bField->MagnetizedVolume());
-
+      
       // the boolean tells the field manager to use local volume
       bvol->SetFieldManager(fFieldMgr,true);
+      break; 
+    } // case mag::kConstantBFieldMode
+    default: // Complain if the user asks for something not handled
+      mf::LogError("DetectorConstruction") 
+	<< "Unknown or illegal Magneticfield mode specified: " 
+	<< bField->UseField()					   
+	<< ". Note that AutomaticBFieldMode is reserved for "
+	<< "specifing the ElectronDriftAlg behavior.";
+      break;
     }
-
     return fWorld;
   }
 
