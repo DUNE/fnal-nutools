@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
-/// \file MagneticField.cxx
+/// \file MagneticField_service.cc
 ///
 /// \version $Id: MagneticField.cxx,v 1.2 2012-03-07 19:01:44 brebel Exp $
 /// \author dmckee@phys.ksu.edu
@@ -11,8 +11,8 @@
 ///
 /// We support three FHICL value for now:
 ///
-///    - "UseField" a boolean. When false we don't even instantiate a
-///      Magnetic field object
+///    - "UseField" a integer. When 0 we don't even instantiate a
+///      Magnetic field object. Describes the description to use.
 ///    - "Constant Field" a vector< double > which should have three
 ///      elements and is interpreted in Tesla
 ///    - "MagnetizedVolume" names the G4logical volume to which the
@@ -38,7 +38,7 @@ namespace mag {
   void MagneticField::reconfigure(fhicl::ParameterSet const& pset)
   {
 
-    fUseField  = pset.get< bool       >("UseField");
+    fUseField  = pset.get< int        >("UseField");
     fVolume    = pset.get<std::string >("MagnetizedVolume");
 
     // These need to be read as types that FHICL know about, but they

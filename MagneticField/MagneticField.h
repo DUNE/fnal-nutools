@@ -1,4 +1,4 @@
-/// \file MagField.h
+/// \file MagneticField.h
 /// \brief Describe the magnetic field structure of a detector
 /// 
 /// \version $Id: MagneticField.h,v 1.3 2012-09-21 02:46:38 greenc Exp $
@@ -23,6 +23,13 @@
 
 namespace mag {
 
+  enum MagneticFieldMode {
+    kAutomaticBFieldMode=-1, // Used by DriftElectronsAlg
+    kNoBFieldMode=0, 
+    kConstantBFieldMode=1
+    /*, kFieldMapMode, ... */
+  };
+
   // Specifies the magnetic field over all space
   //
   // The default implementation, however, uses a nearly trivial,
@@ -45,7 +52,7 @@ namespace mag {
   private:
     // The simplest implmentation has a constant field inside a named
     // detector volume
-    bool fUseField;       ///< is a field to be used
+    int fUseField;        ///< What field description to use 0-none 1--constant
     G4ThreeVector fField; ///< the three vector of the field
     G4String fVolume;     ///< the volume of the field
 
