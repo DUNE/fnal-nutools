@@ -23,12 +23,12 @@
 
 namespace mag {
 
-  enum MagneticFieldMode {
+  typedef enum MagneticFieldMode {
     kAutomaticBFieldMode=-1, // Used by DriftElectronsAlg
-    kNoBFieldMode=0, 
-    kConstantBFieldMode=1
+    kNoBFieldMode=0,         // no field
+    kConstantBFieldMode=1    // constant field
     /*, kFieldMapMode, ... */
-  };
+  } MagFieldMode_t;
 
   // Specifies the magnetic field over all space
   //
@@ -52,9 +52,9 @@ namespace mag {
   private:
     // The simplest implmentation has a constant field inside a named
     // detector volume
-    int fUseField;        ///< What field description to use 0-none 1--constant
-    G4ThreeVector fField; ///< the three vector of the field
-    G4String fVolume;     ///< the volume of the field
+    MagFieldMode_t fUseField; ///< What field description to use
+    G4ThreeVector  fField;    ///< the three vector of the field
+    G4String       fVolume;   ///< the volume of the field
 
     ///\todo Need to add ability to read in a field from a database
   };
