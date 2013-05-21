@@ -9,7 +9,7 @@
 /// constant field in a named detector volume. In principle we should
 /// read a full field map from an external file of some kind.
 ///
-/// We support three FHICL value for now:
+/// We support three FHICL values for now:
 ///
 ///    - "UseField" a integer. When 0 we don't even instantiate a
 ///      Magnetic field object. Describes the description to use.
@@ -38,8 +38,9 @@ namespace mag {
   void MagneticField::reconfigure(fhicl::ParameterSet const& pset)
   {
 
-    fUseField  = pset.get< int        >("UseField");
     fVolume    = pset.get<std::string >("MagnetizedVolume");
+    int mode   = pset.get< int        >("UseField"        );
+    fUseField  = (mag::MagFieldMode_t)mode;
 
     // These need to be read as types that FHICL know about, but they
     // are used by Geant, so I store them in Geant4 types.
