@@ -294,7 +294,11 @@ namespace simb{
     //  std::cout<<"New E "<<newE<<" old ecm "<<fnecm<<" mn "<<MN<<" gamma "<<gamma<<" beta "<<beta<<" costhetan "<<costhetan<<std::endl;
 
     //solid angle
-    double san = 10000./(4*rn*rn);
+    // small angle approximation: // double san = 10000./(4*rn*rn);
+    // Alex Radovic's removal of small angle approximation
+    const double kRDET = 100.; 
+    double san = (1.0-cos(atan( kRDET / rn )))/2.0;
+
     //  std::cout<<"san "<<san<<" fvz-z "<<fvz-z<<std::endl;
     newW = san*MN*MN;
     //  std::cout<<"mn "<<MN<<std::endl;
