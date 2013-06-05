@@ -536,7 +536,7 @@ void ParameterSetEditRow::ListBoxSelected(int id)
 
 void ParameterSetEditRow::RadioButtonClicked() 
 {
-  unsigned int value;
+  unsigned int value = 0;
   TGButton* b = (TGButton*)gTQSender;
   int id = b->WidgetId();
   for (size_t i=0; i<fRadioButton.size(); ++i) {
