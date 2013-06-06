@@ -221,6 +221,8 @@ namespace evdb
   private:
     unsigned int                        fParameterSetID;
     std::vector<ParameterSetEditFrame*> fFrames;
+
+    ClassDef(ParameterSetEditDialog, 0);
   };
 }
 
