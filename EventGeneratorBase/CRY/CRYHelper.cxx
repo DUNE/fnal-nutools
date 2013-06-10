@@ -195,7 +195,10 @@ namespace evgb{
     
       // Check if we're done with this time sample
       if (fGen->timeSimulated()-tstart > fSampleTime || 
-	  (fSingleEventMode && particlespushed) ) break;    
+	  (fSingleEventMode && 
+	   particlespushed  && 
+	   parts.size() == 1  ) 
+	  ) break;    
     } // Loop on events simulated
 
     mctruth.SetOrigin(simb::kCosmicRay);
