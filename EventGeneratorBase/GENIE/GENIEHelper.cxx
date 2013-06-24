@@ -177,7 +177,8 @@ namespace evgb {
     // for "ntuple" and "simple_flux" squeeze the patterns so there 
     // are no duplicates; for the others we want to preserve order
     if ( fFluxType.compare("ntuple")      == 0 ||
-         fFluxType.compare("simple_flux") == 0    ) {
+         fFluxType.compare("simple_flux") == 0 ||
+         fFluxType.compare("dk2nu")       == 0    ) {
       // convert vector<> to a set<> and back to vector<>
       // to avoid having duplicate patterns in the list
       std::set<std::string> fluxpattset(fFluxFilePatterns.begin(),fFluxFilePatterns.end());
@@ -415,9 +416,10 @@ namespace evgb {
   //--------------------------------------------------
   double GENIEHelper::TotalHistFlux() 
   {
-    if(   fFluxType.compare("ntuple")       == 0
-          || fFluxType.compare("mono")         == 0 
-          || fFluxType.compare("simple_flux" ) == 0 ) return -999.;
+    if ( fFluxType.compare("mono")         == 0 ||
+         fFluxType.compare("ntuple")       == 0 ||
+         fFluxType.compare("simple_flux" ) == 0 ||
+         fFluxType.compare("dk2nu")        == 0    ) return -999.;
 
     return fTotalHistFlux;
   }
@@ -1131,8 +1133,9 @@ namespace evgb {
     }
     else{
       if( ( fFluxType.compare("ntuple")      == 0 || 
-            fFluxType.compare("simple_flux") == 0    ) && 
-          fSpillExposure < fPOTPerSpill) return false;
+            fFluxType.compare("simple_flux") == 0 ||
+            fFluxType.compare("dk2nu")       == 0    ) && 
+          fSpillExposure < fPOTPerSpill ) return false;
       else if(fFluxType.compare("histogram") == 0){
         if(fSpillEvents < fHistEventsPerSpill) return false;
         else fSpillExposure = fPOTPerSpill;
@@ -1201,8 +1204,9 @@ namespace evgb {
     // check to see if we are using flux ntuples but want to 
     // make n events per spill
     if(fEventsPerSpill > 0 &&
-       (fFluxType.compare("ntuple") == 0 ||
-        fFluxType.compare("simple_flux") == 0)
+       (fFluxType.compare("ntuple")      == 0 ||
+        fFluxType.compare("simple_flux") == 0 ||
+        fFluxType.compare("dk2nu")       == 0    )
        ) ++fSpillEvents;
 
     // now check if using either histogram or mono fluxes, using
@@ -1666,6 +1670,11 @@ namespace evgb {
     int nfilesSoFar = 0;
 #endif
 
+    bool randomizeFiles = false;
+    if ( fFluxType.compare("ntuple")      == 0 ||
+         fFluxType.compare("simple_flux") == 0 ||
+         fFluxType.compare("dk2nu")       == 0    ) randomizeFiles = true;
+
     std::vector<std::string> dirs;
     cet::split_path(cet::getenv("FW_SEARCH_PATH"),dirs);
     if ( dirs.empty() ) dirs.push_back(std::string()); // at least null string 
@@ -1711,31 +1720,40 @@ namespace evgb {
       }  // loop over FW_SEARCH_PATH dirs
     }  // loop over user patterns 
 
+    std::ostringstream paretext;
     std::ostringstream flisttext;
 
 #ifndef GFLUX_MISSING_SETORVECTOR
     int nfiles = g.gl_pathc;
-    std::ostringstream paretext;
-    if ( nfiles > 0 ) {
-      paretext << "\n  will pare list down to " << fMaxFluxFileMB << " MB";
-    }
-    mf::LogInfo("GENIEHelper") 
-      << "ExpandFluxFilePatterns initially found " << nfiles
-      << " files for user patterns:"
-      << patterntext.str() << "\n  using FW_SEARCH_PATH of: "
-      << dirstext.str() <<  paretext.str();
-      //<< "\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
 
-    // now pull from the list randomly
-    // do this by assigning a random number to each;
-    // ordering that list; and pulling in that order
+    if ( nfiles == 0 ) {
+      paretext << "\n  expansion resulted in a null list for flux files";
 
-    if ( nfiles > 0 ) {
+    } else if ( ! randomizeFiles ) {
+      // some sets of files should be left in order 
+      // and no size limitations imposed ... just copy the list
+
+      paretext << "\n  list of files will be processed in order";
+      for (int i=0; i<nfiles; ++i) {
+        std::string afile(g.gl_pathv[i]);
+        fSelectedFluxFiles.push_back(afile);
+
+        flisttext << "[" << setw(3) << i << "] "
+                  << afile << "\n";
+      }
+    } else {
+
+      // now pull from the list randomly
+      // do this by assigning a random number to each;
+      // ordering that list; and pulling in that order
+
+      paretext << "\n  list will be randomized and pared down to " << fMaxFluxFileMB << " MB";
+
       double* order = new double[nfiles];
       int* indices  = new int[nfiles];
       fHelperRandom->RndmArray(nfiles,order);
       // assign random # for their relative order
-
+      
       TMath::Sort(nfiles,order,indices,false);
       
       int sumBytes = 0; // accumulated size in bytes
@@ -1764,6 +1782,7 @@ namespace evgb {
 
       }
       delete [] indices;
+
     }
 #else
     // This version of GENIE can't handle a list of files, 
@@ -1786,6 +1805,14 @@ namespace evgb {
       delete [] indices;
     }
 #endif
+
+    mf::LogInfo("GENIEHelper") 
+      << "ExpandFluxFilePatterns initially found " << nfiles
+      << " files for user patterns:"
+      << patterntext.str() << "\n  using FW_SEARCH_PATH of: "
+      << dirstext.str() <<  paretext.str();
+      //<< "\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
+
     mf::LogDebug("GENIEHelper") << "\n" << flisttext.str();
 
     // done with glob list
@@ -1793,7 +1820,8 @@ namespace evgb {
 
     // no null path allowed for at least these
     if ( fFluxType.compare("ntuple")      == 0 ||
-         fFluxType.compare("simple_flux") == 0    ) {
+         fFluxType.compare("simple_flux") == 0 ||
+         fFluxType.compare("dk2nu")       == 0    ) {
       size_t nfiles = fSelectedFluxFiles.size();
       if ( nfiles == 0 ) {
         mf::LogError("GENIEHelper") 
