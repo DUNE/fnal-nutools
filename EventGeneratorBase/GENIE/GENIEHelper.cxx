@@ -902,14 +902,18 @@ namespace evgb {
       atmo_flux_driver->ForceMinEnergy(fAtmoEmin);
       atmo_flux_driver->ForceMaxEnergy(fAtmoEmax);
       
+      std::ostringstream atmoCfgText;
+      atmoCfgText << "Configuration for " << fFluxType
+                  << ", Rl " << fAtmoRl << " Rt " << fAtmoRt;
       for ( size_t j = 0; j < fGenFlavors.size(); ++j ) {
         int         flavor  = fGenFlavors[j];
         std::string flxfile = fSelectedFluxFiles[j];
-        mf::LogInfo("GENIEHelper") << "FLAVOR: " << flavor << "  FLUX FILE: " <<  flxfile;
-
         atmo_flux_driver->SetFluxFile(flavor,flxfile);
+        atmoCfgText << "\n  FLAVOR: " << std::setw(3) << flavor 
+                    << "  FLUX FILE: " <<  flxfile;      
       }
-      
+      mf::LogInfo("GENIEHelper") << atmoCfgText.str();
+
       atmo_flux_driver->LoadFluxData();
       
       // configure flux generation surface:
