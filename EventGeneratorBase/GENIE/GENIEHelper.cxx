@@ -169,6 +169,7 @@ namespace evgb {
     }
     int seedval = pset.get< int >("RandomSeed", dfltseed);
     // initialize random # generator for use within GENIEHelper
+    mf::LogInfo("GENIEHelper") << "Init HelperRandom with seed " << seedval; 
     fHelperRandom = new TRandom3(seedval);
 
     /// Determine which flux files to use
@@ -219,11 +220,13 @@ namespace evgb {
     genie::GHepRecord::SetPrintLevel(fGHepPrintLevel);
 
     // Set GENIE's random # seed
+    mf::LogInfo("GENIEHelper") << "Init genie::utils::app_init::RandGen() with seed " << seedval; 
     genie::utils::app_init::RandGen(seedval);
 #else
     // pre GENIE R-2_8_0 needs random # seed GSEED set in the environment
     // determined the seed to use above, now make sure it is set externally
     std::string seedstr = std::to_string(seedval); // part of C++11 <string>
+    mf::LogInfo("GENIEHelper") << "Init GSEED env with seed " << seedval; 
     fEnvironment.push_back("GSEED");
     fEnvironment.push_back(seedstr);
 
@@ -1751,7 +1754,8 @@ namespace evgb {
       // do this by assigning a random number to each;
       // ordering that list; and pulling in that order
 
-      paretext << "\n  list will be randomized and pared down to " << fMaxFluxFileMB << " MB";
+      paretext << "\n  list will be randomized and pared down to " 
+               << fMaxFluxFileMB << " MB";
 
       double* order = new double[nfiles];
       int* indices  = new int[nfiles];
@@ -1760,8 +1764,8 @@ namespace evgb {
       
       TMath::Sort(nfiles,order,indices,false);
       
-      int sumBytes = 0; // accumulated size in bytes
-      int maxBytes = fMaxFluxFileMB * 1024 * 1024;
+      long long int sumBytes = 0; // accumulated size in bytes
+      long long int maxBytes = fMaxFluxFileMB * 1024 * 1024;
 
       FileStat_t fstat;
       for (int i=0; i<nfiles; ++i) {
@@ -1773,7 +1777,7 @@ namespace evgb {
         sumBytes += fstat.fSize;
         // skip those that would push sum above total
         // but always accept at least one (the first)
-        if ( sumBytes > maxBytes && indx != 0 ) keep = false;
+        if ( sumBytes > maxBytes && i != 0 ) keep = false;
 
         if ( keep ) fSelectedFluxFiles.push_back(afile);
         //else break;  // <voice name=Scotty> Captain, she can't take any more</voice>
