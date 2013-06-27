@@ -101,6 +101,7 @@ namespace evgb{
     genie::GMCJDriver*       fDriver;
 
     TRandom3*                fHelperRandom;      ///< random # generator for GENIEHelper
+    bool                     fUseHelperRndGen4GENIE;   ///< use fHelperRandom for gRandom during Sample()
 
     std::string              fFluxType;          ///< histogram or ntuple or atmo_FLUKA or atmo_BARTOL
     std::vector<std::string> fFluxFilePatterns;  ///< wildcard patterns files containing histograms or ntuples, or txt

@@ -112,6 +112,7 @@ namespace evgb {
     , fFluxD2GMCJD       (0)
     , fDriver            (0)
     , fHelperRandom      (0)
+    , fUseHelperRndGen4GENIE(pset.get< bool                  >("UseHelperRndGen4GENIE",true))
     , fFluxType          (pset.get< std::string              >("FluxType")               )
     , fFluxFilePatterns  (pset.get< std::vector<std::string> >("FluxFiles"))
     , fMaxFluxFileMB     (pset.get< int                      >("MaxFluxFileMB",    2000) ) // 2GB max default
@@ -1178,7 +1179,14 @@ namespace evgb {
     fGeoManager->SetTopVolume(fGeoManager->FindVolumeFast(fTopVolume.c_str()));
     
     if ( fGenieEventRecord ) delete fGenieEventRecord;
+
+    // ART Framework plays games with gRandom, undo that if requested
+    TRandom* old_gRandom = gRandom;
+    if (fUseHelperRndGen4GENIE) gRandom = fHelperRandom;
+
     fGenieEventRecord = fDriver->GenerateEvent();
+
+    if (fUseHelperRndGen4GENIE) gRandom = old_gRandom;
 
     // now check if we produced a viable event record
     bool viableInteraction = true;
