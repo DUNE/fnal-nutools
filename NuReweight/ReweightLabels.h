@@ -1,3 +1,12 @@
+////////////////////////////////////////////////////////////////////////
+///\file ReweightLabel.h
+///\brief typedef defining all of the available GENIE reweighting parameters
+///
+///\author  nathan.mayer@tufts.edu 
+////////////////////////////////////////////////////////////////////////
+#ifndef RWGT_REWEIGHTLABEL_H
+#define RWGT_REWEIGHTLABEL_H
+
 #include "ReWeight/GSyst.h"
 
 namespace rwgt {
@@ -119,3 +128,4 @@ namespace rwgt {
   } ReweightLabel_t;
 
 } // end rwgt namespace
+#endif //RWGT_REWEIGHTLABEL_H

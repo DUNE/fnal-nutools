@@ -4,6 +4,8 @@
 ///
 /// \author  nathan.mayer@tufts.edu
 ////////////////////////////////////////////////////////////////////////
+#ifndef RWGT_GENIEREWEIGHT_H
+#define RWGT_GENIEREWEIGHT_H
 
 #include <vector>
 #include <map>
@@ -145,3 +147,4 @@ namespace rwgt{
 
   };
 }
+#endif //RWGT_GENIEREWEIGHT_H
