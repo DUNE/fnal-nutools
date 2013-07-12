@@ -12,6 +12,8 @@
 #include "EventDisplayBase/ParameterSetEdit.h"
 #include "EventDisplayBase/ParameterSetEditDialog.h"
 
+#include <iostream>
+
 using namespace evdb;
 
 bool ServiceTable::IsNoneService(const std::string& s) 

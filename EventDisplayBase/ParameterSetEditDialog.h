@@ -84,7 +84,7 @@ namespace evdb
   ///
   class ParameterSetEditRow
   {
-    RQ_OBJECT("evdb::ParameterSetEditRow");
+    RQ_OBJECT("evdb::ParameterSetEditRow")
   public:
     ParameterSetEditRow(ParameterSetEditFrame* frame,
 			TGHorizontalFrame* lhs,
@@ -172,7 +172,7 @@ namespace evdb
   ///
   class ParameterSetEditFrame 
   {
-    RQ_OBJECT("evdb:ParameterSetEditFrame");
+    RQ_OBJECT("evdb:ParameterSetEditFrame")
   public:
     ParameterSetEditFrame(TGCompositeFrame* mother, unsigned int psetid);
     ~ParameterSetEditFrame();
@@ -201,7 +201,7 @@ namespace evdb
   ///
   class ParameterSetEditDialog : public TGTransientFrame
   {
-    RQ_OBJECT("evdb::ParameterSetEditDialog");
+    RQ_OBJECT("evdb::ParameterSetEditDialog")
   public:
     ParameterSetEditDialog(unsigned int psetid);
     ~ParameterSetEditDialog();
