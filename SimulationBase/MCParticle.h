@@ -85,7 +85,7 @@ namespace simb {
 
     // The track ID of the mother particle.  Note that it's possible
     // for a particle to have a mother that's not recorded in the
-    // ParticleList; e.g., an excited nucleus with low kinetic energy
+    // Particle list; e.g., an excited nucleus with low kinetic energy
     // emits a photon with high kinetic energy.
     const int Mother() const;
 
@@ -99,7 +99,7 @@ namespace simb {
 
     // Accessors for daughter information.  Note that it's possible
     // (even likely) for a daughter track not to be included in a
-    // ParticleList, if that daughter particle falls below the energy
+    // Particle list, if that daughter particle falls below the energy
     // cut.
     void AddDaughter( const int trackID );
     int  NumberDaughters()               const;
