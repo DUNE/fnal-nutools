@@ -16,8 +16,13 @@
 
 using namespace evdb;
 
+std::map<std::string, int> ServiceTable::fgCategoryOverrides;
+
 bool ServiceTable::IsNoneService(const std::string& s) 
 {
+  if(fgCategoryOverrides.count(s))
+    return fgCategoryOverrides[s] == kNONE_SERVICE;
+
   return (s.find("none")!=std::string::npos);
 }
 
@@ -25,6 +30,9 @@ bool ServiceTable::IsNoneService(const std::string& s)
 
 bool ServiceTable::IsARTService(const std::string& s) 
 {
+  if(fgCategoryOverrides.count(s))
+    return fgCategoryOverrides[s] == kART_SERVICE;
+
   //
   // This is the list of ART services I know about. Add ones you know about.
   //
@@ -50,8 +58,10 @@ bool ServiceTable::IsARTService(const std::string& s)
 
 bool ServiceTable::IsDrawingService(const std::string& s) 
 {
-  return (s.find("DrawingOptions")!=std::string::npos ||
-          s == "SliceNavigator");
+  if(fgCategoryOverrides.count(s))
+    return fgCategoryOverrides[s] == kDRAWING_SERVICE;
+
+  return (s.find("DrawingOptions")!=std::string::npos);
 }
 
 //......................................................................
@@ -177,6 +187,13 @@ void ServiceTable::ApplyEdits()
     }
   }
   inst.presentToken().putParameterSets(psets);
+}
+
+//......................................................................
+
+void ServiceTable::OverrideCategory(const std::string& s, int cat)
+{
+  fgCategoryOverrides[s] = cat;
 }
 
 //......................................................................

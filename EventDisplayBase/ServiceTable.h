@@ -6,6 +6,7 @@
 #ifndef EVDB_SERVICETABLE_H
 #define EVDB_SERVICETABLE_H
 #include <vector>
+#include <map>
 #include <string>
 namespace fhicl { class ParameterSet; }
 
@@ -40,6 +41,8 @@ namespace evdb {
     
     void Edit(unsigned int i);
     void ApplyEdits();
+
+    static void OverrideCategory(const std::string& s, int cat);
     
     const fhicl::ParameterSet GetParameterSet(unsigned int i) const;
 
@@ -47,6 +50,8 @@ namespace evdb {
     std::vector<ServiceTableEntry> fServices;
     
   private:
+    static std::map<std::string, int> fgCategoryOverrides;
+
     ServiceTable();
   };
 }
