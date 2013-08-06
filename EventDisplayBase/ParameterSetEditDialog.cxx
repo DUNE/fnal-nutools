@@ -71,6 +71,8 @@ ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
 					 const fhicl::ParameterSet& ps,
 					 const std::string& key) :
   fFrame(frame),
+  fRightLH(0),
+  fLeftLH(0),
   fLabel(0),
   fTextEntry(0),
   fListBox(0),
@@ -84,6 +86,10 @@ ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
   std::string              tag;    // What sort of frame to build?
   std::vector<std::string> values; // What is the current value?
   this->UnpackParameter(ps, key, fParamFlags, tag, fChoice, values, fGUI, fDOC);
+  if (values.empty()){
+    // What happened here? We'll crash if we continue though, so bail out.
+    return;
+  }
 
   if (fParamFlags&kVECTOR_PARAM) {
     fValue = "[";

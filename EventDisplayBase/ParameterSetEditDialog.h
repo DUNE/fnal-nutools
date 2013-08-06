@@ -148,8 +148,6 @@ namespace evdb
     TGHorizontalFrame* fMother; ///< Top level frame
     TGLayoutHints*     fRightLH;///< Align to right
     TGLayoutHints*     fLeftLH; ///< Align to left
-    TGCompositeFrame*  fLHS;    ///< Container for stuff on the left
-    TGCompositeFrame*  fRHS;    ///< Container for stuff on the right
     TGTextButton*      fLabel;  ///< Label on the left
   public:
     TGTextEntry*                fTextEntry;
