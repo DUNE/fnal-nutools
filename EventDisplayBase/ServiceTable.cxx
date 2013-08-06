@@ -50,7 +50,8 @@ bool ServiceTable::IsARTService(const std::string& s)
 
 bool ServiceTable::IsDrawingService(const std::string& s) 
 {
-  return (s.find("DrawingOptions")!=std::string::npos);
+  return (s.find("DrawingOptions")!=std::string::npos ||
+          s == "SliceNavigator");
 }
 
 //......................................................................
