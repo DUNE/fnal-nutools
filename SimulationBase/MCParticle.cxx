@@ -94,24 +94,6 @@ namespace simb {
     return *i;
   }
 
-  //------------------------------------------------------------
-  void MCParticle::AddTrajectoryPoint( const TLorentzVector& position, const TLorentzVector& momentum )
-  {
-    ftrajectory.Add( position, momentum );
-  }
-
-  //------------------------------------------------------------
-  const TLorentzVector& MCParticle::Position( const int i ) const
-  {
-    return ftrajectory.Position(i);
-  }
-
-  //------------------------------------------------------------
-  const TLorentzVector& MCParticle::Momentum( const int i ) const
-  {
-    return ftrajectory.Momentum(i);
-  }
-
   //----------------------------------------------------------------------------
   void MCParticle::SetGvtx(double *v) 
   {

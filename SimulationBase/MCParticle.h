@@ -197,6 +197,7 @@ namespace simb {
 #include <functional> // so we can redefine less<> below
 #include <math.h>
 
+// methods to access data members and other information
 inline const int                 simb::MCParticle::TrackId()                const { return ftrackId;                           }
 inline const int             	 simb::MCParticle::StatusCode()    	    const { return fstatus;            		       }
 inline const int             	 simb::MCParticle::PdgCode()       	    const { return fpdgCode;           		       }
@@ -205,6 +206,8 @@ inline const TVector3&       	 simb::MCParticle::Polarization()  	    const { re
 inline       std::string     	 simb::MCParticle::Process()       	    const { return fprocess;           		       }
 inline       int             	 simb::MCParticle::NumberDaughters() 	    const { return fdaughters.size();  		       }
 inline       unsigned int    	 simb::MCParticle::NumberTrajectoryPoints() const { return ftrajectory.size(); 		       }
+inline const TLorentzVector&     simb::MCParticle::Position( const int i )  const { return ftrajectory.Position(i);            }
+inline const TLorentzVector&     simb::MCParticle::Momentum( const int i )  const { return ftrajectory.Momentum(i);            }
 inline       double          	 simb::MCParticle::Vx(const int i)          const { return Position(i).X();    		       }
 inline       double          	 simb::MCParticle::Vy(const int i)          const { return Position(i).Y();    		       }
 inline       double          	 simb::MCParticle::Vz(const int i)          const { return Position(i).Z();    		       }
@@ -218,11 +221,14 @@ inline       double          	 simb::MCParticle::Px(const int i)          const 
 inline       double          	 simb::MCParticle::Py(const int i)          const { return Momentum(i).Py();    	       }
 inline       double          	 simb::MCParticle::Pz(const int i)          const { return Momentum(i).Pz();    	       }
 inline       double          	 simb::MCParticle::E(const int i)           const { return Momentum(i).E();     	       }
-inline       double          	 simb::MCParticle::P(const int i)           const { return sqrt(pow(Momentum(i).E(),2.)  
-												- pow(fmass,2.));              }
-inline       double          	 simb::MCParticle::Pt(const int i)          const { return sqrt(pow(Momentum(i).Px(),2.) 
-												+ pow(Momentum(i).Py(),2.));   }
-inline       double              simb::MCParticle::Mass()                   const { return fmass;                             }
+inline       double          	 simb::MCParticle::P(const int i)           const { return std::sqrt(std::pow(Momentum(i).E(),
+													      2.)  
+												     - std::pow(fmass,2.));    }
+inline       double          	 simb::MCParticle::Pt(const int i)          const { return std::sqrt(std::pow(Momentum(i).Px(),
+													      2.) 
+												     + std::pow(Momentum(i).Py(),
+														2.));          }
+inline       double              simb::MCParticle::Mass()                   const { return fmass;                              }
 inline const TLorentzVector& 	 simb::MCParticle::EndMomentum()            const { return Momentum(ftrajectory.size()-1);     }
 inline       double          	 simb::MCParticle::EndPx()                  const { return Momentum(ftrajectory.size()-1).X(); }
 inline       double          	 simb::MCParticle::EndPy()                  const { return Momentum(ftrajectory.size()-1).Y(); }
@@ -238,12 +244,18 @@ inline const int             	 simb::MCParticle::LastDaughter()           const 
 inline const int             	 simb::MCParticle::Rescatter()              const { return frescatter;                         }
 inline const simb::MCTrajectory& simb::MCParticle::Trajectory()             const { return ftrajectory;                        }
 inline const double              simb::MCParticle::Weight()                 const { return fWeight;                            }
+
+// methods to set information
+inline       void                simb::MCParticle::AddTrajectoryPoint(const TLorentzVector& position, 
+								      const TLorentzVector& momentum )
+                                                                                      { ftrajectory.Add( position, momentum ); }
 inline       void                simb::MCParticle::SparsifyTrajectory()               { ftrajectory.Sparsify();                }
 inline       void         	 simb::MCParticle::AddDaughter(const int trackID)     { fdaughters.insert(trackID); 	       }
 inline       void         	 simb::MCParticle::SetPolarization(TVector3 const& p) { fpolarization = p;          	       }
 inline       void         	 simb::MCParticle::SetRescatter(int code)             { frescatter    = code;       	       }
 inline       void         	 simb::MCParticle::SetWeight(double wt)               { fWeight       = wt;         	       }
 
+// definition of the < operator
 inline bool simb::MCParticle::operator<( const simb::MCParticle& other )    const { return ftrackId < other.ftrackId;          }
 
 // A potentially handy definition: At this stage, I'm not sure
