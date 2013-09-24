@@ -50,17 +50,18 @@ namespace evgb{
     , fSubBoxL        (pset.get< std::string >("SubBoxLength")          )
     , fBoxDelta       (pset.get< double      >("WorldBoxDelta", 1.e-5)  )
     , fSingleEventMode(pset.get< bool        >("GenSingleEvents", false))
-
   {    
     // Construct the CRY generator
-    std::string config("date 1-1-2014 "
-		       "returnGammas 1 "
-		       "returnElectrons 1 "
-		       "returnMuons 1 "
-		       "returnPions 1 "
-		       "returnNeutrons 1 "
-		       "returnProtons 1 ");
-  
+    std::string config("date 1-1-2014 ");
+
+    // all particles are turned on by default.  have to have trailing space if 
+    // configured in .fcl file
+    config += pset.get< std::string >("GammaSetting",    "returnGammas    1 ");
+    config += pset.get< std::string >("ElectronSetting", "returnElectrons 1 ");
+    config += pset.get< std::string >("MuonSetting",     "returnMuons     1 ");
+    config += pset.get< std::string >("PionSetting",     "returnPions     1 ");
+    config += pset.get< std::string >("NeutronSetting",  "returnNeutrons  1 ");
+    config += pset.get< std::string >("ProtonSetting",   "returnProtons   1 ");
     config += fLatitude;
     config += fAltitude;
     config += fSubBoxL;
