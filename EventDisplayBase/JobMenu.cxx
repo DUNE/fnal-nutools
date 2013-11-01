@@ -133,7 +133,7 @@ namespace evdb{
 
   //......................................................................
 
-  void JobMenu::EditConfig(int i)
+  void JobMenu::EditConfig(int /*i*/)
   {  
     // make sure to subtract off the offset used to distinguish between
     // module and service configs
@@ -143,7 +143,7 @@ namespace evdb{
 
   //......................................................................
 
-  void JobMenu::EditService(int i)
+  void JobMenu::EditService(int /*i*/)
   {  
     // make sure to subtract off the offset used to distinguish between
     // module and service configs

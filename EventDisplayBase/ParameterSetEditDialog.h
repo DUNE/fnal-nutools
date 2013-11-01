@@ -109,23 +109,19 @@ namespace evdb
                         const std::vector<std::string>& value);
 
     void SetupListBox(TGCompositeFrame* f, 
-                      unsigned int flags,
                       const std::vector<std::string>& choice,
                       const std::vector<std::string>& value,
                       bool ismulti);
 
     void SetupRadioButtons(TGCompositeFrame* f, 
-                           unsigned int flags,
                            const std::vector<std::string>& choice,
                            const std::vector<std::string>& value);
     
     void SetupCheckButton(TGCompositeFrame* f, 
-			  unsigned int flags,
 			  const std::vector<std::string>& choice,
 			  const std::vector<std::string>& value);
     
     void SetupSlider(TGCompositeFrame* f,
-                     unsigned int flags,
                      const std::vector<std::string>& choice,
                      const std::vector<std::string>& value);
 

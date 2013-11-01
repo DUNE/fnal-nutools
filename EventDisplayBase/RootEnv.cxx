@@ -26,7 +26,7 @@
 
 namespace evdb{
 
-  RootEnv::RootEnv(int /*argc*/, char** argv) 
+  RootEnv::RootEnv(int /*argc*/, char** /*argv*/) 
   {
     //======================================================================
     // Setup the root environment for a program started with command line

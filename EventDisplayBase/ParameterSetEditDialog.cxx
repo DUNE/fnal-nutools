@@ -120,23 +120,23 @@ ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
     this->SetupTextEntry(rhs, fParamFlags, values);
   }
   if (tag==kLIST_BOX_SINGLE) {
-    this->SetupListBox(rhs, fParamFlags, fChoice, values, false);
+    this->SetupListBox(rhs, fChoice, values, false);
   }
   if (tag==kLIST_BOX_MULTI) {
-    this->SetupListBox(rhs, fParamFlags, fChoice, values, true);
+    this->SetupListBox(rhs, fChoice, values, true);
   }
   if (tag==kRADIO_BUTTONS) {
-    this->SetupRadioButtons(rhs, fParamFlags, fChoice, values);
+    this->SetupRadioButtons(rhs, fChoice, values);
   }
   if (tag==kCHECK_BOX) {
-    this->SetupCheckButton(rhs, fParamFlags, fChoice, values);
+    this->SetupCheckButton(rhs, fChoice, values);
   }
   if (tag==kSLIDER) {
-    this->SetupSlider(rhs, fParamFlags, fChoice, values);
+    this->SetupSlider(rhs, fChoice, values);
   }
   if (tag==kSLIDER_INT) {
     fParamFlags |= kINTEGER_PARAM;
-    this->SetupSlider(rhs, fParamFlags, fChoice, values);
+    this->SetupSlider(rhs, fChoice, values);
   }
 }
 
@@ -341,7 +341,6 @@ void ParameterSetEditRow::SetupTextEntry(TGCompositeFrame* f,
 //......................................................................
 
 void ParameterSetEditRow::SetupListBox(TGCompositeFrame* f, 
-                                      unsigned int flags,
                                       const std::vector<std::string>& choice,
                                       const std::vector<std::string>& value,
                                       bool ismulti)
@@ -373,11 +372,9 @@ void ParameterSetEditRow::SetupListBox(TGCompositeFrame* f,
 
 //......................................................................
 
-void ParameterSetEditRow::
-SetupRadioButtons(TGCompositeFrame* f, 
-                  unsigned int flags,
-                  const std::vector<std::string>& choice,
-                  const std::vector<std::string>& value)
+void ParameterSetEditRow::SetupRadioButtons(TGCompositeFrame* f, 
+					    const std::vector<std::string>& choice,
+					    const std::vector<std::string>& value)
 {
   unsigned int v = atoi(value[0].c_str());
   
@@ -399,11 +396,9 @@ SetupRadioButtons(TGCompositeFrame* f,
 
 //......................................................................
 
-void ParameterSetEditRow::
-SetupCheckButton(TGCompositeFrame* f, 
-		 unsigned int flags,
-		 const std::vector<std::string>& choice,
-		 const std::vector<std::string>& value)
+void ParameterSetEditRow::SetupCheckButton(TGCompositeFrame* f, 
+					   const std::vector<std::string>& choice,
+					   const std::vector<std::string>& value)
 {
   unsigned int mask;
   unsigned int v = atoi(value[0].c_str());
@@ -422,9 +417,7 @@ SetupCheckButton(TGCompositeFrame* f,
   }
 }
 //......................................................................
-
 void ParameterSetEditRow::SetupSlider(TGCompositeFrame* f, 
-				      unsigned int flags,
 				      const std::vector<std::string>& choice,
 				      const std::vector<std::string>& value)
 {

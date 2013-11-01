@@ -3,7 +3,8 @@ include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} )
 set( PACKAGE EventDisplayBase )
 FILE( GLOB src_files *.cxx )
 
-set( EVD_LIBS ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
+set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
+              ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
 	      ${ROOT_EVE}
 	      ${ROOT_EG}
 	      ${ROOT_TREEPLAYER} 

@@ -29,7 +29,6 @@ namespace evdb{
 
   static void parse_pset_string(const std::string& pset, 
 				std::vector<std::string>& names,
-				std::vector<std::string>& types,
 				std::vector<std::string>& values)
   {
     // Parse out the content of the parameter set
@@ -60,7 +59,6 @@ namespace evdb{
 
   ParamFrame::ParamFrame(const TGWindow* p, 
 			 std::vector<std::string>&  name,
-			 std::vector<std::string>&  type,
 			 std::vector<std::string>&  value,
 			 std::vector<TGTextEntry*>& fT2)
   {
@@ -89,7 +87,6 @@ namespace evdb{
 			     TGButton::GetDefaultGC()(),
 			     TGTextButton::GetDefaultFontStruct(), 
 			     0);
-      //b->SetToolTipText(type[i].c_str());
       fFrame->AddFrame(b, fLH3);
     
       // Build the text edit box for the values
@@ -161,7 +158,7 @@ namespace evdb{
 
   //......................................................................
 
-  ParameterSetEdit::ParameterSetEdit(TGMainFrame* mf,
+  ParameterSetEdit::ParameterSetEdit(TGMainFrame* /*mf*/,
 				     const std::string& module,
 				     const std::string& label,
 				     const std::string& pset,
@@ -173,7 +170,7 @@ namespace evdb{
     int w = 500;
   
     // Convert the parameter set to a list of names, types, and values.
-    parse_pset_string(pset, fName, fType, fValue);
+    parse_pset_string(pset, fName, fValue);
   
     fLH1 = new TGLayoutHints(kLHintsLeft|kLHintsExpandX,   2,2,2,2);
     fLH2 = new TGLayoutHints(kLHintsRight|kLHintsExpandX,  2,2,2,2);
@@ -198,7 +195,6 @@ namespace evdb{
     fCanvas = new TGCanvas(this, w, h);
     fParam = new ParamFrame(fCanvas->GetViewPort(),
 			    fName,
-			    fType, 
 			    fValue,
 			    fT2);
     fParam->SetCanvas(fCanvas);

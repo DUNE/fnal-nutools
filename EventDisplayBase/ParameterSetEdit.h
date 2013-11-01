@@ -29,7 +29,6 @@ namespace evdb {
   public:
     ParamFrame(const TGWindow *p, 
 	       std::vector<std::string>&  names,
-	       std::vector<std::string>&  type,
 	       std::vector<std::string>&  value,
 	       std::vector<TGTextEntry*>& fT2
 	       );

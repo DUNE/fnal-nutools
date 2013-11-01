@@ -9,7 +9,8 @@
 
 namespace evdb 
 {
-  EditMenu::EditMenu(TGMenuBar* menubar, TGMainFrame* mf)
+  EditMenu::EditMenu(TGMenuBar* menubar, 
+		     TGMainFrame* /*mf*/)
   {
     fEditMenu = new TGPopupMenu(gClient->GetRoot());
 

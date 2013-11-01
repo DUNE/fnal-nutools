@@ -31,17 +31,13 @@ set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS CAUTIOUS EXTRA_FLAGS -pedantic -Wno-deprecated-declarations)
-cet_have_qual(e2 E2)
-if ( E2 )
-  cet_add_compiler_flags(CXX -std=c++0x)
-endif()
+cet_set_compiler_flags(DIAGS CAUTIOUS WERROR EXTRA_FLAGS -pedantic EXTRA_CXX_FLAGS -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -Wno-unused-local-typedefs)
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( art v1_06_00 )
-find_ups_product( genie v2_8_0 )
-find_ups_product( cetbuildtools v3_03_00 )
+find_ups_product( art v1_08_04 )
+find_ups_product( genie v2_8_0a )
+find_ups_product( cetbuildtools v3_06_05 )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")
 set( ROOT_INC ${ROOTSYS}/include )
