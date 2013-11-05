@@ -95,14 +95,15 @@ namespace evgen {
 
   //____________________________________________________________________________
   EventGeneratorTest::EventGeneratorTest(fhicl::ParameterSet const& pset)
-    : fTotalGENIEPOT         ( pset.get< double      >("TotalGENIEPOT",          5e18))
+    : EDAnalyzer             (pset)
+    , fTotalGENIEPOT         ( pset.get< double      >("TotalGENIEPOT",          5e18))
     , fTotalGENIEInteractions( pset.get< double      >("TotalGENIEInteractions", 100) )
     , fTotalCRYSpills        ( pset.get< double      >("TotalCRYSpills",         1000))
     , fTopVolume             ( pset.get< std::string >("TopVolume"                   ))
     , fGeometryFile          ( pset.get< std::string >("GeometryFile"                ))
-    , fCryDetLength(1000.)
-    , fCryDetWidth(500.)
-    , fCryDetHeight(500.)
+    , fCryDetLength          (1000.)
+    , fCryDetWidth           (500.)
+    , fCryDetHeight          (500.)
   {  
     /// Create a Art Random Number engine
     int seed = (pset.get< int >("Seed", evgb::GetRandomNumberSeed()));

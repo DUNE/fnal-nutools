@@ -83,6 +83,7 @@ namespace rwgt{
 
   //......................................................................  
   ReweightAna::ReweightAna(fhicl::ParameterSet const& p)
+    : EDAnalyzer(p)
   {
     this->reconfigure(p);
   }
