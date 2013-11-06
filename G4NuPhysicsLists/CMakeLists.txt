@@ -1,11 +1,16 @@
 #
-
+# CMakeLists.txt for G4NuPhysicsLists
+#
 # setup UPS products for ROOT (and get Geant4 + gcc)
 #
 #  WHICH_G4=`ls -d ${GEANT4_FQ_DIR}/lib64/Geant4-*`
 #  WHICH_CLHEP=`ls -d ${CLHEP_LIB_DIR}/CLHEP-*`
 # 
-#  cmake -DGeant4_DIR=${WHICH_G4} -DCLHEP_DIR=${WHICH_CLHEP}  ./
+#  cmake -DGeant4_DIR=${WHICH_G4} -DCLHEP_DIR=${WHICH_CLHEP} \
+#        -DCMAKE_INSTALL_PREFIX=/path/to/install/dir  /path/to/src
+#
+# expects following environment variables are set:
+#     [none]
 #
 #
 #----------------------------------------------------------------------------
@@ -15,6 +20,8 @@ project(G4NuPhysicsLists)
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+
+#set(CMAKE_INSTALL_PREFIX ../G4NuPhysicsLists-install)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -38,13 +45,18 @@ include(${Geant4_USE_FILE})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/G4NuPhysicsLists)
-include_directories($ENV{XERCESCROOT}/include)
-include_directories($ENV{ROOTSYS}/include)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories($ENV{GEANT4_FQ_DIR}/include)
+#MESSAGE("Geant4_DIR=${Geant4_DIR}")
+#MESSAGE("Geant4_INCLUDE_DIRS=${Geant4_INCLUDE_DIRS}")
+#MESSAGE("Geant4_INCLUDE_DIR=${Geant4_INCLUDE_DIR}")
 
-link_directories($ENV{ROOTSYS}/lib)
+# Geant4_INCLUDE_DIR --->  /path/to/version/include/Geant4 
+#        ... but also want /path/to/version/include
+# INCLUDE_DIRS also includes paths for CLHEP and XERCES_C
+include_directories(${Geant4_INCLUDE_DIR}/..)  # allow for #include "Geant4/file.h"
+include_directories(${Geant4_INCLUDE_DIRS})    # all the standard paths
+
+#link_directories(${Geant4_LIBRARY_DIR})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -60,34 +72,12 @@ add_library(g4nupl SHARED ${sources})
 target_link_libraries(g4nupl ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
-# Copy all scripts to the build directory, i.e. the directory in which we
-# build B1. This is so that we can run the executable directly because it
-# relies on these scripts being in the current working directory.
-#
-#set(EXAMPLEG4SA_SCRIPTS
-#  g4sa.mac
-#  newgeom.mac
-#  rndmSeed.mac
-#  run_e.mac
-#  )
-#
-#foreach(_script ${EXAMPLEG4SA_SCRIPTS})
-#  configure_file(
-#    ${PROJECT_SOURCE_DIR}/${_script}
-#    ${PROJECT_BINARY_DIR}/${_script}
-#    COPYONLY
-#    )
-#endforeach()
-#
-#----------------------------------------------------------------------------
-# For internal Geant4 use - but has no effect if you build this
-# example standalone
-#
-#add_custom_target(G4SA DEPENDS g4sa)
+# Copy include and lib areas to final resting place
 
-#----------------------------------------------------------------------------
-# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
-#
-#install(TARGETS g4sa DESTINATION bin)
-
+INSTALL (
+  DIRECTORY   include/G4NuPhysicsLists
+  DESTINATION include
+  PATTERN ".svn" EXCLUDE
+  )
+INSTALL(TARGETS g4nupl DESTINATION lib)
 
