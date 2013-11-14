@@ -168,11 +168,16 @@ namespace evdb
   {
     RQ_OBJECT("evdb:ParameterSetEditFrame")
   public:
+
     ParameterSetEditFrame(TGCompositeFrame* mother, unsigned int psetid);
     ~ParameterSetEditFrame();
+
     std::string AsFHICL() const;
+
+    void HandleMouseWheel(Event_t *event);
     void Modified();
     void Finalize();
+
   public:
     TGCompositeFrame* fTopFrame;
     TGCanvas*         fCanvas;

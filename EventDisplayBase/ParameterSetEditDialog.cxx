@@ -647,7 +647,7 @@ ParameterSetEditFrame::ParameterSetEditFrame(TGCompositeFrame* mother,
   fCanvas->SetContainer(fContainer);
   
   //
-  // Location the parameter set connected to this frame
+  // Locate the parameter set connected to this frame
   //
   const ServiceTable& st = ServiceTable::Instance();
   const fhicl::ParameterSet& pset = st.GetParameterSet(psetid);
@@ -696,6 +696,11 @@ ParameterSetEditFrame::ParameterSetEditFrame(TGCompositeFrame* mother,
       ++j;
     }
   }
+
+  fCanvas->Connect("ProcessedEvent(Event_t*)", "evdb::ParameterSetEditFrame", 
+		   this,
+		   "HandleMouseWheel(Event_t*)");
+
   fCanvas->Resize();
 }
 
@@ -720,11 +725,40 @@ ParameterSetEditFrame::~ParameterSetEditFrame()
 }
 
 //......................................................................
+void ParameterSetEditFrame::HandleMouseWheel(Event_t *event)
+{
+  // Handle mouse wheel to scroll.                                      
+  if (event->fType != kButtonPress && event->fType != kButtonRelease)
+    return;
+  
+  Int_t page = 0;
+  if (event->fCode == kButton4 || event->fCode == kButton5) {
+    if (!fCanvas) return;
+    if (fCanvas->GetContainer()->GetHeight())
+      page = Int_t(Float_t(fCanvas->GetViewPort()->GetHeight() *
+			   fCanvas->GetViewPort()->GetHeight()) /
+		   fCanvas->GetContainer()->GetHeight());
+  }
 
+  if (event->fCode == kButton4) {
+    //scroll up
+    Int_t newpos = fCanvas->GetVsbPosition() - page;
+    if (newpos < 0) newpos = 0;
+    fCanvas->SetVsbPosition(newpos);
+  }
+  if (event->fCode == kButton5) {
+    // scroll down
+    Int_t newpos = fCanvas->GetVsbPosition() + page;
+    fCanvas->SetVsbPosition(newpos);
+  }
+
+  return;
+}
+
+//......................................................................
 void ParameterSetEditFrame::Modified() { fIsModified = true; }
 
 //......................................................................
-
 void ParameterSetEditFrame::Finalize() 
 {
   unsigned int i;
