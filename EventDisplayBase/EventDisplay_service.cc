@@ -1,5 +1,5 @@
 ///
-/// \file  EventDisplay.cxx
+/// \file  EventDisplay_service.cc
 /// \brief The interactive event display
 ///
 /// \version $Id: EventDisplay.cxx,v 1.25 2012-03-05 20:37:14 brebel Exp $

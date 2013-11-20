@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  Particle.cxx
+/// \file  MCParticle.cxx
 /// \brief Description of a particle passed to Geant4
 ///
 /// \version $Id: MCParticle.cxx,v 1.12 2012-11-20 17:39:38 brebel Exp $
