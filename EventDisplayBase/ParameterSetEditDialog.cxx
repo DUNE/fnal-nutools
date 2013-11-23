@@ -23,7 +23,7 @@ using namespace evdb;
 
 // Window and row sizes in units of pixels
 static const unsigned int kWidth  = 500*11/10;
-static const unsigned int kHeight = 700*11/10;
+static const unsigned int kHeight = 500*11/10;
 static const unsigned int kRowW   = kWidth-150;
 static const unsigned int kRowH   = 18;
 
