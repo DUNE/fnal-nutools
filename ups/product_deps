@@ -19,8 +19,8 @@ bindir      fq_dir      bin
 # this means that we only need to list art, cry, and genie as a dependencies
 product         version
 gcc		v4_8_1
-art		v1_08_09
-genie		v2_8_0b
+art		v1_08_10
+genie		v2_8_0c
 cry		v1_7
 
 # list products required ONLY for the build
