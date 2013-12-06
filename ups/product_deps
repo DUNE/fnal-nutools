@@ -25,7 +25,7 @@ cry		v1_7
 
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build  cetbuildtools   v3_06_05
+only_for_build  cetbuildtools   v3_07_03
 
 # e4  - with gcc 4.8.1 and -std=c++11
 # -nq- here means there is no qualifier
