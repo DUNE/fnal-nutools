@@ -31,13 +31,13 @@ set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR EXTRA_FLAGS -pedantic EXTRA_CXX_FLAGS -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -Wno-unused-local-typedefs)
+cet_set_compiler_flags(DIAGS CAUTIOUS WERROR EXTRA_FLAGS -pedantic EXTRA_CXX_FLAGS -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -Wno-unused-local-typedefs -Wno-variadic-macros)
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( art v1_08_04 )
-find_ups_product( genie v2_8_0a )
-find_ups_product( cetbuildtools v3_06_05 )
+find_ups_product( art v1_08_10 )
+find_ups_product( genie v2_8_0c )
+find_ups_product( cetbuildtools v3_07_03 )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")
 set( ROOT_INC ${ROOTSYS}/include )
@@ -142,6 +142,8 @@ include_directories ( $ENV{LIBXML2_FQ_DIR}/include/libxml2 )
 include_directories ( $ENV{GEANT4_FQ_DIR}/include )
 include_directories ( $ENV{XERCES_C_INC} )
 include_directories ( $ENV{CRYHOME}/src )
+# included for Mac OSX using XQuartz for X11, ignored on other systems
+include_directories ( /opt/X11/include )
 
 # source
 add_subdirectory (EventDisplayBase)
