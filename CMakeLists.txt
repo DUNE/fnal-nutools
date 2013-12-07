@@ -136,8 +136,6 @@ include(BuildPlugins)
 include(CetRootCint)
 
 # include search path
-include_directories ( $ENV{LIBSIGCPP_INC}/sigc++-2.0 )
-include_directories ( $ENV{LIBSIGCPP_LIB}/sigc++-2.0/include )
 include_directories ( ${CMAKE_SOURCE_DIR} )
 include_directories ( $ENV{GENIE_INC}/GENIE )
 include_directories ( $ENV{LIBXML2_FQ_DIR}/include/libxml2 )
