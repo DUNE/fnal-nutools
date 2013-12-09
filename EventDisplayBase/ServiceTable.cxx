@@ -8,6 +8,7 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "EventDisplayBase/ParameterSetEdit.h"
 #include "EventDisplayBase/ParameterSetEditDialog.h"
@@ -156,15 +157,14 @@ void ServiceTable::ApplyEdits()
       bool ismatch = 
 	(fServices[i].fName.
 	 compare(psets[ps].get<std::string>("service_type","none"))==0);
-      
-      /*
-      if (ismatch) {
-	std::cout << "Applying edits for " << fServices[i].fName << std::endl;
-	std::cout << fServices[i].fParamSet << std::endl;
-      }
-      */
+
       
       if (ismatch) {
+	LOG_DEBUG("ServiceTable") << "Applying edits for " 
+				  << fServices[i].fName 
+				  << "\n"
+				  << fServices[i].fParamSet;
+
 	try {
 	  fhicl::ParameterSet pset;
 	  fhicl::intermediate_table itable;
@@ -177,11 +177,10 @@ void ServiceTable::ApplyEdits()
 	  psets[ps] = pset;
 	}
 	catch (fhicl::exception& e) {
-	  std::cerr << "Error parsing the new configuration:\n"
-		    << e
-		    << "\nRe-configuration has been ignored for service: "
-		    << fServices[i].fName
-		    << std::endl;
+	  LOG_ERROR("ServiceTable") << "Error parsing the new configuration:\n"
+				    << e
+				    << "\nRe-configuration has been ignored for service: "
+				    << fServices[i].fName;
 	}
       }
     }
@@ -213,10 +212,9 @@ const fhicl::ParameterSet ServiceTable::GetParameterSet(unsigned int id) const
   //
   // Fall through to here only on errors
   //
-  std::cerr << __FILE__ << ":" << __LINE__ 
-            << " Parameter set " 
-	    << fServices[i].fName
-	    << " not found " << std::endl;
+  LOG_ERROR("ServiceTable") << " Parameter set " 
+			    << fServices[i].fName
+			    << " not found ";
   static fhicl::ParameterSet empty;
   return empty;
 }

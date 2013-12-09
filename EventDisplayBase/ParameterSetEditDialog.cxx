@@ -19,6 +19,9 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "EventDisplayBase/NavState.h"
 #include "EventDisplayBase/ServiceTable.h"
+
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 using namespace evdb;
 
 // Window and row sizes in units of pixels
@@ -37,7 +40,7 @@ static const int kVECTOR_OF_VECTOR_PARAM = 1<<2; // Expect multiple values
 static const int kHAVE_GUI_TAGS          = 1<<3; // GUI tags are present
 static const int kNO_GUI_TAGS            = 1<<4; // GUI tags are not present
 static const int kINTEGER_PARAM          = 1<<5; // Force the value to be int
-
+static const int kPARAMETER_SET_PARAM    = 1<<6; // Value is a parameter set itself
 //
 // The short letter codes for the various GUI objects supported. Also
 // provide a list of all possible tags.
@@ -98,6 +101,11 @@ ParameterSetEditRow::ParameterSetEditRow(ParameterSetEditFrame* frame,
       if (i+1<values.size()) fValue += ",";
       else                   fValue += "]";
     }
+  }
+  else if(fParamFlags&kPARAMETER_SET_PARAM){
+    fValue  = "{";
+    fValue += values[0];
+    fValue += "}";
   }
   else {
     fValue = values[0];
@@ -257,10 +265,19 @@ void ParameterSetEditRow::UnpackParameter(const fhicl::ParameterSet& p,
 	if (vv.size()==0) value.push_back("[[]]");
       }
       catch (...) {
-	//
-	// If that fails we are very stuck. Print a message and fail.
-	//
-	std::cerr << "Failed to parse " << key << std::endl;
+	// what about another fhicl::ParameterSet?
+	try{
+	  fhicl::ParameterSet v = p.get< fhicl::ParameterSet >(valkey);
+	  flag |= kPARAMETER_SET_PARAM;
+	  value.push_back(v.to_string());
+	}
+	catch(...){
+	  //
+	  // If that fails we are very stuck. Print a message and fail.
+	  //
+	  LOG_ERROR("ParameterSetEditDialog") << "Failed to parse " << key
+					      << "\n" << p.to_string();
+	}
       }
     }
   }
@@ -305,8 +322,7 @@ bool ParameterSetEditRow::IsLegalGUItag(const std::string& s)
   for(unsigned int i=0; i<gsGUITAG.size(); ++i) {
     if (s==gsGUITAG[i]) return true;
   }
-  std::cerr << __FILE__ << ":" << __LINE__ << " " 
-            << s << " is not a legal GUI tag." << std::endl;
+  LOG_ERROR("ParameterSetEditDialog") << s << " is not a legal GUI tag.";
   return false;
 }
 
@@ -329,11 +345,13 @@ void ParameterSetEditRow::SetupTextEntry(TGCompositeFrame* f,
   
   std::string buff;
   if (flags&kVECTOR_PARAM) buff += "[";
+  if (flags&kPARAMETER_SET_PARAM) buff += "{";
   for (unsigned int i=0; i<value.size(); ++i) {
     buff += value[i];
     if ((i+1)!=value.size()) buff += ",";
   }
   if (flags&kVECTOR_PARAM) buff += "]";
+  if (flags&kPARAMETER_SET_PARAM) buff += "}";
   fTextEntry->SetText(buff.c_str(), 0);
   fTextEntry->Resize(kRowW,kRowH);
 }
@@ -874,7 +892,7 @@ void ParameterSetEditDialog::Apply()
       
       p += "service_type:";
       p += st.fServices[psetid].fName;
-      
+
       st.fServices[psetid].fParamSet = p;
 
     }
