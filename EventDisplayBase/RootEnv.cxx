@@ -137,11 +137,17 @@ namespace evdb{
       app->ProcessLine("#include <string>");
     
       // Load experiment include files
+      // Have to be careful here, not every experiment uses
+      // SRT, so don't try to load the SRT macro paths 
+      // if SRT variables aren't defined.
       std::string mp = gROOT->GetMacroPath();
       std::string ip;
       const char* p;
+      bool srtPrivate = false;
+      bool srtPublic  = false;
       p = gSystem->Getenv("SRT_PRIVATE_CONTEXT");
       if (p) {
+	srtPrivate = true;
 	mp += ":";
 	mp += p;
 	mp += ":";
@@ -149,25 +155,29 @@ namespace evdb{
 	mp += "/macros";
 	ip += " -I";
 	ip += p;
+
+	std::string dip = ".include ";
+	dip += gSystem->Getenv("SRT_PRIVATE_CONTEXT");
+	gROOT->ProcessLine(dip.c_str());
       }
       p = gSystem->Getenv("SRT_PUBLIC_CONTEXT");
       if (p) {
+	srtPublic = true;
 	mp += ":";
 	mp += p;
 	mp += "/macros";
 	ip += " -I";
 	ip += p;
+
+	std::string dip = ".include ";
+	dip += gSystem->Getenv("SRT_PUBLIC_CONTEXT");
+	gROOT->ProcessLine(dip.c_str());
       }
-    
-      gROOT->SetMacroPath(mp.c_str());
-      gSystem->SetIncludePath(ip.c_str());
-    
-      std::string dip = ".include ";
-      dip += gSystem->Getenv("SRT_PRIVATE_CONTEXT");
-      gROOT->ProcessLine(dip.c_str());
-      dip = ".include ";
-      dip += gSystem->Getenv("SRT_PUBLIC_CONTEXT");
-      gROOT->ProcessLine(dip.c_str());
+
+      if(srtPublic || srtPrivate){
+	gROOT->SetMacroPath(mp.c_str());
+	gSystem->SetIncludePath(ip.c_str());
+      }
     }
   }
 

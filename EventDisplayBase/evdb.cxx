@@ -23,8 +23,10 @@ TGPicturePool* evdb::PicturePool()
     const char* public_ctx  = getenv("SRT_PUBLIC_CONTEXT");
     const char* root_ctx    = getenv("ROOTSYS");
     
-    path += private_ctx; path += "/EventDisplay/icons:";
-    path += public_ctx;  path += "/EventDisplay/icons:";
+    // Not every experiment uses SRT, so check that the SRT environmental 
+    // variables are legit before adding them to the path
+    if(private_ctx) path += private_ctx; path += "/EventDisplay/icons:";
+    if(public_ctx)  path += public_ctx;  path += "/EventDisplay/icons:";
     path += root_ctx;    path += "/icons";
     
     pp = new TGPicturePool(gClient, path.c_str());

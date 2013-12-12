@@ -155,7 +155,11 @@ namespace evdb{
 
   int JobMenu::OpenJob() 
   {
-    static TString dir(getenv("SRT_PRIVATE_CONTEXT"));
+    // not every experiment uses SRT, so be sure to have
+    // a non-SRT option for the directory
+    static TString dir("./");
+    char* dirchar = getenv("SRT_PRIVATE_CONTEXT");
+    if(dirchar) dir = dirchar;    
     const char* filetypes[] = {
       "Configuration Files", "*.fcl",
       0,                     0
