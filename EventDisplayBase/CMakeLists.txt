@@ -34,8 +34,9 @@ art_make_library( LIBRARY_NAME ${PACKAGE}
         	  SOURCE ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
         	  LIBRARIES ${EVD_LIBS} )
 
-simple_plugin( EventDisplay service ${EVD_LIBS} BASENAME_ONLY )
-simple_plugin( ScanOptions service ${EVD_LIBS} BASENAME_ONLY )
+set( EVD_SERVICE_LIBS ${EVD_LIBS} ${PACKAGE} )
+simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
+simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
 
 install_headers()
 install_fhicl()
