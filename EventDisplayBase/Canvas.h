@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_CANVAS_H
 #define EVDB_CANVAS_H
-#include <cassert>
+
 #include "TQObject.h"
 #include "RQ_OBJECT.h"
 #include "EventDisplayBase/Printable.h"

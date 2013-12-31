@@ -6,8 +6,6 @@
 #ifndef EVGEN_TEST_H
 #define EVGEN_TEST_H
 
-
-#include <cassert>
 #include <cstdlib>
 #include <string>
 #include <sstream>
@@ -185,8 +183,8 @@ namespace evgen {
     }
 
     else if(fluxType.compare("ntuple") == 0){
-      std::cerr <<"No ntuple flux file exists, bail ungracefully";
-      assert(0);
+      throw cet::exception("EventGeneratorTest") <<"No ntuple flux file "
+						 << "exists, bail ungracefully";
     }
 
     fhicl::ParameterSet pset;
@@ -262,8 +260,7 @@ namespace evgen {
       std::vector<TH1D*> fluxhist = help.FluxHistograms();
 
       if(fluxhist.size() < 1){
-	mf::LogWarning("EventGeneratorTest") << "using histogram fluxes but no histograms provided!";
-	assert(0);
+	throw cet::exception("EventGeneratorTest") << "using histogram fluxes but no histograms provided!";
       }
       
       // see comments in GENIEHelper::Initialize() for how this calculation was done.
@@ -271,9 +268,9 @@ namespace evgen {
       totalExp *= help.TotalExposure()*help.TotalMass()/(1.67262158e-27);
 
       mf::LogWarning("EventGeneratorTest") << "expected " << totalExp << " interactions";
-      if(fabs(interactionCount - totalExp) > 3.*TMath::Sqrt(totalExp) ){
-	mf::LogWarning("EventGeneratorTest") << "generated count is more than 3 sigma off expectation";
-	assert(0);
+      if(std::abs(interactionCount - totalExp) > 3.*std::sqrt(totalExp) ){
+	throw cet::exception("EventGeneratorTest") << "generated count is more than "
+						   << "3 sigma off expectation";
       }
 
     }// end if histogram fluxes

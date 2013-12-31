@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////
 #ifndef EVDB_OBJLISTCANVAS_H
 #define EVDB_OBJLISTCANVAS_H
-#include <cassert>
+
 #include "TQObject.h"
 #include "RQ_OBJECT.h"
 #ifndef EVDB_PRINTABLE_H

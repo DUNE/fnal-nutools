@@ -6,8 +6,6 @@
 /// \version $Id: DisplayWindow.cxx,v 1.7 2012-01-17 20:53:56 brebel Exp $
 /// \author  messier@indiana.edu
 ////////////////////////////////////////////////////////////////////////
-#include "EventDisplayBase/DisplayWindow.h"
-#include <cassert>
 #include <iostream>
 #include <vector>
 #include "TROOT.h"
@@ -18,6 +16,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 
+#include "EventDisplayBase/DisplayWindow.h"
 #include "EventDisplayBase/FileMenu.h"
 #include "EventDisplayBase/EditMenu.h"
 #include "EventDisplayBase/MenuBar.h"
@@ -26,6 +25,7 @@
 #include "EventDisplayBase/StatusBar.h"
 #include "EventDisplayBase/EventHolder.h"
 
+#include "cetlib/exception.h"
 
 namespace evdb{
 
@@ -141,10 +141,15 @@ namespace evdb{
 
   DisplayWindow::DisplayWindow(int id) 
   {
-    assert(!gROOT->IsBatch());
-    assert(gClient);
+    if(gROOT->IsBatch())
+      throw cet::exception("DisplayWindow") << "ROOT is in batch mode"
+					    << " cannot open DisplayWindow";
+    if(!gClient)
+      throw cet::exception("DisplayWindow") << "No ROOT global TClient";
+
     const TGWindow* tgw = gClient->GetRoot();
-    assert(tgw);
+    if(!tgw)
+      throw cet::exception("DisplayWindow") << "No TGWindow pointer";
 
     // Create the main application window. I need a resize to get the
     // window to draw the first time, so create the window slightly

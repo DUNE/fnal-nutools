@@ -14,6 +14,7 @@
 // ART includes framework includes
 #include "art/Framework/IO/Root/RootInput.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "cetlib/exception.h"
 // Local includes
 #include "EventDisplayBase/ServiceTable.h"
 #include "EventDisplayBase/DisplayWindow.h"
@@ -144,8 +145,12 @@ namespace evdb
       for(std::map<std::string,Printable*>::iterator it = ps.begin(); it != ps.end(); ++it){
 	Printable* p = it->second;
 	// Ensure the format string is well-formed
-	assert(fAutoPrintPattern.find("%s") != std::string::npos);
-	assert(fAutoPrintPattern.find("%d") != std::string::npos);
+	if(fAutoPrintPattern.find("%s") == std::string::npos)
+	  throw cet::exception("EventDisplay") << "Cannot find AutoPrintPattern"
+					       << " format for %s";
+	if(fAutoPrintPattern.find("%d") == std::string::npos)
+	  throw cet::exception("EventDisplay") << "Cannot find AutoPrintPattern"
+					       << " format for %d";
 	// png doesn't seem to work for some reason
 	p->Print(TString::Format(fAutoPrintPattern.c_str(), p->PrintTag(), evt.event()));
       }

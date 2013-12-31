@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <string>
-#include <cassert>
 #include <cstdlib>
 
 #include "TROOT.h"
@@ -24,6 +23,8 @@
 #include "TSysEvtHandler.h"
 #include "TInterpreter.h"
 
+#include "cetlib/exception.h"
+
 namespace evdb{
 
   RootEnv::RootEnv(int /*argc*/, char** /*argv*/) 
@@ -33,7 +34,11 @@ namespace evdb{
     // options argc and argv
     //======================================================================
     TApplication* app = ROOT::GetROOT()->GetApplication();
-    assert(gROOT); // ROOT::GetROOT() should initialize gROOT.
+
+    // ROOT::GetROOT() should initialize gROOT.    
+    if(!gROOT)
+      throw cet::exception("RootEnv") << "No ROOT global pointer"; 
+    
     if (app == 0) {
       int    largc = 0;
       char** largv = 0;

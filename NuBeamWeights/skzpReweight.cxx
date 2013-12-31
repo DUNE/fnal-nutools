@@ -7,7 +7,6 @@
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
-#include <cassert>
 #include "TFile.h"
 #include "TH2F.h"
 #include "TSystem.h"
@@ -233,24 +232,20 @@ namespace nbw{
     dex.BeamDex=beam;
     dex.DetDex=det;
 
-    for(int sys=1;sys<=2;sys++)
-    {//Loops through each beam-focusing correction applied
+    for(int sys = 1; sys <= 2; ++sys){//Loops through each beam-focusing correction applied
       double w = 0.;
       dex.EffDex=sys;
       
       std::map<mapkey, WeightMap_t, LessThan>::iterator dexit = fBeamSysMap.find(dex);
-      if (dexit != fBeamSysMap.end())
-      {
-	for (WeightMap_t::iterator EnDex = (dexit->second).begin();  EnDex!=(dexit->second).end(); EnDex++)
-	{
-	  if(EnDex->first > Enu)
-	  {//the first EnDex that goes over is mapped to the weight value
+      if (dexit != fBeamSysMap.end()){
+	for (WeightMap_t::iterator EnDex = (dexit->second).begin();  EnDex!=(dexit->second).end(); EnDex++){
+	  if(EnDex->first > Enu){//the first EnDex that goes over is mapped to the weight value
 	    w = EnDex->second;
 	    break;
 	  }
 	}
       }
-      weight*=fabs(w)*fBPar[sys-1]+1.;
+      weight *= std::abs(w)*fBPar[sys-1]+1.;
     }    
     return weight;
   }
@@ -263,14 +258,13 @@ namespace nbw{
     bool FoundHist = false;
     TDirectory *save = gDirectory;
     fBeamSysFile = new TFile(fBpath.c_str());
-    if (fBeamSysFile->IsZombie())
-    {
+    if (fBeamSysFile->IsZombie()){
       std::cout << "Don't recognize path: " << fBpath << std::endl;
       return;
     }
 
     int ntype[]    ={    56,       55  , 53  , 52};
-    for (int inu=0;inu<4;inu++) {
+    for (int inu = 0; inu < 4; ++inu) {
       //'End' enums are there so one can just change conventions when needed.
       for (int eff=1;eff<Conventions::kBeamSysEnd;eff++) {
 	for (int beam=1;beam<Conventions::kBeamEnd;beam++) {

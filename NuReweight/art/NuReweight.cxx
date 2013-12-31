@@ -108,7 +108,6 @@ namespace rwgt {
       --nmsg;
       if ( nmsg == 0 ) std::cerr << "... last of such messages" << std::endl;
     }
-    //assert(0);
 
 #else
     newEvent.SetDiffXSec(gtruth.fDiffXsec);

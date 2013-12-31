@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////
 #include <cmath>
 #include <iostream>
-#include <cassert>
 
 // CRY include files
 #include "CRYSetup.h"
@@ -23,6 +22,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "cetlib/exception.h"
 
 // NuTools include files
 #include "EventGeneratorBase/evgenbase.h"
@@ -230,7 +230,8 @@ namespace evgb{
 			   double* zlo, double* zhi) const  
   {
     const TGeoShape* s = gGeoManager->GetVolume(fWorldVolume.c_str())->GetShape();
-    assert(s);
+    if(!s)
+      throw cet::exception("CRYHelper") << "No TGeoShape found for world volume";
     
     if (xlo || xhi) {
       double x1, x2;
@@ -280,29 +281,37 @@ namespace evgb{
     zhi -= fBoxDelta;
 
     // Make sure we're inside the box!
-    assert(xyz[0]>=xlo && xyz[0]<=xhi);
-    assert(xyz[1]>=ylo && xyz[1]<=yhi);
-    assert(xyz[2]>=zlo && xyz[2]<=zhi);
+    if(xyz[0] < xlo || xyz[0] > xhi ||
+       xyz[1] < ylo || xyz[1] > yhi || 
+       xyz[2] < zlo || xyz[2] > zhi)
+      throw cet::exception("CRYHelper") << "Projection to edge is outside"
+					<< " bounds of world box:\n "
+					<< "\tx: " << xyz[0] << " ("
+					<< xlo << "," << xhi << ")\n"
+					<< "\ty: " << xyz[1] << " ("
+					<< ylo << "," << yhi << ")\n"
+					<< "\tz: " << xyz[2] << " ("
+					<< zlo << "," << zhi << ")";
 
     // Compute the distances to the x/y/z walls
     double dx = 99.E99;
     double dy = 99.E99;
     double dz = 99.E99;
-    if      (dxyz[0]>0.0) { dx = (xhi-xyz[0])/dxyz[0]; }
-    else if (dxyz[0]<0.0) { dx = (xlo-xyz[0])/dxyz[0]; }
-    if      (dxyz[1]>0.0) { dy = (yhi-xyz[1])/dxyz[1]; }
-    else if (dxyz[1]<0.0) { dy = (ylo-xyz[1])/dxyz[1]; }
-    if      (dxyz[2]>0.0) { dz = (zhi-xyz[2])/dxyz[2]; }
-    else if (dxyz[2]<0.0) { dz = (zlo-xyz[2])/dxyz[2]; }
+    if      (dxyz[0] > 0.0) { dx = (xhi-xyz[0])/dxyz[0]; }
+    else if (dxyz[0] < 0.0) { dx = (xlo-xyz[0])/dxyz[0]; }
+    if      (dxyz[1] > 0.0) { dy = (yhi-xyz[1])/dxyz[1]; }
+    else if (dxyz[1] < 0.0) { dy = (ylo-xyz[1])/dxyz[1]; }
+    if      (dxyz[2] > 0.0) { dz = (zhi-xyz[2])/dxyz[2]; }
+    else if (dxyz[2] < 0.0) { dz = (zlo-xyz[2])/dxyz[2]; }
     
     // Choose the shortest distance
     double d = 0.0;
-    if      (dx<dy && dx<dz) d = dx;
-    else if (dy<dz && dy<dx) d = dy;
-    else if (dz<dx && dz<dy) d = dz;
+    if      (dx < dy && dx < dz) d = dx;
+    else if (dy < dz && dy < dx) d = dy;
+    else if (dz < dx && dz < dy) d = dz;
     
     // Make the step
-    for (int i=0; i<3; ++i) {
+    for (int i = 0; i < 3; ++i) {
       xyzout[i] = xyz[i] + dxyz[i]*d;
     }
   }

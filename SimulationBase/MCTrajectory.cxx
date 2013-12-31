@@ -5,11 +5,12 @@
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 
+#include "cetlib/exception.h"
+
 #include "SimulationBase/MCTrajectory.h"
 
 #include <TLorentzVector.h>
 
-#include <cassert>
 #include <cmath>
 #include <deque>
 #include <iterator>
@@ -123,7 +124,8 @@ namespace simb {
       toCheck.pop_front();
 
       // Should never have been given a degenerate range
-      assert(hiIdx >= loIdx+2);
+      if(hiIdx < loIdx+2)
+	throw cet::exception("MCTrajectory") << "Degnerate range in Sparsify method";
 
       const TVector3 loVec = at(loIdx).first.Vect();
       const TVector3 hiVec = at(hiIdx).first.Vect();
@@ -147,8 +149,10 @@ namespace simb {
         // Split in half
         const int midIdx = (loIdx+hiIdx)/2;
         // Should never have a range this small
-        assert(midIdx != loIdx);
-        assert(midIdx != hiIdx);
+        if(midIdx == loIdx)
+	  throw cet::exception("MCTrajectory") << "Midpoint in sparsification is same as lowpoint";
+        if(midIdx == hiIdx)
+	  throw cet::exception("MCTrajectory") << "Midpoint in sparsification is same as hipoint";
 
         // The range can be small enough that upon splitting, the new ranges
         // are degenerate, and should just be written out straight away. Check

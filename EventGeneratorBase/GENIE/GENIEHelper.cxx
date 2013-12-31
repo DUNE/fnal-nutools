@@ -11,7 +11,6 @@
 // C/C++ includes
 #include <math.h>
 #include <map>
-#include <cassert>
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
@@ -86,6 +85,7 @@
 #include "cetlib/search_path.h"
 #include "cetlib/getenv.h"
 #include "cetlib/split_path.h"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -756,9 +756,11 @@ namespace evgb {
     rgeom->SetTopVolName(fTopVolume.c_str());
 
     if ( nvals < 6 ) {
-      mf::LogError("GENIEHelper") << "rockbox needs at least 6 values, found " 
-                                  << nvals << "in \"" << strtok[1] << "\"";
-      assert( nvals >= 6 );
+      throw cet::exception("GENIEHelper") << "rockbox needs at "
+					  << "least 6 values, found " 
+					  << nvals << "in \"" 
+					  << strtok[1] << "\"";
+      
     }
     double xyzmin[3] = { vals[0], vals[1], vals[2] };
     double xyzmax[3] = { vals[3], vals[4], vals[5] };
@@ -1003,14 +1005,12 @@ namespace evgb {
     genie::geometry::ROOTGeomAnalyzer* rgeom = 
       dynamic_cast<genie::geometry::ROOTGeomAnalyzer*>(fGeomD);
 
-    if ( ! rgeom ) {
-      mf::LogError("GENIEHelper") 
-        << "fGeomD wasn't of type genie::geometry::ROOTGeomAnalyzer*";
-      assert(rgeom);
+    if ( !rgeom ) {
+      throw cet::exception("GENIEHelper") << "fGeomD wasn't of type "
+					  << "genie::geometry::ROOTGeomAnalyzer*";
     }
 
     // convert string to lowercase
-    //std::transform(fGeomScan.begin(),fGeomScan.end(),fGeomScan.begin(),::tolower);
 
     // parse out string
     vector<string> strtok = genie::utils::str::Split(fGeomScan," ");
@@ -1075,11 +1075,11 @@ namespace evgb {
         << ( (np>0) ? "" : " with ray energy pushed to flux driver maximum" );
       rgeom->SetScannerFlux(fFluxD);
       rgeom->SetScannerNParticles(np);
-    } else {
+    } 
+    else{
       // unknown
-      mf::LogError("GENIEHelper") 
-        << "fGeomScan unknown method: \"" << fGeomScan << "\"";
-      assert(0);
+      throw cet::exception("GENIEHelper") << "fGeomScan unknown method: \"" 
+					  << fGeomScan << "\"";
     }
     if ( safetyfactor > 0 ) {
       mf::LogInfo("GENIEHelper") 
@@ -1095,8 +1095,7 @@ namespace evgb {
     // create an info string based on:
     // ROOT geometry, TopVolume, FiducialCut, GeomScan, Flux
 
-    mf::LogInfo("GENIEHelper") 
-        << "about to create MaxPathOutInfo";
+    mf::LogInfo("GENIEHelper") << "about to create MaxPathOutInfo";
 
     fMaxPathOutInfo = "\n";
     fMaxPathOutInfo += "   FluxType:     " + fFluxType + "\n";
@@ -1113,8 +1112,8 @@ namespace evgb {
     fMaxPathOutInfo += "   FiducialCut:  " + fFiducialCut + "\n";
     fMaxPathOutInfo += "   GeomScan:     " + fGeomScan    + "\n";
 
-    mf::LogInfo("GENIEHelper") 
-        << "MaxPathOutInfo: \"" << fMaxPathOutInfo << "\"";
+    mf::LogInfo("GENIEHelper") << "MaxPathOutInfo: \"" 
+			       << fMaxPathOutInfo << "\"";
 
   }
 
@@ -1484,7 +1483,7 @@ namespace evgb {
     double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
     double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
     double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
-    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    double W  = (hitnucl) ? std::sqrt(W2)  : -1; 
     
     truth.SetNeutrino(CCNC, mode, itype,
 		      initState.Tgt().Pdg(), 
