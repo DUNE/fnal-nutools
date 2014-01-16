@@ -31,7 +31,12 @@ set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR EXTRA_FLAGS -pedantic EXTRA_CXX_FLAGS -std=c++11 -D_GLIBCXX_USE_NANOSLEEP -Wno-unused-local-typedefs -Wno-variadic-macros)
+cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
+                       NO_UNDEFINED
+                       EXTRA_FLAGS -pedantic 
+                       EXTRA_CXX_FLAGS -std=c++11 
+                                       -D_GLIBCXX_USE_NANOSLEEP 
+                                       -Wno-unused-local-typedefs -Wno-variadic-macros)
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
