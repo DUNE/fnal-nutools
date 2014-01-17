@@ -1,11 +1,15 @@
 
 art_make( LIBRARY_NAME EventGeneratorBaseGENIE
           LIB_LIBRARIES SimulationBase
-               ${ART_UTILITIES}
-               ${MF_MESSAGELOGGER}
-               ${MF_UTILITIES}
-               ${FHICLCPP}
-               ${CETLIB}
+	                ${ART_UTILITIES}
+               		${MF_MESSAGELOGGER}
+               		${MF_UTILITIES}
+               		${FHICLCPP}
+               		${CETLIB}
+			${XML2}
+			${LOG4CPP}
+			${PYTHIA6}
+			${LHAPDF}
 			${GALGORITHM}		
 			${GBARYONRESONANCE}
 			${GBASE}
