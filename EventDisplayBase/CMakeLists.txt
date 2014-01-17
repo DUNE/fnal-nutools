@@ -4,9 +4,20 @@ set( PACKAGE EventDisplayBase )
 FILE( GLOB src_files *.cxx )
 
 set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
+              ${ART_FRAMEWORK_CORE}
+	      ${ART_PERSISTENCY_COMMON}
+              ${ART_FRAMEWORK_IO_SOURCES}
+              ${ART_FRAMEWORK_IO_ROOT}
               ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
+              ${ART_FRAMEWORK_PRINCIPAL}
+              ${ART_PERSISTENCY_PROVENANCE}
+              ${ART_UTILITIES}
+              ${MF_MESSAGELOGGER}
+              ${MF_UTILITIES}
+              ${FHICLCPP}
+              ${CETLIB}
 	      ${ROOT_EVE}
-	      ${ROOT_EG}
+ 	      ${ROOT_EG}
 	      ${ROOT_TREEPLAYER} 
 	      ${ROOT_GEOM}
 	      ${ROOT_GED} 
@@ -32,9 +43,9 @@ cet_rootcint( ${PACKAGE} )
 
 art_make_library( LIBRARY_NAME ${PACKAGE}
         	  SOURCE ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
-        	  LIBRARIES ${EVD_LIBS} )
+        	  LIBRARIES SimulationBase ${EVD_LIBS} )
 
-set( EVD_SERVICE_LIBS ${EVD_LIBS} ${PACKAGE} )
+set( EVD_SERVICE_LIBS ${PACKAGE} ${EVD_LIBS} )
 simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
 simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
 

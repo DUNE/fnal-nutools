@@ -1,27 +1,13 @@
 
 art_make( EventGeneratorBasetest
-          LIB_LIBRARIES EventGeneratorBase SimulationBase
-                        ${ROOT_CORE}
-                        ${ROOT_CINT} 
-                        ${ROOT_RIO}
-                        ${ROOT_NET}
-                        ${ROOT_HIST} 
-                        ${ROOT_GRAF}
-                        ${ROOT_GRAF3D}
-                        ${ROOT_GPAD}
-                        ${ROOT_TREE}
-                        ${ROOT_RINT}
-                        ${ROOT_POSTSCRIPT}
-                        ${ROOT_MATRIX}
-                        ${ROOT_PHYSICS}
-                        ${ROOT_MATHCORE}
-                        ${ROOT_THREAD}
-                        ${ROOT_EG}
-                        ${ROOT_TREEPLAYER} 
-                        ${ROOT_FFTW}
-                        ${ROOT_REFLEX}
-                        ${ROOTSYS}/lib/libEGPythia6.so
-                        ${ROOT_GUI}
+          MODULE_LIBRARIES SimulationBase  
+	                   EventGeneratorBaseCRY 
+			   EventGeneratorBaseGENIE
+	                ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+        		${MF_MESSAGELOGGER}
+        		${MF_UTILITIES}
+        		${FHICLCPP}
+        		${CETLIB}
                         ${LOG4CPP}
                         ${XML2}
                         ${PYTHIA6}
@@ -68,6 +54,27 @@ art_make( EventGeneratorBasetest
                         ${GREWEIGHT}
                         ${GNUCLEONDECAY}
 			${CRY}
+                        ${ROOT_CORE}
+                        ${ROOT_CINT} 
+                        ${ROOT_RIO}
+                        ${ROOT_NET}
+                        ${ROOT_HIST} 
+                        ${ROOT_GRAF}
+                        ${ROOT_GRAF3D}
+                        ${ROOT_GPAD}
+                        ${ROOT_TREE}
+                        ${ROOT_RINT}
+                        ${ROOT_POSTSCRIPT}
+                        ${ROOT_MATRIX}
+                        ${ROOT_PHYSICS}
+                        ${ROOT_MATHCORE}
+                        ${ROOT_THREAD}
+                        ${ROOT_EG}
+                        ${ROOT_TREEPLAYER} 
+                        ${ROOT_FFTW}
+                        ${ROOT_REFLEX}
+                        ${ROOTSYS}/lib/libEGPythia6.so
+                        ${ROOT_GUI}
  	                )
 
 install_headers()
