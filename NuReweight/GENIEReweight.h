@@ -90,7 +90,7 @@ namespace rwgt{
     void SetNominalValues();
     double CalculateSigma(ReweightLabel_t label, double value);
 
-    double CalculateWeight(genie::EventRecord evr);
+    double CalculateWeight(const genie::EventRecord& evr);
       
     //genie::EventRecord RetrieveGHEP(simb::MCTruth truth, simb::GTruth gtruth);
     
