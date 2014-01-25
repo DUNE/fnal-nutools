@@ -775,7 +775,7 @@ namespace rwgt {
   void GENIEReweight::ConfigureParameters() {
     GSystSet & syst = fWcalc->Systematics();
     for(unsigned int i = 0; i < fReWgtParameterName.size(); i++) {
-      std::cout << "GENIEReweight: " << "Configuring GENIEReweight parameter: " << fReWgtParameterName[i] << " with value: " << fReWgtParameterValue[i] << std::endl;
+      std::cout << "GENIEReweight: " << "Configuring GENIEReweight parameter: " << genie::rew::GSyst::AsString(genie::rew::EGSyst(fReWgtParameterName[i])) << " with value: " << fReWgtParameterValue[i] << std::endl;
       if(fUseSigmaDef) {
 	syst.Set( (GSyst_t)fReWgtParameterName[i], fReWgtParameterValue[i]);
       }
