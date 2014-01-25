@@ -263,7 +263,7 @@ namespace rwgt {
   ///<Add reweight parameters to the list
   void GENIEReweight::AddReweightValue(ReweightLabel_t rLabel, double value) {
     int label = (int)rLabel;   
-    std::cout << "GENIEReweight (WARNING): " << "Adding parameter: " << label << ".  With value: " << value << std::endl;
+    std::cout << "GENIEReweight (WARNING): " << "Adding parameter: " <<  genie::rew::GSyst::AsString(genie::rew::EGSyst(label)) << ".  With value: " << value << std::endl;
     fReWgtParameterName.push_back(label);
     fReWgtParameterValue.push_back(value);
     
