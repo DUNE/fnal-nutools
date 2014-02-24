@@ -421,7 +421,7 @@ namespace rwgt {
     if(fReweightCoh) this->ConfigureCoh();
     if(fReweightAGKY) this->ConfigureAGKY();
     if(fReweightDISNucMod) this->ConfigureDISNucMod();
-    if(fReweightFGM) this->ConfigureFZone();
+    if(fReweightFGM) this->ConfigureFGM()();
     if(fReweightFZone) this->ConfigureFZone();
     if(fReweightINuke) this->ConfigureINuke();
     this->ConfigureParameters();
