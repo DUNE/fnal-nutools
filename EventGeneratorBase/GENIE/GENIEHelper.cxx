@@ -1592,8 +1592,22 @@ namespace evgb {
       flux.fvx       = nflux_numi->vx;
       flux.fvy       = nflux_numi->vy;
       flux.fvz       = nflux_numi->vz;
+
       flux.fndecay   = nflux_numi->ndecay;
       flux.fppmedium = nflux_numi->ppmedium;
+
+      flux.fpdpx     = nflux_numi->pdpx;
+      flux.fpdpy     = nflux_numi->pdpy;
+      flux.fpdpz     = nflux_numi->pdpz;
+
+      double apppz = nflux_numi->pppz;
+      if ( TMath::Abs(nflux_numi->pppz) < 1.0e-30 ) apppz = 1.0e-30;
+      flux.fppdxdz   = nflux_numi->pppx / apppz;
+      flux.fppdydz   = nflux_numi->pppy / apppz;
+      flux.fpppz     = nflux_numi->pppz;
+
+      flux.fptype    = nflux_numi->ptype;
+
     }
     //   flux.fndxdz    = nflux.ndxdz;
     //   flux.fndydz    = nflux.ndydz;
@@ -1613,15 +1627,8 @@ namespace evgb {
     //   flux.fvx       = nflux.vx;
     //   flux.fvy       = nflux.vy;
     //   flux.fvz       = nflux.vz;
-    //   flux.fpdpx     = nflux.pdpx;
-    //   flux.fpdpy     = nflux.pdpy;
-    //   flux.fpdpz     = nflux.pdpz;
-    //   flux.fppdxdz   = nflux.ppdxdz;
-    //   flux.fppdydz   = nflux.ppdydz;
-    //   flux.fpppz     = nflux.pppz;
     //   flux.fppenergy = nflux.ppenergy;
     //   flux.fppmedium = nflux.ppmedium;
-    //   flux.fptype    = nflux.ptype;     // converted to PDG
     //   flux.fppvx     = nflux.ppvx;
     //   flux.fppvy     = nflux.ppvy;
     //   flux.fppvz     = nflux.ppvz;
