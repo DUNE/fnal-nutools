@@ -147,6 +147,7 @@ include_directories ( $ENV{LIBXML2_FQ_DIR}/include/libxml2 )
 include_directories ( $ENV{GEANT4_FQ_DIR}/include )
 include_directories ( $ENV{XERCES_C_INC} )
 include_directories ( $ENV{CRYHOME}/src )
+include_directories ( $ENV{LOG4CPP_INC} )
 # included for Mac OSX using XQuartz for X11, ignored on other systems
 include_directories ( /opt/X11/include )
 
