@@ -107,103 +107,100 @@ namespace evgb{
     while (1) {
       std::vector<CRYParticle*> parts;
       fGen->genEvent(&parts);
-      if(!fSingleEventMode || (fSingleEventMode && parts.size()==1)){
-	for (unsigned int i=0; i<parts.size(); ++i) {
-	  
-	  // Take ownership of the particle from the vector
-	  std::unique_ptr<CRYParticle> cryp(parts[i]);
-      
+      for (unsigned int i=0; i<parts.size(); ++i) {
+	
+	// Take ownership of the particle from the vector
+	std::unique_ptr<CRYParticle> cryp(parts[i]);
+	
 	// Pull out the PDG code
-	  int pdg = cryp->PDGid();
-	  
-	  // Get the energies of the particles
-	  double ke = cryp->ke()*1.0E-3; // MeV to GeV conversion
-	  if (ke<fEthresh) continue;
-	  
-	  double m    = 0.; // in GeV
-	  
-	  static TDatabasePDG*  pdgt = TDatabasePDG::Instance();
-	  TParticlePDG* pdgp = pdgt->GetParticle(pdg);
-	  if (pdgp) m = pdgp->Mass();
-	  
-	  double etot = ke + m;
-	  double ptot = etot*etot-m*m;
-	  if (ptot>0.0) ptot = sqrt(ptot);
-	  else          ptot = 0.0;
-	  
-	  // Sort out the momentum components. Remember that the NOvA
-	  // frame has y up and z along the beam. So uvw -> zxy
-	  double px = ptot * cryp->v();
-	  double py = ptot * cryp->w();
-	  double pz = ptot * cryp->u();
-	  
-	  // Particle start position. CRY distributes uniformly in x-y
-	  // plane at fixed z, where z is the vertical direction. This
-	  // requires some offsets and rotations to put the particles at
-	  // the surface in the geometry as well as some rotations
-	  // since the coordinate frame has y up and z along the
-	  // beam.
-	  double vx = cryp->y()*100.0;
-	  double vy = cryp->z()*100.0 + surfaceY;
-	  double vz = cryp->x()*100.0 + 0.5*detectorLength;
-	  double t  = cryp->t()-tstart + fToffset; // seconds
-	  if(fSingleEventMode){
-	    t  = cryp->t()-tstart + fToffset + fSampleTime*rantime; // seconds
-	  }
-	  // Project backward to edge of world volume
-	  double xyz[3]  = { vx,  vy,  vz};
-	  double xyzo[3];
-	  double dxyz[3] = {-px, -py, -pz};
-	  double x1 = 0.;
-	  double x2 = 0.;
-	  double y1 = 0.;
-	  double y2 = 0.;
-	  double z1 = 0.;
-	  double z2 = 0.;
-	  this->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
-	  
-	  LOG_DEBUG("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
-				 << x1 << " " << x2 << " " 
-				 << y1 << " " << y2 << " " 
-				 << z1 << " " << z2;
-	  
-	  this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
-	  
-	  vx = xyzo[0];
-	  vy = xyzo[1];
-	  vz = xyzo[2];
-	  
-	  // Boiler plate...
-	  int istatus    =  1;
-	  int imother1   = kCosmicRayGenerator;
-	  
-	  // Push the particle onto the stack
-	  std::string primary("primary");
-	  
-	  particlespushed=true;
-	  simb::MCParticle p(idctr,
-			     pdg,
-			     primary,
-			     imother1,
-			     m,
-			     istatus);
-	  TLorentzVector pos(vx,vy,vz,t*1e9);// time needs to be in ns to match GENIE, etc
-	  TLorentzVector mom(px,py,pz,etot);
-	  p.AddTrajectoryPoint(pos,mom);
-	  
-	  mctruth.Add(p);
-	  ++idctr;
-	} // Loop on particles in event
-      }
+	int pdg = cryp->PDGid();
+	
+	// Get the energies of the particles
+	double ke = cryp->ke()*1.0E-3; // MeV to GeV conversion
+	if (ke<fEthresh) continue;
+	
+	double m    = 0.; // in GeV
+	
+	static TDatabasePDG*  pdgt = TDatabasePDG::Instance();
+	TParticlePDG* pdgp = pdgt->GetParticle(pdg);
+	if (pdgp) m = pdgp->Mass();
+	
+	double etot = ke + m;
+	double ptot = etot*etot-m*m;
+	if (ptot>0.0) ptot = sqrt(ptot);
+	else          ptot = 0.0;
+	
+	// Sort out the momentum components. Remember that the NOvA
+	// frame has y up and z along the beam. So uvw -> zxy
+	double px = ptot * cryp->v();
+	double py = ptot * cryp->w();
+	double pz = ptot * cryp->u();
+	
+	// Particle start position. CRY distributes uniformly in x-y
+	// plane at fixed z, where z is the vertical direction. This
+	// requires some offsets and rotations to put the particles at
+	// the surface in the geometry as well as some rotations
+	// since the coordinate frame has y up and z along the
+	// beam.
+	double vx = cryp->y()*100.0;
+	double vy = cryp->z()*100.0 + surfaceY;
+	double vz = cryp->x()*100.0 + 0.5*detectorLength;
+	double t  = cryp->t()-tstart + fToffset; // seconds
+	if(fSingleEventMode) t  = fSampleTime*rantime; // seconds
+
+	// Project backward to edge of world volume
+	double xyz[3]  = { vx,  vy,  vz};
+	double xyzo[3];
+	double dxyz[3] = {-px, -py, -pz};
+	double x1 = 0.;
+	double x2 = 0.;
+	double y1 = 0.;
+	double y2 = 0.;
+	double z1 = 0.;
+	double z2 = 0.;
+	this->WorldBox(&x1, &x2, &y1, &y2, &z1, &z2);
+	
+	LOG_DEBUG("CRYHelper") << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " 
+			       << x1 << " " << x2 << " " 
+			       << y1 << " " << y2 << " " 
+			       << z1 << " " << z2;
+	
+	this->ProjectToBoxEdge(xyz, dxyz, x1, x2, y1, y2, z1, z2, xyzo);
+	
+	vx = xyzo[0];
+	vy = xyzo[1];
+	vz = xyzo[2];
+	
+	// Boiler plate...
+	int istatus    =  1;
+	int imother1   = kCosmicRayGenerator;
+	
+	// Push the particle onto the stack
+	std::string primary("primary");
+	
+	particlespushed=true;
+	simb::MCParticle p(idctr,
+			   pdg,
+			   primary,
+			   imother1,
+			   m,
+			   istatus);
+	TLorentzVector pos(vx,vy,vz,t*1e9);// time needs to be in ns to match GENIE, etc
+	TLorentzVector mom(px,py,pz,etot);
+	p.AddTrajectoryPoint(pos,mom);
+	
+	mctruth.Add(p);
+	++idctr;
+      } // Loop on particles in event
+
       // Check if we're done with this time sample
       // note that now requiring npart==1 in singlevent mode.
       
       if (fGen->timeSimulated()-tstart > fSampleTime || 
-	  (fSingleEventMode && 
-	   particlespushed ) 
+	  (fSingleEventMode && particlespushed ) 
 	  ) break;    
     } // Loop on events simulated
-
+    
     mctruth.SetOrigin(simb::kCosmicRay);
 
     /// \todo Check if this time slice passes selection criteria
