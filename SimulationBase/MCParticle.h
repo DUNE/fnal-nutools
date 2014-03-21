@@ -152,11 +152,11 @@ namespace simb {
 			   double y, 
 			   double z, 
 			   double t);
-    TLorentzVector GetGvtx();
-    double         Gvx();
-    double 	   Gvy();
-    double 	   Gvz();
-    double 	   Gvt();
+    TLorentzVector GetGvtx() const;
+    double 	   Gvx() const;
+    double 	   Gvy() const;
+    double 	   Gvz() const;
+    double 	   Gvt() const;
 
     //Getters and setters for first and last daughter data members
     int FirstDaughter() const;
@@ -238,11 +238,11 @@ inline       double          simb::MCParticle::EndPx()                  const { 
 inline       double          simb::MCParticle::EndPy()                  const { return Momentum(ftrajectory.size()-1).Y(); }
 inline       double          simb::MCParticle::EndPz()                  const { return Momentum(ftrajectory.size()-1).Z(); }
 inline       double          simb::MCParticle::EndE()                   const { return Momentum(ftrajectory.size()-1).T(); }
-inline       TLorentzVector  simb::MCParticle::GetGvtx()                      { return fGvtx;                              }
-inline       double          simb::MCParticle::Gvx()                          { return fGvtx.X();                          }
-inline       double          simb::MCParticle::Gvy()                          { return fGvtx.Y();                          }
-inline       double          simb::MCParticle::Gvz()                          { return fGvtx.Z();                          }
-inline       double          simb::MCParticle::Gvt()                          { return fGvtx.T();                          }
+inline       TLorentzVector  simb::MCParticle::GetGvtx()                const { return fGvtx;                              }
+inline       double          simb::MCParticle::Gvx()                    const { return fGvtx.X();                          }
+inline       double          simb::MCParticle::Gvy()                    const { return fGvtx.Y();                          }
+inline       double          simb::MCParticle::Gvz()                    const { return fGvtx.Z();                          }
+inline       double          simb::MCParticle::Gvt()                    const { return fGvtx.T();                          }
 inline       int             simb::MCParticle::FirstDaughter()          const { return *(fdaughters.begin());              }
 inline       int             simb::MCParticle::LastDaughter()           const { return *(fdaughters.rbegin());             }
 inline       int             simb::MCParticle::Rescatter()              const { return frescatter;                         }
