@@ -23,7 +23,6 @@ IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
 
-# we need our own modules until we can use at least art v1_04_00
 set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 		      $ENV{CETBUILDTOOLS_DIR}/Modules
 		      ${CMAKE_MODULE_PATH})
@@ -31,6 +30,7 @@ set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
+# -D_GLIBCXX_USE_NANOSLEEP is needed to make std::this_thread::sleep_for available.
 cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
                        NO_UNDEFINED
                        EXTRA_FLAGS -pedantic 
@@ -40,15 +40,13 @@ cet_set_compiler_flags(DIAGS CAUTIOUS WERROR
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( art v1_08_10 )
+find_ups_product( art v1_09_00 )
 find_ups_product( genie v2_8_0c )
 find_ups_product( cetbuildtools v3_07_03 )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")
 set( ROOT_INC ${ROOTSYS}/include )
 message(STATUS "ROOT_INC is ${ROOT_INC}")
-
-cet_check_gcc()
 
 ## find_library directives
 # geant4 libraries
@@ -135,7 +133,6 @@ cet_find_library( GNUCLEONDECAY NAMES GNucleonDecay PATHS ENV GENIE_LIB )
 
 # macros 
 include(ArtMake)
-##include(CetMake)
 include(ArtDictionary)
 include(BuildPlugins)
 include(CetRootCint)

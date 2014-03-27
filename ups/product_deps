@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent nutools      v1_01_07
-defaultqual     e4
+parent nutools      v1_02_00
+defaultqual     e5
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -18,22 +18,22 @@ bindir      fq_dir      bin
 # note that art -q nu: depends, via root, on geant4 and more
 # this means that we only need to list art, cry, and genie as a dependencies
 product         version
-gcc		v4_8_1
-art		v1_08_10
-genie		v2_8_0d
-cry		v1_7
+gcc		v4_8_2
+art		v1_09_02
+genie		v2_8_0e
+cry		v1_7a
 
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build  cetbuildtools   v3_07_03
+only_for_build  cetbuildtools   v3_09_02
 
-# e4  - with gcc 4.8.1 and -std=c++11
+# e5  - with gcc 4.8.1 and -std=c++11
 # -nq- here means there is no qualifier
 # a - here means the dependent product is not required by the parent and will not be setup
 qualifier	art		genie		cry		gcc	notes
-e4:debug	nu:e4:debug	e4:debug	e4:debug	-nq-	-std=c++11
-e4:opt		nu:e4:opt	e4:opt		e4:opt		-nq-	-std=c++11
-e4:prof		nu:e4:prof	e4:prof		e4:prof		-nq-	-std=c++11
+e5:debug	nu:e5:debug	e5:debug	e5:debug	-nq-	-std=c++11
+e5:opt		nu:e5:opt	e5:opt		e5:opt		-nq-	-std=c++11
+e5:prof		nu:e5:prof	e5:prof		e5:prof		-nq-	-std=c++11
 
 # Preserve tabs and formatting in emacs and vi / vim:
 
