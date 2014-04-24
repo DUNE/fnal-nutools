@@ -28,8 +28,6 @@ namespace rwgt{
   public:
     GENIEReweight();
     ~GENIEReweight();
-
-#ifndef __GCCXML__
     
     void AddReweightValue(ReweightLabel_t rLabel, double value);
     void ChangeParameterValue(ReweightLabel_t rLabel, double value);
@@ -86,11 +84,8 @@ namespace rwgt{
     
     void UseSigmaDef()    {fUseSigmaDef=true;}
     void UseStandardDef() {fUseSigmaDef=false;}
-#endif
     
   protected:
-
-#ifndef __GCCXML__
     
     void SetNominalValues();
     double CalculateSigma(ReweightLabel_t label, double value);
@@ -116,7 +111,6 @@ namespace rwgt{
     void ConfigureFZone();
     void ConfigureINuke();
     void ConfigureParameters();
-#endif
 
     //Reweight configuration bools it is possible to use all simultaneously 
     bool fReweightNCEL;
