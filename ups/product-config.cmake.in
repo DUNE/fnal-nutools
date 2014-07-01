@@ -8,12 +8,5 @@ set( @product@_UPS_VERSION @version@ )
 
 @CONFIG_FIND_LIBRARY_COMMANDS@
 
-# other libraries
-find_library( XERCESC NAMES xerces-c PATHS $ENV{XERCESCROOT}/lib  )
-find_library( LHAPDF NAMES LHAPDF PATHS $ENV{LHAPDF_FQ_DIR}/lib )
-find_library( LOG4CPP NAMES log4cpp PATHS $ENV{LOG4CPP_FQ_DIR}/lib )
-find_library( XML2 NAMES xml2 PATHS $ENV{LIBXML2_FQ_DIR}/lib )
-find_library( CRY NAMES CRY PATHS $ENV{CRYHOME}/lib )
-
 check_required_components(@product@)
 
