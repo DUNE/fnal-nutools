@@ -34,7 +34,7 @@ cet_cmake_env()
 cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
                        NO_UNDEFINED
                        EXTRA_FLAGS -pedantic 
-                       EXTRA_CXX_FLAGS -std=c++11 
+                       EXTRA_CXX_FLAGS -std=c++1y 
                                        -D_GLIBCXX_USE_NANOSLEEP 
                                        -Wno-unused-local-typedefs -Wno-variadic-macros)
 cet_report_compiler_flags()
