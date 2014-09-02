@@ -34,15 +34,14 @@ cet_cmake_env()
 cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
                        NO_UNDEFINED
                        EXTRA_FLAGS -pedantic 
-                       EXTRA_CXX_FLAGS -std=c++1y 
-                                       -D_GLIBCXX_USE_NANOSLEEP 
+                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP 
                                        -Wno-unused-local-typedefs -Wno-variadic-macros)
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( art v1_09_00 )
-find_ups_product( genie v2_8_0c )
-find_ups_product( cetbuildtools v3_07_03 )
+find_ups_product( art v1_11_00 )
+find_ups_product( genie v2_8_0 )
+find_ups_product( cetbuildtools v4_01_00 )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")
 set( ROOT_INC ${ROOTSYS}/include )
