@@ -76,7 +76,7 @@ namespace rwgt {
 
   ///<destructor
   NuReweight::~NuReweight() {
-    delete fWcalc;
+    // Don't delete fWcalc here. The GENIEReweight parent class handles it.
   }
 
   double NuReweight::CalcWeight(simb::MCTruth truth, simb::GTruth gtruth) {
