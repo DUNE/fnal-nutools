@@ -59,7 +59,9 @@ namespace g4b {
     
     // Accessors:
     const simb::MCTruth* GetMCTruth() const { return fMCTruth; }
-    void SetMCTruth(const simb::MCTruth* m) { fMCTruth = m;    }
+    size_t const& MCTruthIndex()      const { return fMCTIndex; }
+    void SetMCTruth(const simb::MCTruth* m,
+		    const size_t         idx=0) { fMCTruth = m; fMCTIndex = idx; }
 
     // Required by Geant4:
     void Print() const;
@@ -71,7 +73,10 @@ namespace g4b {
     // particle (although in that case it's more likely that a
     // G4Base::PrimaryParticleInformation object would not have been
     // created in the first place.)
+    // The MCTIndex is the index of the MCTruth object in the vector
+    // of the ConvertMCTruthToG4 creating this object
     const simb::MCTruth* fMCTruth;
+          size_t         fMCTIndex;
   };
 
   // It's not likely, but there could be memory issues with these

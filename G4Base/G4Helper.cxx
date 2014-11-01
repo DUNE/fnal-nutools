@@ -425,4 +425,23 @@ namespace g4b{
     return true;
   }
 
+  //------------------------------------------------
+  bool G4Helper::G4Run(std::vector<const simb::MCTruth*> &primaries) 
+  {
+    // Get the event converter ready.
+    fConvertMCTruth->Reset();
+
+    // Pass all the MCTruths to our event generator.
+    for(auto primary : primaries)
+      fConvertMCTruth->Append( primary );
+    
+    // Start the simulation for this event.  Note: The following
+    // statement increments the G4RunManager's run number.  Because of
+    // this, it's important for events to use the run/event number
+    // from the EventDataModel Header, not G4's internal numbers.
+    fUIManager->ApplyCommand("/run/beamOn 1");
+
+    return true;
+  }
+
 } // namespace

@@ -107,11 +107,9 @@ namespace g4b{
 
     // For each MCTruth (probably only one, but you never know):
     // index keeps track of which MCTruth object you are using
-    unsigned int index = 0;
-    for( std::vector<const simb::MCTruth*>::const_iterator mci = fConvertList.begin(); mci != fConvertList.end(); ++mci ){
+    size_t index = 0;
+    for( auto const* mct : fConvertList){
     
-      const simb::MCTruth* mct(*mci);
-
       // For each simb::MCParticle in the MCTruth:
       for ( int p = 0; p != mct->NParticles(); ++p ){
 	// Implementation note: the following statement copies the
@@ -211,7 +209,7 @@ namespace g4b{
 	// ParticleActionList class to access MCTruth
 	// information during Geant4's tracking.
 	PrimaryParticleInformation* primaryParticleInfo = new PrimaryParticleInformation;
-	primaryParticleInfo->SetMCTruth( mct );
+	primaryParticleInfo->SetMCTruth( mct, index );
 	  
 	// Save the PrimaryParticleInformation in the
 	// G4PrimaryParticle for access during tracking.
