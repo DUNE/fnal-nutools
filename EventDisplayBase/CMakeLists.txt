@@ -18,6 +18,7 @@ set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${CETLIB}
 	      ${ROOT_EVE}
  	      ${ROOT_EG}
+	      ${ROOT_GX11}
 	      ${ROOT_TREEPLAYER} 
 	      ${ROOT_GEOM}
 	      ${ROOT_GED} 

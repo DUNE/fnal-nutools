@@ -10,14 +10,7 @@ set( SIMB_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
                ${MF_UTILITIES}
                ${FHICLCPP}
                ${CETLIB}
-	       ${ROOT_EVE}
- 	       ${ROOT_EG}
-	       ${ROOT_GX11}
-	       ${ROOT_TREEPLAYER} 
-	       ${ROOT_GEOM}
-	       ${ROOT_GED} 
-	       ${ROOT_RGL} 
-	       ${ROOT_GUI}
+	       ${ROOT_EG}
 	       ${ROOT_CORE}
 	       ${ROOT_CINT} 
 	       ${ROOT_RIO}

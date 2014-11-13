@@ -2,60 +2,28 @@
 art_make( LIBRARY_NAME G4Base
           LIB_LIBRARIES SimulationBase
 	                MagneticField_service
-	                ${CLHEP}
 	                ${G4FR}
 	                ${G4GMOCREN}
-	                ${G4OPENGL}
 	                ${G4RAYTRACER}
 	                ${G4TREE}
 	                ${G4VRML}
-	                ${G4ANALYSIS}
-	                ${G4DIGITS_HITS}
-	                ${G4ERROR_PROPAGATION}
 	                ${G4EVENT}
 	                ${G4GEOMETRY}
-	                ${G4GL2PS}
 	                ${G4GLOBAL}
-	                ${G4GRAPHICS_REPS}
 	                ${G4INTERCOMS}
-	                ${G4INTERFACES}
 	                ${G4MATERIALS}
 	                ${G4MODELING}
-	                ${G4PARMODELS}
 	                ${G4PARTICLES}
 	                ${G4PERSISTENCY}
 	                ${G4PHYSICSLISTS}
 	                ${G4PROCESSES}
 	                ${G4READOUT}
 	                ${G4RUN}
-	                ${G4TRACK}
 	                ${G4TRACKING}
 	                ${G4VISHEPREP}
-	                ${G4VISXXX}
 	                ${G4VIS_MANAGEMENT}
-	                ${G4ZLIB}
 			${XERCESC}
-			${ROOT_CORE}
-			${ROOT_CINT} 
-			${ROOT_RIO}
-			${ROOT_NET}
-			${ROOT_HIST} 
-			${ROOT_GRAF}
-			${ROOT_GRAF3D}
-			${ROOT_GPAD}
-			${ROOT_TREE}
-			${ROOT_RINT}
-			${ROOT_POSTSCRIPT}
-			${ROOT_MATRIX}
-			${ROOT_PHYSICS}
-			${ROOT_MATHCORE}
-			${ROOT_THREAD}
-			${ROOT_EG}
-			${ROOT_TREEPLAYER} 
-			${ROOT_FFTW}
-			${ROOT_REFLEX}
-			${ROOTSYS}/lib/libEGPythia6.so
-			${ROOT_GUI}
+	                ${CLHEP}
 			)
 
 install_headers()
