@@ -13,7 +13,33 @@
 #include "TStyle.h"
 #include "TColor.h"
 
-namespace evdb{
+namespace evdb {
+  int ColorScale::Palette(const std::string& nm)
+  {
+    static const char* cs[] = {
+      "Rainbow",     "InvRainbow",    "LinGray",     "ColdToHot",
+      "BlueToRed",   "BlueToRedII",   "HeatedObject","Reds",
+      "Greens",      "Blues",         "Geographic",  "BlueToGreen",
+      "BlueToOrange","GreenToMagenta","Sequential",  "Focus",
+      "Custom", 0
+    };
+    int i;
+    for (i=0; cs[i]!=0; ++i) {
+      if (nm==cs[i]) return i;
+    }
+    return 0;
+  }
+  int ColorScale::Scale(const std::string& nm)
+  {
+    static const char* cs[] = {
+      "linear", "log","sqrt", 0
+    };
+    int i;
+    for (i=0; cs[i]!=0; ++i) {
+      if (nm==cs[i]) return i;
+    }
+    return 0;
+  }
 
   ///
   /// Construct a color scale
@@ -71,6 +97,24 @@ namespace evdb{
   //......................................................................
 
   void ColorScale::SetOverFlowColor(int c)  { fOverFlowColor  = c; }
+
+  //......................................................................
+
+  void ColorScale::Reverse()
+  {
+    std::swap(fUnderFlowColor, fOverFlowColor);
+    for (int i=0; i<fNcolor/2; ++i) {
+      std::swap(fColors[i], fColors[fNcolor-i-1]);
+    }
+  }
+
+  //......................................................................
+
+  bool ColorScale::InBounds(double x) const
+  {
+    if (x>=fXlo && x<=fXhi) return true;
+    return false;
+  }
 
   //......................................................................
   ///
@@ -1241,6 +1285,7 @@ namespace evdb{
     fNcolor = 256;
     for (int i=0; i<256; ++i) fColors[i] = fRGB[255-i];
   }
-
 }// namespace
+
+
 ////////////////////////////////////////////////////////////////////////

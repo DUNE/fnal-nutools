@@ -8,6 +8,7 @@
 ///
 #ifndef EVDB_COLORSCALE_H
 #define EVDB_COLORSCALE_H
+#include <string>
 
 namespace evdb {
   /// \brief The list of default color options
@@ -51,11 +52,16 @@ namespace evdb {
 
     int  operator()(double x) const;
     int  GetColor(double x)   const;
+    bool InBounds(double x)   const;
     void SetPalette();
     void SetBounds(double xlo, double xhi) { fXlo = xlo; fXhi = xhi; }
     void SetUnderFlowColor(int c);
     void SetOverFlowColor(int c);
-    
+    void Reverse();
+
+    static int Palette(const std::string& nm);
+    static int Scale(const std::string& nm);
+
   private:
     void HSVtoRGB(double  h, double  s, double v,
 		  double* r, double* g, double* b) const;
@@ -75,11 +81,11 @@ namespace evdb {
     void MakeHeatedObject();
     
   private:
-    double fXlo;         /// Numeric value at low end of scale
-    double fXhi;         /// Numeric value at high end of scale
-    int    fScale;       /// Linear? Log? Sqrt?
-    int    fNcolor;      /// How many colors in scale?
-    int    fColors[256]; /// List of ROOT color indicies
+    double fXlo;            /// Numeric value at low end of scale
+    double fXhi;            /// Numeric value at high end of scale
+    int    fScale;          /// Linear? Log? Sqrt?
+    int    fNcolor;         /// How many colors in scale?
+    int    fColors[256];    /// List of ROOT color indicies
     int    fUnderFlowColor; /// Color to use for under flows
     int    fOverFlowColor;  /// Color to use for over flows
   };
