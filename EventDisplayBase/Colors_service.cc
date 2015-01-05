@@ -88,9 +88,9 @@ namespace evdb {
   ///
   /// Look up a color scale by name
   ///
-  const ColorScale& Colors::Scale(const std::string& nm) 
+  ColorScale& Colors::Scale(const std::string& nm) 
   {
-    const ColorScale* cs = fColorScales[nm];
+    ColorScale* cs = fColorScales[nm];
     if (cs) return (*cs);
     
     static ColorScale gsDefaultCS(0,100);

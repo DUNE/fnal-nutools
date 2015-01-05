@@ -53,7 +53,7 @@ namespace evdb
     ///
     /// Look up a color scale by name
     ///
-    const ColorScale& Scale(const std::string& nm);
+    ColorScale& Scale(const std::string& nm);
 
   private:
     ///
