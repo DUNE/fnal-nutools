@@ -8,6 +8,7 @@
 #ifndef SIMB_MCFLUX_H
 #define SIMB_MCFLUX_H
 
+#include <iostream>
 #include <vector>
 
 namespace simb{
@@ -129,6 +130,8 @@ namespace simb{
 		 double x, 
 		 double y, 
 		 double z);
+
+    friend std::ostream& operator<< (std::ostream& output, const simb::MCFlux &mcflux);
     
 #endif
 

@@ -9,6 +9,7 @@
 
 #include "SimulationBase/MCFlux.h"
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 
 namespace simb{
@@ -379,4 +380,43 @@ namespace simb{
     return;
   }
 
-}
+  //......................................................................
+  std::ostream&  operator<< (std::ostream& output, const simb::MCFlux &mcflux)
+  {
+    output 
+      << "MCFlux:" << std::endl
+      //  123456789012
+      << "  flux job  " << std::setw(11) << mcflux.frun      << " "
+      << "  pot #     " << std::setw(11) << mcflux.fevtno    << std::endl
+      << "  ntype     " << std::setw(11) << mcflux.fntype    << " "
+      << "  ptype     " << std::setw(11) << mcflux.fptype    << " "
+      << "  impwt     " << std::setw(11) << mcflux.fnimpwt   << std::endl
+      << "  ndecay    " << std::setw(11) << mcflux.fndecay   << " "
+      << "  ppmedium  " << std::setw(11) << mcflux.fppmedium << " "
+      << "  tptype    " << std::setw(11) << mcflux.ftptype   << std::endl
+      << "  vxyz      " << std::setw(11) << mcflux.fvx       << " "
+      <<                   std::setw(11) << mcflux.fvy       << " "
+      <<                   std::setw(11) << mcflux.fvz       << std::endl
+      << "  pdpxyz    " << std::setw(11) << mcflux.fpdpx     << " "
+      <<                   std::setw(11) << mcflux.fpdpy     << " "
+      <<                   std::setw(11) << mcflux.fpdpz     << std::endl
+      << "  tpxyz     " << std::setw(11) << mcflux.ftpx      << " "
+      <<                   std::setw(11) << mcflux.ftpy      << " "
+      <<                   std::setw(11) << mcflux.ftpz      << std::endl
+      << "  pppxyz    " << std::setw(11) << mcflux.fppdxdz*mcflux.fpppz << " "
+      <<                   std::setw(11) << mcflux.fppdydz*mcflux.fpppz << " "
+      <<                   std::setw(11) << mcflux.fpppz     << std::endl
+      << "  muparpxyz " << std::setw(11) << mcflux.fmuparpx  << " "
+      <<                   std::setw(11) << mcflux.fmuparpy  << " "
+      <<                   std::setw(11) << mcflux.fmuparpz  << " "
+      << "  mupare    " << std::setw(11) << mcflux.fmupare   << std::endl
+      << "  necm      " << std::setw(11) << mcflux.fnecm     << " "
+      << "  dk2gen    " << std::setw(11) << mcflux.fdk2gen   << std::endl
+      << "  near E    " << std::setw(11) << mcflux.fnenergyn << " "
+      << "  wgt       " << std::setw(11) << mcflux.fnwtnear  << std::endl
+      << "  far E     " << std::setw(11) << mcflux.fnenergyf << " "
+      << "  wgt       " << std::setw(11) << mcflux.fnwtfar   << std::endl;
+    return output;
+  }
+
+} // end-of-namespace simb
