@@ -522,6 +522,18 @@ namespace evgb {
     genie::geometry::ROOTGeomAnalyzer *rgeom = 
       new genie::geometry::ROOTGeomAnalyzer(fGeoManager);
 
+    // pass some of the debug flag bits on to the geometry manager
+    int geomFlags = ( fDebugFlags >> 16 ) & 0xFF ;
+    if ( geomFlags ) {
+      int keep = ( geomFlags >> 7 );
+      mf::LogInfo("GENIEHelper")
+        << "InitializeGeometry set debug 0x"
+        << std::hex << geomFlags << std::dec
+        << " keepSegPath " << keep;
+      rgeom->SetDebugFlags(geomFlags);
+      if ( keep ) rgeom->SetKeepSegPath(true);
+    }
+
     // get the world volume name from the geometry
     fWorldVolume = fGeoManager->GetTopVolume()->GetName();
 
@@ -1577,10 +1589,11 @@ namespace evgb {
     
     const genie::flux::GSimpleNtpEntry* nflux_entry = gsf->GetCurrentEntry();
     const genie::flux::GSimpleNtpNuMI*  nflux_numi  = gsf->GetCurrentNuMI();
-    //const genie::flux::GSimpleNtpMeta*  nflux_meta  = gsf->GetCurrentMeta();
   
     flux.fntype  = nflux_entry->pdg;
     flux.fnimpwt = nflux_entry->wgt;
+    flux.fdk2gen = nflux_entry->dist;
+    flux.fnenergyn = flux.fnenergyf = nflux_entry->E;
 
     if ( nflux_numi ) {
       flux.frun      = nflux_numi->run;
@@ -1609,6 +1622,54 @@ namespace evgb {
       flux.fptype    = nflux_numi->ptype;
 
     }
+    
+    // anything useful stuffed into vdbl or vint?
+    // need to check the metadata  auxintname, auxdblname
+
+    const genie::flux::GSimpleNtpAux*   nflux_aux  = gsf->GetCurrentAux();
+    const genie::flux::GSimpleNtpMeta*  nflux_meta  = gsf->GetCurrentMeta();
+    if ( nflux_aux && nflux_meta ) {
+
+      // references just for reducing complexity
+      const std::vector<std::string>& auxdblname = nflux_meta->auxdblname;
+      const std::vector<std::string>& auxintname = nflux_meta->auxintname;
+      const std::vector<int>&    auxint = nflux_aux->auxint;
+      const std::vector<double>& auxdbl = nflux_aux->auxdbl;
+
+      for (size_t id=0; id<auxdblname.size(); ++id) {
+        if ("muparpx"   == auxdblname[id]) flux.fmuparpx  = auxdbl[id];
+        if ("muparpy"   == auxdblname[id]) flux.fmuparpy  = auxdbl[id];
+        if ("muparpz"   == auxdblname[id]) flux.fmuparpz  = auxdbl[id];
+        if ("mupare"    == auxdblname[id]) flux.fmupare   = auxdbl[id];
+        if ("necm"      == auxdblname[id]) flux.fnecm     = auxdbl[id];
+        if ("nimpwt"    == auxdblname[id]) flux.fnimpwt   = auxdbl[id];
+        if ("fgXYWgt"   == auxdblname[id]) {
+          flux.fnwtnear = flux.fnwtfar = auxdbl[id]; 
+        }
+      }
+      for (size_t ii=0; ii<auxintname.size(); ++ii) {
+        if ("tgen"      == auxintname[ii]) flux.ftgen     = auxint[ii];
+        if ("tgptype"   == auxintname[ii]) flux.ftgptype  = auxint[ii];
+      }
+
+    }
+
+//#define RWH_TEST
+#ifdef RWH_TEST
+    std::cout << "###### GENIEHelper" << std::endl
+              << flux << std::endl
+              << "### GNuMIFlux:   " << std::endl
+              << *nflux_entry << std::endl
+              << *nflux_numi << std::endl
+              << *nflux_aux << endl;
+    static bool first = true;
+    if (first) {
+      first = false;
+      std::cout << "### GNuMIFlux Metadata: " << std::endl
+                << *nflux_meta << std::endl;
+    }
+#endif
+
     //   flux.fndxdz    = nflux.ndxdz;
     //   flux.fndydz    = nflux.ndydz;
     //   flux.fnpz      = nflux.npz;
@@ -1622,30 +1683,30 @@ namespace evgb {
     //   flux.fnenergyf = nflux.nenergyf;
     //   flux.fnwtfar   = nflux.nwtfar;
     //   flux.fnorig    = nflux.norig;
-    //   flux.fndecay   = nflux.ndecay;
+    // in numi //   flux.fndecay   = nflux.ndecay;
     //   flux.fntype    = nflux.ntype;
-    //   flux.fvx       = nflux.vx;
-    //   flux.fvy       = nflux.vy;
-    //   flux.fvz       = nflux.vz;
+    // in numi //   flux.fvx       = nflux.vx;
+    // in numi //  flux.fvy       = nflux.vy;
+    // in numi //  flux.fvz       = nflux.vz;
     //   flux.fppenergy = nflux.ppenergy;
-    //   flux.fppmedium = nflux.ppmedium;
+    // in numi //   flux.fppmedium = nflux.ppmedium;
     //   flux.fppvx     = nflux.ppvx;
     //   flux.fppvy     = nflux.ppvy;
     //   flux.fppvz     = nflux.ppvz;
-    //   flux.fmuparpx  = nflux.muparpx;
-    //   flux.fmuparpy  = nflux.muparpy;
-    //   flux.fmuparpz  = nflux.muparpz;
-    //   flux.fmupare   = nflux.mupare;
-    //   flux.fnecm     = nflux.necm;
-    //   flux.fnimpwt   = nflux.nimpwt;
+    // see above //   flux.fmuparpx  = nflux.muparpx;
+    // see above //   flux.fmuparpy  = nflux.muparpy;
+    // see above //   flux.fmuparpz  = nflux.muparpz;
+    // see above //   flux.fmupare   = nflux.mupare;
+    // see above //   flux.fnecm     = nflux.necm;
+    // see above //   flux.fnimpwt   = nflux.nimpwt;
     //   flux.fxpoint   = nflux.xpoint;
     //   flux.fypoint   = nflux.ypoint;
     //   flux.fzpoint   = nflux.zpoint;
     //   flux.ftvx      = nflux.tvx;
     //   flux.ftvy      = nflux.tvy;
     //   flux.ftvz      = nflux.tvz;
-    //   flux.ftgen     = nflux.tgen;
-    //   flux.ftgptype  = nflux.tgptype;  // converted to PDG
+    // see above //   flux.ftgen     = nflux.tgen;
+    // see above //   flux.ftgptype  = nflux.tgptype;  // converted to PDG
     //   flux.ftgppx    = nflux.tgppx;
     //   flux.ftgppy    = nflux.tgppy;
     //   flux.ftgppz    = nflux.tgppz;
