@@ -48,7 +48,8 @@ art_make_library( LIBRARY_NAME ${PACKAGE}
 
 set( EVD_SERVICE_LIBS ${PACKAGE} ${EVD_LIBS} )
 simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
-simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
+simple_plugin( ScanOptions  service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
+simple_plugin( Colors       service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
 
 install_headers()
 install_fhicl()
