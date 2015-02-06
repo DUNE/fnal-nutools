@@ -169,7 +169,7 @@ namespace evdb {
     gROOT->ForceStyle();
   }
   
-  DEFINE_ART_SERVICE(Colors);
+  DEFINE_ART_SERVICE(Colors)
 
 } // namespace evdb
 
