@@ -45,6 +45,8 @@ namespace evdb
     int          fAutoPrintCount;      ///< Number of events printed so far
     int          fAutoPrintMax;        ///< How many events to print (zero = disable printing).
     std::string  fAutoPrintPattern;    ///< Pattern for printing output filenames.  Must contain "%s" and "%d", in that order.
+    bool         fEchoPrint;           ///< Copy what you see in X to a .gif for each event
+    std::string  fEchoPrintFile;       ///< The file to dump that .gif to.  Only one file, if you want a different file for each event, use AutoPrint instead.
   };
 }
 #endif // __CINT__

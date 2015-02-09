@@ -88,6 +88,8 @@ namespace evdb
     fAutoAdvanceInterval = pset.get<unsigned int>("AutoAdvanceInterval" );
     fAutoPrintMax        = pset.get<int         >("AutoPrintMax",     0 );
     fAutoPrintPattern    = pset.get<std::string >("AutoPrintPattern", "");
+    fEchoPrint           = pset.get<bool        >("EchoPrint",        false);
+    fEchoPrintFile       = pset.get<std::string >("EchoPrintFile",    "$HOME/evt_echo.gif");
   }
 
   //......................................................................
@@ -155,6 +157,16 @@ namespace evdb
 	p->Print(TString::Format(fAutoPrintPattern.c_str(), p->PrintTag(), evt.event()));
       }
       if(fAutoPrintCount >= fAutoPrintMax) exit(0);
+    }
+
+    // if fEchoPrint is set, do so
+    if (fEchoPrint){
+      std::map<std::string, Printable*>& ps = Printable::GetPrintables();
+      for(std::map<std::string,Printable*>::iterator it = ps.begin(); it != ps.end(); ++it){
+	Printable* p = it->second;
+	// png doesn't seem to work for some reason, so the default is a gif
+	p->Print(fEchoPrintFile.c_str());
+      }
     }
 
     art::RootInput* rootInput = dynamic_cast<art::RootInput*>(fInputSource);
