@@ -40,6 +40,7 @@ namespace simb {
     int                     fpdgCode;       ///< PDG code
     int                     fmother;        ///< Mother
     std::string             fprocess;       ///< Detector-simulation physics process that created the particle
+    std::string             fendprocess;    ///< end process for the particle
     simb::MCTrajectory      ftrajectory;    ///< particle trajectory (position,momentum)
     double                  fmass;          ///< Mass; from PDG unless overridden Should be in GeV
     TVector3                fpolarization;  ///< Polarization
@@ -67,6 +68,9 @@ namespace simb {
     // our own copy and assignment constructors.
     MCParticle(MCParticle const &)            = default; // Copy constructor.
     MCParticle& operator=( const MCParticle&) = default;
+
+    //constructor for copy from MCParticle, buth with offset trackID
+    MCParticle(MCParticle const&, int);
  
     // Accessors.
     //
@@ -96,6 +100,9 @@ namespace simb {
     // particle. If this is a primary particle, it will have the
     // value "primary"
     std::string Process()   const;
+
+    std::string EndProcess()   const;
+    void SetEndProcess(std::string s);
 
     // Accessors for daughter information.  Note that it's possible
     // (even likely) for a daughter track not to be included in a
@@ -208,6 +215,7 @@ inline 	     int             simb::MCParticle::PdgCode()       	    	const { ret
 inline 	     int             simb::MCParticle::Mother()        	    	const { return fmother;            		   }
 inline const TVector3&       simb::MCParticle::Polarization()  	    	const { return fpolarization;      		   }
 inline       std::string     simb::MCParticle::Process()       	    	const { return fprocess;           		   }
+inline       std::string     simb::MCParticle::EndProcess()       	const { return fendprocess;           		   }
 inline       int             simb::MCParticle::NumberDaughters() 	const { return fdaughters.size();  		   }
 inline       unsigned int    simb::MCParticle::NumberTrajectoryPoints() const { return ftrajectory.size(); 		   }
 inline const TLorentzVector& simb::MCParticle::Position( const int i )  const { return ftrajectory.Position(i);            }

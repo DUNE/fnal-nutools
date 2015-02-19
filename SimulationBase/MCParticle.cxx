@@ -35,6 +35,7 @@ namespace simb {
     , fpdgCode(s_uninitialized)
     , fmother(s_uninitialized)
     , fprocess()
+    , fendprocess()
     , fmass(s_uninitialized)
     , fpolarization()
     , fdaughters()
@@ -57,6 +58,7 @@ namespace simb {
     , fpdgCode(pdg)
     , fmother(mother)
     , fprocess(process)
+    , fendprocess(std::string())
     , fmass(mass)
     , fpolarization()
     , fdaughters()
@@ -80,9 +82,33 @@ namespace simb {
     SetGvtx(0, 0, 0, 0);
   }
 
+
+  MCParticle::MCParticle(MCParticle const& p, int offset)
+    : fstatus(p.StatusCode())
+    , ftrackId(p.TrackId()+offset)
+    , fpdgCode(p.PdgCode())
+    , fmother(p.Mother()+offset)
+    , fprocess(p.Process())
+    , fendprocess(p.EndProcess())
+    , ftrajectory(p.Trajectory())
+    , fmass(p.Mass())
+    , fWeight(p.Weight())
+    , fGvtx(p.GetGvtx())
+    , frescatter(p.Rescatter())
+  {
+    for(int i=0; i<p.NumberDaughters(); i++)
+      fdaughters.insert(p.Daughter(i)+offset);
+  }
   //------------------------------------------------------------
   MCParticle::~MCParticle() 
   {
+  }
+
+
+  //----------------------------------------------------------------------------
+  void MCParticle::SetEndProcess(std::string s)
+  {
+    fendprocess = s;
   }
 
   //------------------------------------------------------------
