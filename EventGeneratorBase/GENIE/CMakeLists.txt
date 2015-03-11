@@ -1,3 +1,6 @@
+include_directories( $ENV{IFDHC_FQ_DIR}/inc )
+SET(ENV{IFHDC_LIB}   "$ENV{IFDHC_FQ_DIR}/lib")
+cet_find_library( IFDH         NAMES ifdh         PATHS ENV IFDHC_LIB   NO_DEFAULT_PATH )
 
 art_make( LIBRARY_NAME EventGeneratorBaseGENIE
           LIB_LIBRARIES SimulationBase
@@ -51,6 +54,7 @@ art_make( LIBRARY_NAME EventGeneratorBaseGENIE
 			${GMUELOSS}
 			${GREWEIGHT}
 			${GNUCLEONDECAY}
+                        ${IFDH}
 	                ${ROOT_GEOM}
 	                ${ROOT_GEOMPAINTER}
  			${ROOT_CORE}

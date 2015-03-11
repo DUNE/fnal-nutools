@@ -6,6 +6,7 @@
 include SoftRelTools/arch_spec_root.mk
 include SoftRelTools/arch_spec_genie.mk
 include SoftRelTools/arch_spec_cern.mk
+include SoftRelTools/arch_spec_ifdhc.mk
 
 #VERBOSE     := true
 LIB_TYPE    := shared
@@ -39,7 +40,7 @@ endif
 include SoftRelTools/standard.mk
 include SoftRelTools/arch_spec_art.mk
 
-override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lEventGeneratorBase
+override LIBLIBS += -L$(ROOTSYS)/lib -lGeom -lGeomPainter -L$(SRT_PRIVATE_CONTEXT)/lib/$(SRT_SUBDIR) -L$(SRT_PUBLIC_CONTEXT)/lib/$(SRT_SUBDIR) -lEventGeneratorBase -L$(IFDHC_FQ_DIR)/lib/ -lifdh
 
 override CXXFLAGS := $(filter-out -Woverloaded-virtual, $(CXXFLAGS))
 

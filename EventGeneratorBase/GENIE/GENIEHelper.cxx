@@ -89,6 +89,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// IFDHC 
+#include "ifdh.h"
 
 namespace evgb {
 
@@ -111,11 +113,15 @@ namespace evgb {
     , fFluxD             (0)
     , fFluxD2GMCJD       (0)
     , fDriver            (0)
+    , fIFDH              (0)
     , fHelperRandom      (0)
     , fUseHelperRndGen4GENIE(pset.get< bool                  >("UseHelperRndGen4GENIE",true))
     , fFluxType          (pset.get< std::string              >("FluxType")               )
-    , fFluxFilePatterns  (pset.get< std::vector<std::string> >("FluxFiles"))
+    , fFluxSearchPaths   (pset.get< std::string              >("FluxSearchPaths","")     )
+    , fFluxFilePatterns  (pset.get< std::vector<std::string> >("FluxFiles")              )
     , fMaxFluxFileMB     (pset.get< int                      >("MaxFluxFileMB",    2000) ) // 2GB max default
+    , fFluxCopyMethod    (pset.get< std::string              >("FluxCopyMethod","DIRECT")) // "DIRECT" = old direct access method
+    , fFluxCleanup       (pset.get< std::string              >("FluxCleanup","/var/tmp") ) // "ALWAYS", "NEVER", "/var/tmp"
     , fBeamName          (pset.get< std::string              >("BeamName")               )
     , fTopVolume         (pset.get< std::string              >("TopVolume")              )
     , fWorldVolume       ("volWorld")         
@@ -190,10 +196,12 @@ namespace evgb {
       std::copy(fluxpattset.begin(),fluxpattset.end(),
                 std::back_inserter(fFluxFilePatterns));
     }
-    ExpandFluxFilePatterns();
+    ExpandFluxPaths();
+    if (fFluxCopyMethod == "DIRECT") ExpandFluxFilePatternsDirect();
+    else                             ExpandFluxFilePatternsIFDH();
 
     /// Set the GENIE environment
-    /// if using entries in the fEvironment vector
+    /// if using entries in the fEnvironment vector
     //    they should come in pairs of variable name key, then value
 
     // Process GXMLPATH extensions first, so they are available
@@ -415,6 +423,23 @@ namespace evgb {
     delete fGenieEventRecord;
     delete fDriver;
     delete fHelperRandom;
+
+    if ( fIFDH ) {
+      if        ( fFluxCleanup.find("ALWAYS")   == 0 ) {
+        fIFDH->cleanup();
+      } else if ( fFluxCleanup.find("/var/tmp") == 0 ) {
+        auto ffitr = fSelectedFluxFiles.begin();
+        for ( ; ffitr != fSelectedFluxFiles.end(); ++ffitr ) {
+          std::string ff = *ffitr;
+          if ( ff.find("/var/tmp") == 0 ) {
+            mf::LogDebug("GENIEHelper") << "delete " << ff;
+            fIFDH->rm(ff);
+          }
+        }
+      }
+      delete fIFDH;
+      fIFDH = 0;
+    }
   }
 
   //--------------------------------------------------
@@ -1654,20 +1679,22 @@ namespace evgb {
 
     }
 
-//#define RWH_TEST
+#define RWH_TEST
 #ifdef RWH_TEST
-    std::cout << "###### GENIEHelper" << std::endl
-              << flux << std::endl
-              << "### GNuMIFlux:   " << std::endl
-              << *nflux_entry << std::endl
-              << *nflux_numi << std::endl
-              << *nflux_aux << endl;
     static bool first = true;
     if (first) {
       first = false;
-      std::cout << "### GNuMIFlux Metadata: " << std::endl
-                << *nflux_meta << std::endl;
+      mf::LogDebug("GENIEHelper")
+        << "GSimpleNtpMeta:\n"
+        << *nflux_meta << "\n";
     }
+    mf::LogDebug("GENIEHelper")
+      << "simb::MCFlux:\n"
+      << flux << "\n"
+      << "GSimpleNtpFlux:\n"
+      << *nflux_entry << "\n"
+      << *nflux_numi << "\n"
+      << *nflux_aux << "\n";
 #endif
 
     //   flux.fndxdz    = nflux.ndxdz;
@@ -1726,9 +1753,28 @@ namespace evgb {
   }
 
   //---------------------------------------------------------
-  void GENIEHelper::ExpandFluxFilePatterns()
+  void GENIEHelper::ExpandFluxPaths()
   {
-    // Using the the FW_SEARCH_PATH list of directories, apply the
+    // expand any wildcards in the paths variable
+    // if unset and using the old DIRECT method allow it to fall back
+    // to using FW_SEARCH_PATH ... but not for the new ifdhc approach
+
+    std::string initial = fFluxSearchPaths;
+
+    if ( fFluxCopyMethod == "DIRECT" && fFluxSearchPaths == "" ) {
+      fFluxSearchPaths = cet::getenv("FW_SEARCH_PATH");
+    }
+    fFluxSearchPaths = gSystem->ExpandPathName(fFluxSearchPaths.c_str());
+
+    mf::LogInfo("GENIEHelper") 
+      << "ExpandFluxPaths initially: \"" << initial << "\"\n"
+      << "             final result: \"" << fFluxSearchPaths << "\"\n"
+      << "                    using: \"" << fFluxCopyMethod << "\" method";
+  }
+  //---------------------------------------------------------
+  void GENIEHelper::ExpandFluxFilePatternsDirect()
+  {
+    // Using the the fFluxSearchPaths list of directories, apply the
     // user supplied pattern as a suffix to find the flux files.
     // The userpattern might include simple wildcard globs (in contrast 
     // to proper regexp patterns).
@@ -1758,7 +1804,7 @@ namespace evgb {
          fFluxType.compare("dk2nu")       == 0    ) randomizeFiles = true;
 
     std::vector<std::string> dirs;
-    cet::split_path(cet::getenv("FW_SEARCH_PATH"),dirs);
+    cet::split_path(fFluxSearchPaths,dirs);
     if ( dirs.empty() ) dirs.push_back(std::string()); // at least null string 
 
     glob_t g;
@@ -1799,7 +1845,7 @@ namespace evgb {
         }
 #endif
 
-      }  // loop over FW_SEARCH_PATH dirs
+      }  // loop over FluxSearchPaths dirs
     }  // loop over user patterns 
 
     std::ostringstream paretext;
@@ -1829,7 +1875,7 @@ namespace evgb {
       // do this by assigning a random number to each;
       // ordering that list; and pulling in that order
 
-      paretext << "\n  list will be randomized and pared down to " 
+      paretext << "list of " << nfiles << " will be randomized and pared down to " 
                << fMaxFluxFileMB << " MB";
 
       double* order = new double[nfiles];
@@ -1837,7 +1883,7 @@ namespace evgb {
       fHelperRandom->RndmArray(nfiles,order);
       // assign random # for their relative order
       
-      TMath::Sort(nfiles,order,indices,false);
+      TMath::Sort((int)nfiles,order,indices,false);
       
       long long int sumBytes = 0; // accumulated size in bytes
       long long int maxBytes = fMaxFluxFileMB * 1024 * 1024;
@@ -1854,16 +1900,17 @@ namespace evgb {
         // but always accept at least one (the first)
         if ( sumBytes > maxBytes && i != 0 ) keep = false;
 
-        if ( keep ) fSelectedFluxFiles.push_back(afile);
-        //else break;  // <voice name=Scotty> Captain, she can't take any more</voice>
-
         flisttext << "[" << setw(3) << i << "] "
                   << "=> g[" << setw(3) << indx << "] " 
                   << ((keep)?"keep":"skip") << " " 
                   << setw(6) << (sumBytes/(1024*1024)) << " "
                   << afile << "\n";
 
+        if ( keep ) fSelectedFluxFiles.push_back(afile);
+        else break;  // <voice name=Scotty> Captain, she can't take any more</voice>
+
       }
+      delete [] order;
       delete [] indices;
 
     }
@@ -1873,7 +1920,7 @@ namespace evgb {
     // in the list, so list them in decreasing order of # of files
     int  npatt = patternsWithFiles.size();
     if ( npatt > 0 ) {
-      flisttext << "ExpandFluxFilePatterns: " << npatt
+      flisttext << "ExpandFluxFilePatternsDirect: " << npatt
                 << " user patterns resolved to files:\n";
       // std::vector is contiguous, so take address of 0-th element
       const int* nf = &(nfilesForPattern[0]);
@@ -1890,10 +1937,10 @@ namespace evgb {
 #endif
 
     mf::LogInfo("GENIEHelper") 
-      << "ExpandFluxFilePatterns initially found " << nfiles
+      << "ExpandFluxFilePatternsDirect initially found " << nfiles
       << " files for user patterns:"
-      << patterntext.str() << "\n  using FW_SEARCH_PATH of: "
-      << dirstext.str() <<  paretext.str();
+      << patterntext.str() << "\n  using FluxSearchPaths of: "
+      << dirstext.str() <<  "\n" << paretext.str();
       //<< "\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
 
     mf::LogDebug("GENIEHelper") << "\n" << flisttext.str();
@@ -1912,7 +1959,7 @@ namespace evgb {
           << "must resolve to at least one file" 
           << "\n  none were found user pattern: " 
           << patterntext.str()
-          << "\n  using FW_SEARCH_PATH of: "
+          << "\n  using FluxSearchPaths of: "
           << dirstext.str();
         //\"" << cet::getenv("FW_SEARCH_PATH") << "\"";
         throw cet::exception("NoFluxFiles")
@@ -1921,7 +1968,174 @@ namespace evgb {
       }
     }
     
-  } // ExpandFluxFilePatterns
+  } // ExpandFluxFilePatternsDirect
+
+  //---------------------------------------------------------
+  void GENIEHelper::ExpandFluxFilePatternsIFDH()
+  {
+    // Using the the FluxSearchPaths list of directories, apply the
+    // user supplied pattern as a suffix to find the flux files.
+    // The userpattern might include simple wildcard globs (in contrast 
+    // to proper regexp patterns).
+
+    // After expanding the list to individual files, randomize them
+    // and start selecting until a size limit is about to be
+    // exceeded (though a minimum there needs to be one file, not
+    // matter the limit).
+
+    // Use the IFDH interface to get the list of files and sizes;
+    // after sorting/selecting use IFDH to make a local copy
+
+    // if "method" just an identifier and not a scheme then clear it
+    if ( fFluxCopyMethod.find("IFDH") == 0 ) fFluxCopyMethod = "";
+
+    bool randomizeFiles = false;
+    if ( fFluxType.compare("ntuple")      == 0 ||
+         fFluxType.compare("simple_flux") == 0 ||
+         fFluxType.compare("dk2nu")       == 0    ) randomizeFiles = true;
+
+    if ( ! fIFDH ) fIFDH = new ifdh;
+
+    std::string spaths = fFluxSearchPaths;
+
+    const char* ifdh_debug_env = std::getenv("IFDH_DEBUG_LEVEL");
+    if ( ifdh_debug_env ) {
+      mf::LogInfo("GENIEHelper") << "IFDH_DEBUG_LEVEL: " << ifdh_debug_env;
+      fIFDH->set_debug(ifdh_debug_env);
+    }
+
+    // filenames + size 
+    std::vector<std::pair<std::string,long>> 
+      partiallist, fulllist, selectedlist, locallist;
+
+    std::ostringstream patterntext;  // stringification of vector of patterns
+    std::ostringstream fulltext;     // for info on full list of matches
+    std::ostringstream selectedtext; // for info on selected files
+    std::ostringstream localtext;    // for info on local files
+    fulltext << "search paths: " << spaths;
+
+    //std::vector<std::string>::const_iterator uitr = fFluxFilePatterns.begin();
+
+    // loop over possible patterns
+    // IFDH handles various stems but done a list of globs
+    size_t ipatt=0;
+    auto uitr = fFluxFilePatterns.begin();
+    for ( ; uitr != fFluxFilePatterns.end(); ++uitr, ++ipatt ) {
+      std::string userpattern = *uitr;
+      patterntext << "\npattern [" << std::setw(3) << ipatt << "] " << userpattern;
+      fulltext    << "\npattern [" << std::setw(3) << ipatt << "] " << userpattern;
+
+      partiallist = fIFDH->findMatchingFiles(spaths,userpattern);
+      fulllist.insert(fulllist.end(),partiallist.begin(),partiallist.end());
+
+      // make a complete list ...
+      fulltext << " found " << partiallist.size() << " files";
+      for (auto pitr = partiallist.begin(); pitr != partiallist.end(); ++pitr) {
+        fulltext << "\n  " << std::setw(10) << pitr->second << " " << pitr->first;
+      }
+
+      partiallist.clear();      
+    }  // loop over user patterns 
+
+    size_t nfiles = fulllist.size();
+
+    mf::LogInfo("GENIEHelper") 
+      << "ExpandFluxFilePatternsIFDH initially found " << nfiles << " files";
+    mf::LogDebug("GENIEHelper") 
+      << fulltext.str();
+
+    if ( nfiles == 0 ) {
+      selectedtext << "\n  expansion resulted in a null list for flux files";
+    } else if ( ! randomizeFiles ) {
+      // some sets of files should be left in order 
+      // and no size limitations imposed ... just copy the list
+
+      selectedtext << "\n  list of files will be processed in order";
+      selectedlist.insert(selectedlist.end(),fulllist.begin(),fulllist.end());
+
+    } else {
+
+      // for list needing size based trimming and randomization ...
+      // pull from the list randomly until a cummulative limit is reached
+      // do this by assigning a random number to each;
+      // ordering that list; and pulling in that order
+
+      selectedtext << "list of " << nfiles << " will be randomized and pared down to " 
+                   << fMaxFluxFileMB << " MB";
+
+      double* order = new double[nfiles];
+      int* indices  = new int[nfiles];
+      fHelperRandom->RndmArray(nfiles,order);
+      // assign random # for their relative order
+      
+      TMath::Sort((int)nfiles,order,indices,false);
+      
+      long long int sumBytes = 0; // accumulated size in bytes
+      long long int maxBytes = fMaxFluxFileMB * 1024 * 1024;
+
+      for (size_t i=0; i<nfiles; ++i) {
+        int indx = indices[i];
+        bool keep = true;
+        
+        auto p = fulllist[indx]; // this pair <name,size>
+        sumBytes += p.second; 
+        // skip those that would push sum above total
+        // but always accept at least one (the first)
+        if ( sumBytes > maxBytes && i != 0 ) keep = false;
+
+        selectedtext << "\n[" << setw(3) << i << "] "
+                     << "=> [" << setw(3) << indx << "] " 
+                     << ((keep)?"keep":"SKIP") << " " 
+                     << std::setw(6) << (sumBytes/(1024*1024)) << " MB "
+                     << p.first;
+
+        if ( keep ) selectedlist.push_back(p);
+        else break;  // <voice name=Scotty> Captain, she can't take any more</voice>
+
+      }
+      delete [] order;
+      delete [] indices;
+    }
+
+    mf::LogInfo("GENIEHelper") 
+      << selectedtext.str();
+
+    // have a selected list of remote files
+    // get paths to local copies
+
+    locallist = fIFDH->fetchSharedFiles(selectedlist,fFluxCopyMethod);
+
+    localtext << "final list of files:";
+    size_t i=0;
+    for (auto litr = locallist.begin(); litr != locallist.end(); ++litr, ++i) {
+        fSelectedFluxFiles.push_back(litr->first);
+        localtext << "\n\t[" << std::setw(3) << i << "]\t" << litr->first;
+      }
+
+    mf::LogInfo("GENIEHelper") 
+      << localtext.str();
+
+    // no null path allowed for at least these
+    if ( fFluxType.compare("ntuple")      == 0 ||
+         fFluxType.compare("simple_flux") == 0 ||
+         fFluxType.compare("dk2nu")       == 0    ) {
+      size_t nfiles = fSelectedFluxFiles.size();
+      if ( nfiles == 0 ) {
+        mf::LogError("GENIEHelper") 
+          << "For \"ntuple\" or \"simple_flux\", specification "
+          << "must resolve to at least one file" 
+          << "\n  none were found user pattern(s): " 
+          << patterntext.str()
+          << "\n  using FW_SEARCH_PATH of: "
+          << spaths;
+
+        throw cet::exception("NoFluxFiles")
+          << "no flux files found for: " << patterntext.str();
+
+      }
+    }
+    
+  } // ExpandFluxFilePatternsIFDH
 
   //---------------------------------------------------------
   void GENIEHelper::SetGXMLPATH()

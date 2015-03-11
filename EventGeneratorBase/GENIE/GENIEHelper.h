@@ -26,6 +26,11 @@ namespace fhicl {
   class ParameterSet;
 }
 
+/// IFDH interface (data handling)
+namespace ifdh_ns {
+  class ifdh;
+}
+
 namespace simb { 
   class MCTruth;     
   class MCFlux;      
@@ -82,7 +87,9 @@ namespace evgb{
     void PackMCTruth(genie::EventRecord *record, simb::MCTruth &truth);
     void PackGTruth(genie::EventRecord *record, simb::GTruth &truth);
 
-    void ExpandFluxFilePatterns();
+    void ExpandFluxPaths();
+    void ExpandFluxFilePatternsDirect();
+    void ExpandFluxFilePatternsIFDH();
     bool StringToBool(std::string v);
 
     void SetGXMLPATH();
@@ -100,13 +107,18 @@ namespace evgb{
     genie::GFluxI*           fFluxD2GMCJD;       ///< flux driver passed to genie GMCJDriver, might be GFluxBlender
     genie::GMCJDriver*       fDriver;
 
+    ifdh_ns::ifdh*           fIFDH;              ///< (optional) flux file handling
+
     TRandom3*                fHelperRandom;      ///< random # generator for GENIEHelper
     bool                     fUseHelperRndGen4GENIE;   ///< use fHelperRandom for gRandom during Sample()
 
     std::string              fFluxType;          ///< histogram or ntuple or atmo_FLUKA or atmo_BARTOL
+    std::string              fFluxSearchPaths;   ///< colon separated set of path stems
     std::vector<std::string> fFluxFilePatterns;  ///< wildcard patterns files containing histograms or ntuples, or txt
     std::vector<std::string> fSelectedFluxFiles; ///< flux files selected after wildcard expansion and subset selection
     int                      fMaxFluxFileMB;     ///< maximum size of flux files (MB)
+    std::string              fFluxCopyMethod;    ///< "DIRECT" = old direct access method, otherwise = ifdh approach schema ("" okay)
+    std::string              fFluxCleanup;       ///< "ALWAYS", "/var/tmp", "NEVER"
     std::string              fBeamName;          ///< name of the beam we are simulating
     std::string              fTopVolume;         ///< top volume in the ROOT geometry in which to generate events
     std::string              fWorldVolume;       ///< name of the world volume in the ROOT geometry
