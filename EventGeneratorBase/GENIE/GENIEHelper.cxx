@@ -89,8 +89,51 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-// IFDHC 
-#include "ifdh.h"
+#ifndef NO_IFDH_LIB
+  // IFDHC 
+  #include "ifdh.h"
+#else
+  #include <cassert>
+  // implement enough of ifdh_ns::ifdh to satisfy the references
+namespace ifdh_ns {
+  class ifdh {
+  public:
+    inline ifdh() { fail(); }
+    inline ~ifdh() { fail(); }
+    inline void cleanup() { fail(); }
+    inline void rm(std::string) { fail(); }
+    inline void set_debug(std::string) { fail(); }
+    std::vector<std::pair<std::string,long> >
+       findMatchingFiles(std::string,std::string);
+    std::vector<std::pair<std::string,long> >
+       fetchSharedFiles(std::vector<std::pair<std::string,long> >,
+                     std::string schema="");
+  protected:
+    void fail() {
+      std::ostringstream fmesg;
+      fmesg << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" 
+            << __FILE__ << ":" << __LINE__ 
+            << " no IFDH implemented on this platform\n";
+      std::cerr << fmesg.str();
+      throw cet::exception("Attempt to use ifdh class") << fmesg.str();
+      assert(0);
+    }
+  };  // end-of-fake-class ifdh
+  inline std::vector<std::pair<std::string,long> >
+  ifdh::findMatchingFiles(std::string,std::string) {
+    fail();
+    std::vector<std::pair<std::string,long> > empty;
+    return empty;
+  }
+  inline std::vector<std::pair<std::string,long> >
+  ifdh::fetchSharedFiles(std::vector<std::pair<std::string,long> >,std::string) {
+    fail();
+    std::vector<std::pair<std::string,long> > empty;
+    return empty;
+  }
+
+} // end-of-namespace ifdh_ns
+#endif
 
 namespace evgb {
 
@@ -1994,7 +2037,7 @@ namespace evgb {
          fFluxType.compare("simple_flux") == 0 ||
          fFluxType.compare("dk2nu")       == 0    ) randomizeFiles = true;
 
-    if ( ! fIFDH ) fIFDH = new ifdh;
+    if ( ! fIFDH ) fIFDH = new ifdh_ns::ifdh;
 
     std::string spaths = fFluxSearchPaths;
 

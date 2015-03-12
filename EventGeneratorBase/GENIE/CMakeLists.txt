@@ -1,6 +1,13 @@
-include_directories( $ENV{IFDHC_FQ_DIR}/inc )
-SET(ENV{IFHDC_LIB}   "$ENV{IFDHC_FQ_DIR}/lib")
-cet_find_library( IFDH         NAMES ifdh         PATHS ENV IFDHC_LIB   NO_DEFAULT_PATH )
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  # ugh, no "ifdh" library at this time
+  SET(IFDH "")
+  SET(CMAKE_CXX_FLAGS "-DNO_IFDH_LIB=1 ${CMAKE_CXX_FLAGS}")
+else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  # we can rely on the existence of the "ifdh" library
+  include_directories( $ENV{IFDHC_FQ_DIR}/inc )
+  SET(ENV{IFHDC_LIB}   "$ENV{IFDHC_FQ_DIR}/lib")
+  cet_find_library( IFDH NAMES ifdh PATHS ENV IFDHC_LIB NO_DEFAULT_PATH )
+endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
 
 art_make( LIBRARY_NAME EventGeneratorBaseGENIE
           LIB_LIBRARIES SimulationBase
