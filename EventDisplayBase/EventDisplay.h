@@ -47,6 +47,7 @@ namespace evdb
     std::string  fAutoPrintPattern;    ///< Pattern for printing output filenames.  Must contain "%s" and "%d", in that order.
     bool         fEchoPrint;           ///< Copy what you see in X to a .gif for each event
     std::string  fEchoPrintFile;       ///< The file to dump that .gif to.  Only one file, if you want a different file for each event, use AutoPrint instead.
+    std::string  fEchoPrintTempFile;   ///< a temporary file to enable atomic writes
   };
 }
 #endif // __CINT__

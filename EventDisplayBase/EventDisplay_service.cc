@@ -23,6 +23,8 @@
 #include "EventDisplayBase/EventHolder.h"
 #include "EventDisplayBase/NavState.h"
 
+#include <wordexp.h>
+
 namespace evdb
 {
   //
@@ -90,6 +92,39 @@ namespace evdb
     fAutoPrintPattern    = pset.get<std::string >("AutoPrintPattern", "");
     fEchoPrint           = pset.get<bool        >("EchoPrint",        false);
     fEchoPrintFile       = pset.get<std::string >("EchoPrintFile",    "$HOME/evt_echo.gif");
+    // Sanitize filename: root's OK with env variables, straight system 
+    // calls are not.  So, force a substitution of env. variables in the 
+    // filename so we can do atomic-write "renames" later using a tmp file
+    if (fEchoPrint) {
+      wordexp_t p;
+      char** w;
+      wordexp( fEchoPrintFile.c_str(), &p, 0 );
+      w = p.we_wordv;
+      fEchoPrintFile = std::string(*w);
+      // the tempfile has to end with the same extension (eg, ".gif") as
+      // the specified filename.  root's printing takes the format of the file
+      // from that extension.  So, we have to construct a name with the same 
+      // path, and extension: need to insert a "tmp" before the final .gif
+      // Sp, simply grab the file extension and stick it back on the end
+      std::string::size_type idx;
+      std::string extension;
+      idx = fEchoPrintFile.rfind('.');
+      if(idx != std::string::npos) {
+	  extension = fEchoPrintFile.substr(idx);
+	  fEchoPrintTempFile = std::string(*w) + ".tmp" + extension;
+      } else {
+	// No extension found, can't do this
+	fEchoPrint = false;
+	fEchoPrintTempFile = "";
+	mf::LogWarning("EventDisplayBase") 
+	  << "No file extension given to EchoPrintFile "
+	  << fEchoPrintFile 
+	  << " so cannot determine file format, disabling EchoPrint\n";
+      }
+      wordfree(&p);
+    } else {
+      fEchoPrintTempFile = "";
+    }
   }
 
   //......................................................................
@@ -164,9 +199,23 @@ namespace evdb
       std::map<std::string, Printable*>& ps = Printable::GetPrintables();
       for(std::map<std::string,Printable*>::iterator it = ps.begin(); it != ps.end(); ++it){
 	Printable* p = it->second;
-	// png doesn't seem to work for some reason, so the default is a gif
-	p->Print(fEchoPrintFile.c_str());
+	// lack of more parameters to Print() call means use the file format
+	// that's specified by the file name extension
+	p->Print(fEchoPrintTempFile.c_str());
       }
+      // move temporary file to final file.  This makes the creation of the
+      // newly printed file close to atomic
+      int result;
+      result=rename(fEchoPrintTempFile.c_str(),fEchoPrintFile.c_str());
+      if (result==0)
+	LOG_DEBUG("EventDisplayBase") << fEchoPrintTempFile
+				      << " tempfile successfully renamed to "
+				      << fEchoPrintFile;  
+      else
+	mf::LogWarning("EventDisplayBase") << "Error renaming file "
+					   << fEchoPrintTempFile 
+					   << " to " << fEchoPrintFile
+					   << " " << strerror(errno) <<"\n";
     }
 
     art::RootInput* rootInput = dynamic_cast<art::RootInput*>(fInputSource);
