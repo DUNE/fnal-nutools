@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 
 add_subdirectory(CRY)
 add_subdirectory(GENIE)
@@ -6,3 +10,5 @@ add_subdirectory(test)
 install_headers()
 install_fhicl()
 install_source()
+
+ENDIF()

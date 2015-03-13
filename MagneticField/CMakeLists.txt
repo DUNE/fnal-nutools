@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 
 simple_plugin( MagneticField service
                         ${CLHEP}
@@ -6,3 +10,5 @@ simple_plugin( MagneticField service
 install_headers()
 install_fhicl()
 install_source()
+
+ENDIF()

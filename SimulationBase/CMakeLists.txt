@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 set( SIMB_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
                ${ART_FRAMEWORK_CORE}
                ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
@@ -33,3 +37,5 @@ art_make( LIBRARY_NAME SimulationBase
 install_headers()
 install_fhicl()
 install_source()
+
+ENDIF()

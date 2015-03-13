@@ -1,11 +1,7 @@
-IF (ALT_CMAKE)
-INCLUDE(altCMakeLists.cmake)
-ELSE()
-
 
 ##cet_add_compiler_flags(CXX -DSETDIFFXSEC_1ARG )
 
-art_make( LIBRARY_NAME NuReweight
+set(
           LIB_LIBRARIES 
                         ${LOG4CPP}
                         ${XML2}
@@ -18,18 +14,14 @@ art_make( LIBRARY_NAME NuReweight
                         ${GCHARM}
                         ${GCOH}
                         ${GDFRC}
-                        ${GDIS}
                         ${GCROSSSECTIONS}
-                        ${GDECAY}
                         ${GELAS}
                         ${GELFF}
                         ${GHEP}
                         ${GEVGCORE}
-                        ${GEVGMODULES}
                         ${GEVGDRIVERS}
                         ${GGIBUU}
                         ${GHADRONTRANSP}
-                        ${GFRAGMENTATION}
                         ${GINTERACTION}
                         ${GLLEWELLYNSMITH}
                         ${GMEC}
@@ -38,15 +30,12 @@ art_make( LIBRARY_NAME NuReweight
                         ${GNUE}
                         ${GNTUPLE}
                         ${GNUCLEAR}
-                        ${GNUMERICAL}
                         ${GQPM}
                         ${GPDG}
                         ${GPDF}
                         ${GQEL}
-                        ${GRES}
                         ${GREGISTRY}
                         ${GREINSEGHAL}
-                        ${GUTILS}
                         ${GGEO}
                         ${GFLUXDRIVERS}
                         ${GMUELOSS}
@@ -69,10 +58,39 @@ art_make( LIBRARY_NAME NuReweight
 			${ROOT_THREAD}
 			)
  
-install_headers()
-install_fhicl()
-install_source()
+include_directories (
+     ${ROOT_INCLUDE_DIRS}
+     ${CLHEP_INCLUDE_DIRS}
+     ${GENIE_INC}/GENIE 
+     ${LOG4CPP_INC} 
+     ${LIBXML2_FQ_DIR}/include/libxml2
+)
+
+
+set(NuReweight_HEADERS
+	GENIEReweight.h
+	ReweightLabels.h
+	)
+
+add_library(NuReweight SHARED
+	${NuReweight_HEADERS}
+	GENIEReweight.cxx
+	)
+
+target_link_libraries( NuReweight ${LIB_LIBRARIES} )
+
+install(TARGETS
+     NuReweight
+     EXPORT nutoolsLibraries
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     COMPONENT Runtime 
+     )
+
+install(FILES ${NuReweight_HEADERS} DESTINATION
+     ${CMAKE_INSTALL_INCLUDEDIR}/NuReweight COMPONENT Development)
+
+
 
 add_subdirectory(art)
-
-ENDIF()
