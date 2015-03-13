@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 
 art_make( LIBRARY_NAME EventGeneratorBaseCRY
           LIB_LIBRARIES SimulationBase
@@ -25,3 +29,5 @@ art_make( LIBRARY_NAME EventGeneratorBaseCRY
 install_headers()
 install_fhicl()
 install_source()
+
+ENDIF()

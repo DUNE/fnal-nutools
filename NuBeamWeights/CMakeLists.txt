@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 
 art_make( LIBRARY_NAME NuBeamWeights
 	  LIB_LIBRARIES ${ROOT_CORE}
@@ -19,3 +23,5 @@ art_make( LIBRARY_NAME NuBeamWeights
 install_headers()
 install_fhicl()
 install_source()
+
+ENDIF()
