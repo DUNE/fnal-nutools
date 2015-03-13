@@ -1,3 +1,7 @@
+IF (ALT_CMAKE)
+INCLUDE(altCMakeLists.cmake)
+ELSE()
+
 # ======================================================================
 #  nutools main build file
 #
@@ -161,3 +165,5 @@ add_subdirectory (SimulationBase)
 add_subdirectory(ups)
 # packaging utility
 include(UseCPack)
+
+ENDIF()

@@ -1,11 +1,12 @@
-IF (ALT_CMAKE)
-INCLUDE(altCMakeLists.cmake)
-ELSE()
+include(CetRootCint)
+include(CetParseArgs)
 
 include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 set( PACKAGE EventDisplayBase )
 FILE( GLOB src_files *.cxx )
+FILE( GLOB inc_files *.h )
+
 
 set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${ART_FRAMEWORK_CORE}
@@ -45,17 +46,24 @@ set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
 	      ${ROOT_THREAD} )
 
 cet_rootcint( ${PACKAGE} )
-
-art_make_library( LIBRARY_NAME ${PACKAGE}
-        	  SOURCE ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
-        	  LIBRARIES SimulationBase ${EVD_LIBS} )
+add_library(${PACKAGE} SHARED ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc)
 
 set( EVD_SERVICE_LIBS ${PACKAGE} ${EVD_LIBS} )
-simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
-simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
 
-install_headers()
-install_fhicl()
-install_source()
+art_add_service(EventDisplay_service EventDisplay_service.cc )
+art_add_service(ScanOptions_service ScanOptions_service.cc )
+target_link_libraries(EventDisplay_service ${EVD_SERVICE_LIBS})
+target_link_libraries(ScanOptions_service ${EVD_SERVICE_LIBS})
 
-ENDIF()
+install(TARGETS
+     ${PACKAGE}
+     EventDisplay_service
+     ScanOptions_service
+     EXPORT nutoolsLibraries 
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     COMPONENT Runtime
+     )
+
+install(FILES ${inc_files} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PACKAGE} COMPONENT development)

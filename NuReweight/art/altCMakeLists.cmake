@@ -1,7 +1,3 @@
-IF (ALT_CMAKE)
-INCLUDE(altCMakeLists.cmake)
-ELSE()
-
 
 set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
                ${ART_FRAMEWORK_SERVICES_OPTIONAL}
@@ -29,18 +25,14 @@ set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
 	       ${GCHARM}
 	       ${GCOH}
 	       ${GDFRC}
-	       ${GDIS}
 	       ${GCROSSSECTIONS}
-	       ${GDECAY}
 	       ${GELAS}
 	       ${GELFF}
 	       ${GHEP}
 	       ${GEVGCORE}
-	       ${GEVGMODULES}
 	       ${GEVGDRIVERS}
 	       ${GGIBUU}
 	       ${GHADRONTRANSP}
-	       ${GFRAGMENTATION}
 	       ${GINTERACTION}
 	       ${GLLEWELLYNSMITH}
 	       ${GMEC}
@@ -49,15 +41,12 @@ set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
 	       ${GNUE}
 	       ${GNTUPLE}
 	       ${GNUCLEAR}
-	       ${GNUMERICAL}
 	       ${GQPM}
 	       ${GPDG}
 	       ${GPDF}
 	       ${GQEL}
-	       ${GRES}
 	       ${GREGISTRY}
 	       ${GREINSEGHAL}
-	       ${GUTILS}
 	       ${GGEO}
 	       ${GFLUXDRIVERS}
 	       ${GMUELOSS}
@@ -82,24 +71,36 @@ set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
                ${ROOT_TREEPLAYER} 
                ${ROOT_FFTW}
                ${ROOT_REFLEX}
-               ${ROOTSYS}/lib/libEGPythia6.so
                ${ROOT_GUI}
            )
 
-art_make_library( LIBRARY_NAME NuReweightArt
-                  SOURCE NuReweight.cxx
-        	  LIBRARIES SimulationBase
-	                    NuReweight 
-        		    ${NURW_LIBS} )
+add_library(NuReweightArt SHARED
+	NuReweight.h
+	NuReweight.cxx
+	)
 
-simple_plugin( ReweightAna module NuReweightArt
-	                          NuReweight 
-                                  SimulationBase
-                                 ${NURW_LIBS} 
-	       BASENAME_ONLY )
+target_link_libraries(NuReweightArt 
+     SimulationBase NuReweight ${NURW_LIBS} )
 
-install_headers()
-install_fhicl()
-install_source()
 
-ENDIF()
+art_add_module(ReweightAna_module ReweightAna_module.cc)
+
+target_link_libraries(ReweightAna_module 
+     NuReweightArt SimulationBase NuReweight ${NURW_LIBS} )
+
+
+
+install(TARGETS
+     NuReweightArt
+     ReweightAna_module
+     EXPORT nutoolsLibraries
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     COMPONENT Runtime 
+     )
+
+install(FILES NuReweight.h DESTINATION
+     ${CMAKE_INSTALL_INCLUDEDIR}/NuReweightArt COMPONENT Development)
+
+

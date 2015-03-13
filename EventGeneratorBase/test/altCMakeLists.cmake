@@ -1,13 +1,8 @@
-IF (ALT_CMAKE)
-INCLUDE(altCMakeLists.cmake)
-ELSE()
 
-
-art_make( EventGeneratorBasetest
-          MODULE_LIBRARIES SimulationBase  
-	                   EventGeneratorBaseCRY 
-			   EventGeneratorBaseGENIE
-	                ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+set(MODULE_LIBRARIES SimulationBase  
+               EventGeneratorBaseCRY 
+ 		     EventGeneratorBaseGENIE
+	          ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
         		${MF_MESSAGELOGGER}
         		${MF_UTILITIES}
         		${FHICLCPP}
@@ -23,18 +18,14 @@ art_make( EventGeneratorBasetest
                         ${GCHARM}
                         ${GCOH}
                         ${GDFRC}
-                        ${GDIS}
                         ${GCROSSSECTIONS}
-                        ${GDECAY}
                         ${GELAS}
                         ${GELFF}
                         ${GHEP}
                         ${GEVGCORE}
-                        ${GEVGMODULES}
                         ${GEVGDRIVERS}
                         ${GGIBUU}
                         ${GHADRONTRANSP}
-                        ${GFRAGMENTATION}
                         ${GINTERACTION}
                         ${GLLEWELLYNSMITH}
                         ${GMEC}
@@ -43,21 +34,18 @@ art_make( EventGeneratorBasetest
                         ${GNUE}
                         ${GNTUPLE}
                         ${GNUCLEAR}
-                        ${GNUMERICAL}
                         ${GQPM}
                         ${GPDG}
                         ${GPDF}
                         ${GQEL}
-                        ${GRES}
                         ${GREGISTRY}
                         ${GREINSEGHAL}
-                        ${GUTILS}
                         ${GGEO}
                         ${GFLUXDRIVERS}
                         ${GMUELOSS}
                         ${GREWEIGHT}
                         ${GNUCLEONDECAY}
-			${CRY}
+			         ${CRY}
                         ${ROOT_CORE}
                         ${ROOT_CINT} 
                         ${ROOT_RIO}
@@ -77,13 +65,33 @@ art_make( EventGeneratorBasetest
                         ${ROOT_TREEPLAYER} 
                         ${ROOT_FFTW}
                         ${ROOT_REFLEX}
-                        ${ROOTSYS}/lib/libEGPythia6.so
                         ${ROOT_GUI}
  	                )
 
-install_headers()
-install_fhicl()
-install_source()
-install(FILES README DESTINATION ${product}/${version}/source/${CURRENT_SUBDIR} )
 
-ENDIF()
+include_directories(
+     ${ROOT_INCLUDE_DIRS}
+     ${CLHEP_INCLUDE_DIRS}
+     ${GENIE_INC}/GENIE 
+     ${LOG4CPP_INC} 
+     ${LIBXML2_FQ_DIR}/include/libxml2
+
+)
+
+art_add_module(EventGeneratorBase_test_EventGeneratorTest_module EventGeneratorTest_module.cc)
+
+target_link_libraries(EventGeneratorBase_test_EventGeneratorTest_module 
+     ${MODULE_LIBRARIES} )
+
+install(TARGETS  
+     EventGeneratorBase_test_EventGeneratorTest_module 
+     EXPORT nutoolsLibraries 
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     COMPONENT Runtime
+     )
+
+install(FILES evgentest.fcl DESTINATION job COMPONENT Runtime)
+
+install(FILES README DESTINATION source/EventGeneratorBase/test )
